@@ -273,9 +273,6 @@ For example, if you configure **Snapcast** (either the server or the client), th
 package will will be installed.
 If you later remove Snapcast from the configuration, the software will not be removed.
 
-There are a few other configuration options that are not reversible, such as enabling HDMI 
-hotplugging.
-
 ### Replacing the Micro SD card
 
 Provided that you haven't made manual changes to the server, you can create a new RasPiOS SD
