@@ -1,0 +1,11 @@
+---
+raspotify_installer_package: raspotify
+raspotify_installer_key_url: "https://dtcooper.github.io/{{ raspotify_installer_package }}/key.asc"
+# Old single-line format
+raspotify_installer_source: >-
+  deb https://dtcooper.github.io/{{ raspotify_installer_package }}
+  {{ raspotify_installer_package }}
+  main
+raspotify_installer_sources_list: "/etc/apt/sources.list.d/{{ raspotify_installer_package }}.list"
+# New deb822 format
+raspotify_installer_source_uri: "https://dtcooper.github.io/{{ raspotify_installer_package }}"

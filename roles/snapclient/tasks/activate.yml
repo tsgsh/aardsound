@@ -1,0 +1,80 @@
+---
+- name: Confirm that snapclient_of is specified
+  assert:
+    that:
+    - snapclient_of != none
+    - snapclient_of | length > 0
+    - snapclient_of is iterable
+    - snapclient_of is not string
+    - snapclient_of_list | json_query('[].type(@)') | unique == ['object']
+    fail_msg: >-
+      {{ snapclient_package }} cannot be enabled the unless one or more servers are
+      correctly specified with snapclient_of
+
+- name: >-
+    Check snapclient_of has a unique list of hosts/ports, any names are unique, all users are unique
+    and all ports are valid
+  assert:
+    that:
+    - snapclient_hosts | select('eq', none) == []
+    - snapclient_names | reject('eq', none) | unique == snapclient_names | reject('eq', none)
+    - snapclient_hostports | unique == snapclient_hostports
+    - snapclient_unames | unique == snapclient_unames
+    - snapclient_port_min > 1024 and snapclient_port_max < 65536
+
+- name: "Group {{ snapclient_gname }}"
+  group:
+    name: "{{ snapclient_gname }}"
+    state: present
+    system: true
+
+- name: Add snapclient user(s)
+  loop: "{{ snapclient_of_list }}"
+  loop_control:
+    loop_var: snapclient_server
+    index_var: snapclient_index
+    label: "{{ snapclient_service }}"
+  user:
+    name: "{{ snapclient_uname }}"
+    group: "{{ snapclient_gname }}"
+    groups: audio
+    create_home: true
+    home: "{{ snapclient_datadir }}"
+    shell: '/usr/sbin/nologin'
+    expires: -1
+    system: true
+    comment: "{{ snapclient_description | replace(':', '-') }}"
+
+
+- name: Configure, enable and start snapclient systemd services
+  when: snapclient_active and snapclient_of != None
+  block:
+
+  - name: "Define systemd service for snapclient(s)"
+    loop: "{{ snapclient_of_list }}"
+    loop_control:
+      loop_var: snapclient_server
+      index_var: snapclient_index
+      label: "{{ snapclient_service }}"
+    notify: Enable and (re)start Snapserver client(s)
+    template:
+      src: "{{ snapclient_service_template }}"
+      dest: "{{ snapclient_service_file }}"
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: "Set up /etc/default environment file for snapclient(s)"
+    loop: "{{ snapclient_of_list }}"
+    loop_control:
+      loop_var: snapclient_server
+      index_var: snapclient_index
+      label: "{{ snapclient_service }}"
+    notify: Enable and (re)start Snapserver client(s)
+    template:
+      src: "{{ snapclient_environment_template }}"
+      dest: "{{ snapclient_environment_file }}"
+      owner: root
+      group: root
+      mode: '0644'
+      backup: true

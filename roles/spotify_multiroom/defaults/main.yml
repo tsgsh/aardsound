@@ -1,0 +1,24 @@
+---
+spotify_multiroom_active: true
+spotify_multiroom_name: Multiroom
+# description is prefixed by "Raspotify", "FFMPEG" or "Snapcast" for the three services
+spotify_multiroom_source_verbose: "{{ false }}"
+# Empirically, S16 works
+# ffmpeg -f alsa -i hw:Loopback,1,0 -f null -
+spotify_multiroom_format: S16
+spotify_multiroom_initial_volume: 50  # leave it up to the client to handle volume
+# spotify_multiroom_volume_control: linear  # saw this recommended in docs somewhere: find reference
+spotify_multiroom_volume_control: cubic  # but even very quiet isn'!
+spotify_multiroom_port:
+spotify_multiroom_interface:
+
+# FIFO definitions: assumes that /tmp is a RAM disk; setting up FIFOs on /var/run is painful
+spotify_multiroom_fifo: /tmp/spotify-fifo
+spotify_multiroom_sink_debug: false
+spotify_multiroom_sink_logging: "{{ '*:debug' if spotify_multiroom_sink_debug | bool else none }}"
+
+# snapserver options
+spotify_multiroom_rate: 44100
+spotify_multiroom_depth: 16
+spotify_multiroom_channels: 2
+spotify_multiroom_snap_port_offset: 0

@@ -1,0 +1,53 @@
+---
+- name: Check what ALSA cards are available
+  register: alsa_scontrols_r_cards
+  changed_when: false
+  check_mode: false
+  vars:
+    pipe:
+    - aplay -l
+    - tail -n+2
+    - grep -i '^card'
+    - cut -d ' ' -f2-3
+    - "sed 's/: /\\n/'"  # should work without escaping the backslash too
+  tags:
+  - always
+  shell:
+    cmd: |
+      set -o pipefail
+      {{ pipe | join('|') }}
+    executable: /bin/bash
+
+- name: Assert that card is defined and is one of the available cards
+  assert:
+    that:
+    - alsa_scontrols_card is defined
+    - alsa_scontrols_card in alsa_scontrols_cards
+    fail_msg: "{{ alsa_scontrols_card }} is not a valid sound card"
+
+- name: Assert that scontrols is a dictionary
+  assert:
+    that:
+    - alsa_scontrols_controls is defined
+    - alsa_scontrols_controls is not string
+    - alsa_scontrols_controls is iterable
+    - alsa_scontrols_controls is mapping
+    fail_msg: The alsa_scontrols_controls variable is not correctly defined as a dictionary
+
+- name: Check the current simple controls
+  loop: "{{ alsa_scontrols_controls | dict2items }}"
+  register: alsa_scontrols_r_before
+  changed_when: false
+  check_mode: false
+  command:
+    cmd: "amixer sget -c{{ alsa_scontrols_card }} {{ item.key | quote }}"
+
+- name: Set the simple controls
+  # Test is ORed for each iteration of the loop
+  changed_when: alsa_scontrols_r_before.results[scontrol].stdout != alsa_scontrols_r_after.stdout
+  register: alsa_scontrols_r_after
+  loop: "{{ alsa_scontrols_controls | dict2items }}"
+  loop_control:
+    index_var: scontrol
+  command:
+    cmd: "amixer sset -c{{ alsa_scontrols_card }} {{ item.key | quote }} {{ item.value | quote }}"

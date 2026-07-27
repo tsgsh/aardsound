@@ -1,0 +1,103 @@
+---
+aardsound_pi_model_string: "{{ aardsound_r_model.content | b64decode }}"
+aardsound_pi:
+  model: "{{ aardsound_pi_model_string |
+             split(' Rev ') |
+             first |
+             replace(' ', '') |
+             replace('RaspberryPi', '') |
+             replace('Model', '') |
+             replace('ComputeModule', 'CM') |
+             replace('Plus', '+') }}"
+  revision: "{{ (aardsound_pi_model_string | split(' Rev ') | last)[:-1] }}"  # null terminated
+aardsound_boot_config_file: /boot/firmware/config.txt
+aardsound_pi_hdmi: "{{ aardsound_pi.model[0:2] != 'CM' }}"
+aardsound_pi_dual_hdmi: "{{ aardsound_pi.model[0] | int > 3 }}"
+aardsound_stream_count: "{{ aardsound_spotify | bool | int +
+                            aardsound_mopidy | bool | int +
+                            aardsound_bluetooth | bool | int +
+                            aardsound_spotify | bool | int *
+                                [snapclient_of] | default([]) | flatten | length }}"
+aardsound_output: "{{ aardsound_stream_count > 0 }}"
+aardsound_sink_device: "{{ ('plug:' + aardsound_dmixer_plugin) if aardsound_dmixer | bool else
+                           aardsound_output_device }}"
+# These are set as variables to avoid port collisions
+spotify_multiroom_snap_port_offset: 0         # noqa: var-naming[no-role-prefix]
+mopidy_multiroom_snap_port_offset: 10000      # noqa: var-naming[no-role-prefix]
+bluetooth_multiroom_snap_port_offset: 20000   # noqa: var-naming[no-role-prefix]
+
+# Nmaes of services have to be defined here to avoid issues with handler redefinitions
+# See ../handlers/main.yml.  This doesn't apply to snapclient which is only imported once.
+aardsound_spotify_service: spotify
+aardsound_spotify_multiroom_service0: spotify-multiroom-fifo
+aardsound_spotify_multiroom_service1: spotify-multiroom-source
+aardsound_spotify_multiroom_service2: spotify-multiroom-bridge
+aardsound_spotify_multiroom_service3: spotify-multiroom-sink
+aardsound_mopidy_service: mopidy
+aardsound_mopidy_multiroom_service0: mopidy-multiroom-fifo
+aardsound_mopidy_multiroom_service1: mopidy-multiroom-source
+aardsound_mopidy_multiroom_service2: mopidy-multiroom-scan
+aardsound_mopidy_multiroom_service3: mopidy-multiroom-sink
+aardsound_sample_format: "{{ aardsound_rate | string + ':' +
+                             aardsound_depth | string + ':' +
+                             aardsound_channels | string }}"
+aardsound_reboot_handlers: "{{ ['Reboot prompt', 'Reboot'] if aardsound_reboot_prompt and
+                                                              aardsound_reboot else
+                              ['Reboot needed', 'Reboot'] if aardsound_reboot else
+                              ['Reboot needed'] }}"
+aardsound_reboot_needed: false  # can be overridden by handlers with set_fact
+
+# Mopidy extension variables
+aardsound_mopidy_pseudo_keys:
+- _packages
+- _sudoers
+- _install
+aardsound_mopidy_installer_extension_list: "{{ aardsound_mopidy_extensions |
+                                               combine(aardsound_mopidy_multiroom_extensions) |
+                                               dict2items }}"
+# Easiest way to do this is to loop in Jinja2
+aardsound_mopidy_installer_extensions_jinja: >-
+      {%- set result = [] -%}
+      {%- for item in aardsound_mopidy_installer_extension_list -%}
+      {%- set entry = item.value._packages | default('mopidy-' + item.key) -%}
+      {%- set _ = result.append(entry) -%}
+      {%- endfor -%}
+      {{- result -}}
+aardsound_mopidy_installer_extensions: "{{ aardsound_mopidy_installer_extensions_jinja |
+                                           flatten |
+                                           unique }}"
+aardsound_mopidy_installer_sudoers: "{{ aardsound_mopidy_installer_extension_list |
+                                        map(attribute='value') |
+                                        selectattr('_sudoers', 'defined') |
+                                        map(attribute='_sudoers') |
+                                        flatten }}"
+aardsound_mopidy_installer_install: "{{ aardsound_mopidy_installer_extension_list |
+                                        map(attribute='value') |
+                                        selectattr('_install', 'defined') |
+                                        map(attribute='_install') |
+                                        flatten }}"
+aardsound_mopidy_extensions_ks: "{{ aardsound_mopidy_extensions |
+                                    dict2items |
+                                    map(attribute='key') }}"
+aardsound_mopidy_extensions_vs: "{{ aardsound_mopidy_extensions |
+                                    dict2items |
+                                    map(attribute='value') |
+                                    map('ansible.utils.remove_keys',
+                                        target=aardsound_mopidy_pseudo_keys) }}"
+aardsound_mopidy_extensions_bis: "{{ aardsound_mopidy_extensions_ks |
+                                     zip(aardsound_mopidy_extensions_vs) |
+                                     community.general.dict }}"
+aardsound_mopidy_multiroom_extensions_ks: "{{ aardsound_mopidy_multiroom_extensions |
+                                              dict2items |
+                                              map(attribute='key') }}"
+aardsound_mopidy_multiroom_extensions_vs: "{{ aardsound_mopidy_multiroom_extensions |
+                                              dict2items |
+                                              map(attribute='value') |
+                                              map('ansible.utils.remove_keys',
+                                                  target=aardsound_mopidy_pseudo_keys) }}"
+aardsound_mopidy_multiroom_extensions_bis: "{{ aardsound_mopidy_multiroom_extensions_ks |
+                                               zip(aardsound_mopidy_multiroom_extensions_vs) |
+                                               community.general.dict }}"
+
+# Do we have a graphical installation (used to detrmine the default mopidy installation type)
+aardsound_graphical: "{{ aardsound_r_get_default.stdout == 'graphical.target' }}"

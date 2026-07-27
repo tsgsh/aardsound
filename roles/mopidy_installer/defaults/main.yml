@@ -1,0 +1,12 @@
+---
+# PIP installs fail without enough RAM; an RPi 3A has 415MB and a desktop is quite heavy
+mopidy_installer_use_venv: "{{ ansible_facts.memtotal_mb | int > 512 or
+                               not mopidy_installer_graphical or
+                               mopidy_installer_extensions != [] }}"
+mopidy_installer_venv: /usr/local/mopidy/venv
+mopidy_installer_nfs:
+mopidy_installer_nfs_options: bg,ro
+mopidy_installer_library: "{{ none if mopidy_installer_nfs == none else '/mnt/mopidy' }}"
+mopidy_installer_extensions: []
+mopidy_installer_sudoers: []  # sudo privileges for extensions
+mopidy_installer_install: []  # post-PIP install commands for extensions

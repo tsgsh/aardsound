@@ -1,0 +1,96 @@
+---
+- name: Confirm that there is a defined library directory for mopidy
+  assert:
+    that: mopidy_media_library != none
+
+- name: Confirm that the extensions are defined in a dictionary
+  assert:
+    that: mopidy_extensions is mapping
+
+- name: Confirm that each extension is defined as a dictionary
+  loop: "{{ mopidy_extension_list }}"
+  loop_control:
+    label: "{{ item.extension }}"
+  assert:
+    that: item.config is mapping
+    quiet: true
+
+- name: "Group {{ mopidy_gname }}"
+  group:
+    name: "{{ mopidy_gname }}"
+    state: present
+    system: true
+
+- name: "User {{ mopidy_uname }}"
+  failed_when: false  # RC=8 if this is done by the mopidy installation
+  user:
+    name: "{{ mopidy_uname }}"
+    group: "{{ mopidy_gname }}"
+    groups: "{{ mopidy_groups }}"
+    create_home: true
+    home: "/var/lib/{{ mopidy_service }}"
+    shell: "/usr/sbin/nologin"
+    expires: -1
+    system: true
+    comment: "{{ mopidy_description }}"
+
+- name: Add the /etc/mopidy directory
+  file:
+    path: /etc/mopidy
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: "/var directories for {{ mopidy_service }}"
+  register: mopidy_r_dir
+  # ignore errors for the media dir because it may already have bind mount if we are re-running
+  failed_when: mopidy_r_dir.state is not defined and item != mopidy_media_dir
+  loop: "{{ mopidy_var_dirs }}"
+  notify: Enable and (re)start mopidy service
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ mopidy_uname }}"
+    group: "{{ mopidy_gname }}"
+    mode: '0755'
+
+- name: "{{ mopidy_service_file }}"
+  notify: Enable and (re)start mopidy service
+  template:
+    src: "{{ mopidy_service_template }}"
+    dest: "{{ mopidy_service_file }}"
+    mode: '0644'
+
+- name: "{{ mopidy_scan_service_file }}"
+  notify: Start mopidy local scan service
+  template:
+    src: "{{ mopidy_scan_service_template }}"
+    dest: "{{ mopidy_scan_service_file }}"
+    mode: '0644'
+
+- name: "{{ mopidy_scan_timer_file }}"
+  notify: Enable mopidy local scan timer
+  template:
+    src: "{{ mopidy_scan_timer_template }}"
+    dest: "{{ mopidy_scan_timer_file }}"
+    mode: '0644'
+
+- name: "{{ mopidy_mount_file }}"
+  notify: Enable and (re)start mopidy service
+  template:
+    src: "{{ mopidy_mount_template }}"
+    dest: "{{ mopidy_mount_file }}"
+    mode: '0644'
+
+- name: "Set up {{ mopidy_conf_file }}"
+  notify:
+  - Enable and (re)start mopidy service
+  - Mopidy network notification
+  template:
+    src: "{{ mopidy_conf_template }}"
+    dest: "{{ mopidy_conf_file }}"
+    owner: "{{ mopidy_uname }}"
+    group: "{{ mopidy_gname }}"
+    mode: '0644'
+    backup: true

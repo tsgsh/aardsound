@@ -1,0 +1,39 @@
+---
+mopidy_active: true
+mopidy_service: mopidy
+mopidy_scan_service: "{{ mopidy_service + '-scan' }}"
+mopidy_use_venv: false
+mopidy_venv: '/usr/local/mopidy/venv'
+mopidy_location:
+mopidy_output_device: default
+mopidy_mixer: false
+mopidy_mixer_control: Master
+mopidy_mixer_card: 0
+# Other mopidy options
+mopidy_volume_ctrl: cubic
+mopidy_initial_volume: 50
+mopidy_verbosity: 0
+mopidy_media_library: /var/lib/mopidy/media
+mopidy_local_scan: true
+mopidy_local_scan_limit: 0
+mopidy_local_scan_time: 04:00
+mopidy_trusted_network: false
+mopidy_ipv6: false
+mopidy_http: true
+mopidy_http_bind_address: "{{ mopidy_bind_address }}"
+mopidy_http_port: 6680
+mopidy_mpd: true
+mopidy_mpd_bind_address: "{{ mopidy_bind_address }}"
+mopidy_mpd_port: 6600
+mopidy_mpd_password:
+
+# Additional grouos we want the mopidy user to belong to (audio is always present)
+mopidy_extra_groups: []
+
+# Additional services that we want to wait for
+mopidy_start_after_services: []  # do not include .service suffix
+
+# Mopidy extensions is a dictionary where the keys are the extension names and the optional values
+# are a Jinja2 template for the configuration file that can reference inventory variables, facts
+# or internal variables from the mopidy role
+mopidy_extensions: {}

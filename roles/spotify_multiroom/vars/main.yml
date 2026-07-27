@@ -1,0 +1,69 @@
+---
+# definition of service names
+spotify_multiroom_service0: spotify-multiroom-fifo
+spotify_multiroom_service1: spotify-multiroom-source
+spotify_multiroom_service2: spotify-multiroom-bridge
+spotify_multiroom_service3: spotify-multiroom-sink
+# uname and gname, service_template and service_file are specific to service2
+spotify_multiroom_gname: raspotify
+# service files those for service1 and service3 are created by ../../spotify and ../../snapserver
+spotify_multiroom_service0_template: "spotify-multiroom-fifo.service.j2"
+spotify_multiroom_service0_file: "/etc/systemd/system/{{ spotify_multiroom_service0 }}.service"
+spotify_multiroom_service2_template: "spotify-multiroom-bridge.service.j2"
+spotify_multiroom_service2_file: "/etc/systemd/system/{{ spotify_multiroom_service2 }}.service"
+spotify_multiroom_environment2_template: spotify-multiroom-bridge.j2
+spotify_multiroom_environment2_file: "/etc/default/{{ spotify_multiroom_service2 }}"
+
+spotify_multiroom_script2_template: "spotify-multiroom-bridge.sh.j2"
+spotify_multiroom_script2_file: "/usr/local/bin/{{ spotify_multiroom_service2 }}.sh"
+spotify_multiroom_description: 'service for Spotify Multiroom'
+spotify_multiroom_spotify_description: "{{ 'librespot ' + spotify_multiroom_description }}"
+spotify_multiroom_bridge_description: "{{ 'FFMPEG bridge ' + spotify_multiroom_description }}"
+spotify_multiroom_snapserver_description: "{{ 'Snapserver ' + spotify_multiroom_description }}"
+# source_fifo or sink_fifo should only be changed for degugging with, e.g. pv
+# If different they are NOT created automatically and there is no FIFO service
+spotify_multiroom_source_fifo: "{{ spotify_multiroom_fifo }}"
+spotify_multiroom_sink_fifo: "{{ spotify_multiroom_fifo }}"
+spotify_multiroom_bridge_input: hw:Loopback,1,0
+spotify_multiroom_bridge_output: pipe:1
+spotify_multiroom_bridge_format_in: alsa
+spotify_multiroom_bridge_format_out: "{{ spotify_multiroom_format | lower + 'le' }}"
+spotify_multiroom_bridge_codec_in: "{{ 'pcm_' + spotify_multiroom_bridge_format_out }}"
+spotify_multiroom_bridge_codec_out: "{{ 'pcm_' + spotify_multiroom_bridge_format_out }}"
+spotify_multiroom_bridge_ar_in: "{{ spotify_multiroom_rate }}"
+spotify_multiroom_bridge_ar_out: "{{ spotify_multiroom_rate }}"
+spotify_multiroom_bridge_ac_in: "{{ spotify_multiroom_channels }}"
+spotify_multiroom_bridge_ac_out: "{{ spotify_multiroom_channels }}"
+spotify_multiroom_resampler: -af aresample=resampler=soxr:precision=28:dither_method=none
+spotify_multiroom_bridge_loglevel: error  # warning or info flood logs
+spotify_multiroom_bridge_loglevel_option_list:
+- "-loglevel {{ spotify_multiroom_bridge_loglevel }}"
+spotify_multiroom_bridge_input_option_list:
+- -nostdin
+- "-f {{ spotify_multiroom_bridge_format_in }}"
+- "-acodec {{ spotify_multiroom_bridge_codec_in }}"
+- "-ar {{ spotify_multiroom_bridge_ar_in }}"
+- "-ac {{ spotify_multiroom_bridge_ac_in }}"
+- -thread_queue_size 8192
+- "-i {{ spotify_multiroom_bridge_input }}"
+spotify_multiroom_bridge_resample_option_list:
+  "{{ [] if spotify_multiroom_bridge_ac_in == spotify_multiroom_bridge_ac_out and
+            spotify_multiroom_bridge_ar_in == spotify_multiroom_bridge_ar_out else
+      [spotify_multiroom_resample] }}"
+spotify_multiroom_bridge_output_option_list:
+- "-f {{ spotify_multiroom_bridge_format_out }}"
+- "-c:a {{ spotify_multiroom_bridge_codec_out }}"
+- "-ar {{ spotify_multiroom_bridge_ar_out }}"
+- "-ac {{ spotify_multiroom_bridge_ac_out }}"
+- "{{ spotify_multiroom_bridge_output }}"
+spotify_multiroom_bridge_options: "{{ (spotify_multiroom_bridge_loglevel_option_list +
+                                       spotify_multiroom_bridge_input_option_list +
+                                       spotify_multiroom_bridge_resample_option_list +
+                                       spotify_multiroom_bridge_output_option_list) |
+                                      join(' ') }}"
+spotify_multiroom_aloop_card: "{{ spotify_multiroom_r_cards.stdout | default(-1) | int + 1 }}"
+spotify_multiroom_aloop_parameters:
+- "index={{ spotify_multiroom_aloop_card }}"
+- pcm_substreams=1
+spotify_multiroom_fifo_exists: "{{ spotify_multiroom_r_fifo.stat.exists }}"
+spotify_multiroom_define_groups: "{{ ([snapserver_gname] + [snapserver_extra_groups]) | flatten }}"

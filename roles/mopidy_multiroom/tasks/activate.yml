@@ -1,0 +1,114 @@
+---
+- name: Snapserver user and groups
+  # Create these early because they are needed to define the FIFO before running snapserver
+  # snapserver is imported so we can use its variables
+  vars:
+    snapserver_service: "{{ mopidy_multiroom_service3 }}"
+    snapserver_description: "{{ mopidy_multiroom_snapserver_description }}"
+    snapserver_extra_groups: "{{ [mopidy_multiroom_gname] }}"
+  block:
+
+  - name: "Group(s) {{ mopidy_multiroom_define_groups | join(',') }}"
+    loop: "{{ mopidy_multiroom_define_groups }}"
+    group:
+      name: "{{ item }}"
+      state: present
+      system: true
+
+  - name: "User {{ snapserver_uname }}"
+    # parameters must match those that are used in the imported snapserver role
+    user:
+      name: "{{ snapserver_uname }}"
+      group: "{{ snapserver_gname }}"
+      groups: "{{ snapserver_groups }}"
+      home: "{{ snapserver_datadir }}"
+      create_home: false  # added below
+      shell: '/usr/sbin/nologin'
+      expires: -1
+      system: true
+      comment: "{{ snapserver_description }}"
+
+- name: "Service 0: FIFO"
+  block:
+
+  - name: "{{ mopidy_multiroom_service0_file }}"
+    notify: Enable Mopidy Multiroom FIFO service
+    template:
+      src: "{{ mopidy_multiroom_service0_template }}"
+      dest: "{{ mopidy_multiroom_service0_file }}"
+      mode: '0644'
+
+  - name: Check whether the FIFO exists
+    register: mopidy_multiroom_r_fifo
+    stat:
+      path: "{{ mopidy_multiroom_fifo }}"
+
+  - name: "FIFO {{ mopidy_multiroom_fifo }}"
+    block:
+
+    - name: "FIFO {{ mopidy_multiroom_fifo }}"
+      when: not mopidy_multiroom_fifo_exists
+      changed_when: true
+      command:
+        cmd: "mkfifo --mode 0660 --context {{ mopidy_multiroom_fifo }}"
+
+    - name: Change ownership of the FIFO  # can't use the file module to create but we can for this
+      file:
+        path: "{{ mopidy_multiroom_fifo }}"
+        owner: "{{ mopidy_multiroom_service3 }}"
+        group: "{{ snapserver_gname }}"
+        mode: '0660'
+
+    rescue:
+
+    - name: "Error creating/modifying the FIFO {{ mopidy_multiroom_fifo }}"
+      pause:
+        prompt: >-
+          Pausing foor 1 minute, press Ctrl-C to interrupt the countdown
+          then press C to continue or A to abort
+        minutes: 1
+
+- name: "Services 1 & 2: Mopidy source and scan"
+  block:
+
+  - name: Activate Mopidy Multiroom source
+    vars:
+      mopidy_active: true
+      mopidy_service: "{{ mopidy_multiroom_service1 }}"
+      mopidy_scan_service: "{{ mopidy_multiroom_service2 }}"
+      mopidy_location: "{{ mopidy_multiroom_name }}"
+      mopidy_description: "{{ mopidy_multiroom_mopidy_description }}"
+      mopidy_media_library: "{{ mopidy_multiroom_media_library }}"
+      mopidy_audio_output: "{{ mopidy_multiroom_audio_output }}"
+      mopidy_mixer: false  # mixing is the responsibility of the client
+      mopidy_volume_control: "{{ mopidy_multiroom_volume_control }}"
+      mopidy_http_bind_address: "{{ mopidy_multiroom_http_bind_address }}"
+      mopidy_http_port: "{{ mopidy_multiroom_http_port }}"
+      mopidy_mpd_bind_address: "{{ mopidy_multiroom_mpd_bind_address }}"
+      mopidy_mpd_port: "{{ mopidy_multiroom_mpd_port }}"
+      mopidy_start_after_services: "{{ [mopidy_multiroom_service3] }}"
+      mopidy_use_venv: "{{ mopidy_multiroom_use_venv }}"
+      mopidy_venv: "{{ mopidy_multiroom_venv }}"
+      mopidy_scan_timer: 04:30  # Mopidy itself is 04:00 by default so avoid running simultaneously
+      mopidy_extensions: "{{ mopidy_multiroom_extensions }}"
+    import_role:
+      name: mopidy
+
+- name: "Service 3: snapserver sink"
+  block:
+
+  - name: Activate Mopidy Multiroom sink
+    vars:
+      snapserver_active: true
+      snapserver_service: "{{ mopidy_multiroom_service3 }}"
+      snapserver_description: "{{ mopidy_multiroom_snapserver_description }}"
+      snapserver_port_offset: "{{ mopidy_multiroom_snap_port_offset }}"
+      snapserver_fifo: "{{ mopidy_multiroom_sink_fifo }}"
+      snapserver_fifo_service: "{{ mopidy_multiroom_service0 }}"
+      snapserver_rate: "{{ mopidy_multiroom_rate }}"
+      snapserver_depth: "{{ mopidy_multiroom_depth }}"
+      snapserver_channels: "{{ mopidy_multiroom_channels }}"
+      snapserver_logging: "{{ mopidy_multiroom_sink_logging }}"
+      snapserver_extra_groups: "{{ [mopidy_multiroom_gname] }}"
+    import_role:
+      name: snapserver

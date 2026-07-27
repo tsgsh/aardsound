@@ -1,0 +1,17 @@
+[Unit]
+Description={{ snapclient_description }}
+Documentation=man:snapclient(1)
+Wants=network-online.target avahi-daemon.service
+After=network-online.target time-sync.target sound.target avahi-daemon.service
+
+[Service]
+User={{ snapclient_uname }}
+Group={{ snapclient_gname }}
+EnvironmentFile=-/etc/default/{{ snapclient_uname }}
+ExecStart=/usr/bin/snapclient --logsink=system $SNAPCLIENT_OPTS
+# very noisy on stdout
+StandardOutput=null
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,92 @@
+#jinja2: lstrip_blocks: True
+# For information about configuration values that can be set in this file see:
+#
+#   https://docs.mopidy.com/en/latest/config/
+#
+# Run `sudo mopidyctl config` to see the current effective config, based on
+# both defaults and this configuration file.
+
+# Need to select the cache dir and data dir based on Enable and (re)start Snapserver client(s) service name
+[core]
+cache_dir = /var/cache/{{ mopidy_service }}
+config_dir = /etc/{{ mopidy_package }}
+data_dir = /var/lib/{{ mopidy_service }}
+
+[logging]
+color = true
+verbosity = {{ mopidy_verbosity }}
+
+[audio]
+output = {{ mopidy_audio_output }}
+{% if mopidy_mixer | bool %}
+mixer = alsamixer
+{% else  %}
+mixer = software
+{% endif %}
+mixer_volume = {{ mopidy_initial_volume }}
+
+[softwaremixer]
+enabled = {{ not mopidy_mixer }}
+
+[alsamixer]
+enabled = {{ mopidy_mixer }}
+{% if mopidy_mixer_card != none %}
+card = {{ mopidy_mixer_card }}
+{% endif %}
+{% if mopidy_mixer_control != none %}
+control = {{ mopidy_mixer_control }}
+{% endif %}
+volume_scale = {{ mopidy_volume_control }}
+
+[file]
+enabled = false
+media_dirs = {{ mopidy_media_dir }}|Music
+show_dotfiles = false
+excluded_file_extensions =
+  .directory
+  .html
+  .jpeg
+  .jpg
+  .log
+  .nfo
+  .pdf
+  .png
+  .txt
+  .zip
+follow_symlinks = false
+metadata_timeout = 1000
+
+[local]
+enabled = true
+media_dir = {{ mopidy_media_dir }}
+timeout = 3
+
+[m3u]
+enabled = true
+base_dir =
+default_encoding = latin-1
+default_extension = .m3u8
+playlists_dir = 
+
+[http]
+enabled = {{ mopidy_http | bool }}
+hostname = {{ mopidy_http_bind_address }}
+port = {{ mopidy_http_port }}
+zeroconf = {{ mopidy_description }} HTTP on port $port
+
+[mpd]
+enabled = {{ mopidy_mpd | bool }}
+hostname = {{ mopidy_mpd_bind_address }}
+port = {{ mopidy_mpd_port }}
+zeroconf = {{ mopidy_description }} MPD on port $port
+{% if mopidy_mpd_password != none %}
+password = {{ mopidy_mpd_password }}
+{% endif %}
+
+{% for name,settings in mopidy_extensions.items() %}
+[{{ name }}]
+{% for key,value in settings.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+
+{% endfor -%}

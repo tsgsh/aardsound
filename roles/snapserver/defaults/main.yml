@@ -1,0 +1,19 @@
+---
+snapserver_active: true
+snapserver_service: snapserver
+snapserver_description: Snapcast server
+snapserver_codec: flac
+snapserver_rate: 44100
+snapserver_depth: 16
+snapserver_channels: 2
+snapserver_port_offset: 0
+snapserver_http_port: "{{ 1780 + snapserver_port_offset }}"
+snapserver_tcp_port: "{{ 1705 + snapserver_port_offset }}"
+snapserver_stream_port: "{{ 1704 + snapserver_port_offset }}"
+# Assumes that /tmp is a RAM disk; setting up FIFOs on /var/run is painful
+snapserver_fifo: /tmp/snapfifo
+snapserver_fifo_service:  # systemd oneshot service with RemainAfterExit=true that creates the FIFO
+snapserver_debug: false
+snapserver_logging: "{{ '*:debug' if snapserver_debug | bool else none }}"
+# Additional grouos we want the spotify user to belong to (audio is always present)
+snapserver_extra_groups: []

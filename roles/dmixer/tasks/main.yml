@@ -1,0 +1,13 @@
+---
+# tasks file for aardsound_dmixer
+- name: >-
+    {{ dmixer_asound_snippet_verb + ' asound.conf entries for aardmixer plugin pseudo-device' }}
+  blockinfile:
+    path: "{{ dmixer_conf_file }}"
+    block: "{{ lookup('template', dmixer_template_file) }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (aardsound_dmixer)"
+    state: "{{ dmixer_asound_snippet_state }}"
+    create: true
+    owner: root
+    group: root
+    mode: '0755'

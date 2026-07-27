@@ -1,0 +1,22 @@
+---
+# source and sink services are restarted by handlers in ../../spotify and ../../snapserver
+# order is important!
+- name: Enable Spotify Multiroom FIFO service
+  failed_when: false  # this has a tendency to fail when re-run; a reboot may be needed
+  register: spotify_multiroom_r_systemd
+  systemd:
+    name: "{{ spotify_multiroom_service0 }}"
+    enabled: true
+    daemon_reload: true
+
+- name: Enable and (re)start Spotify Multiroom bridge service
+  systemd:
+    name: "{{ spotify_multiroom_service2 }}"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: Reload systemd
+  listen: Reload systemd for spotify_multiroom_active=false
+  systemd:
+    daemon_reload: true

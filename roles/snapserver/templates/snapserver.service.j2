@@ -1,0 +1,19 @@
+[Unit]
+Description={{ snapserver_description }}
+Documentation=man:snapserver(1)
+After=network.target time-sync.target avahi-daemon.service
+{% if snapserver_fifo_service != none %}
+Wants={{ snapserver_fifo_service }}.service
+{% endif %}
+Wants=avahi-daemon.service
+
+[Service]
+User={{ snapserver_uname }}
+Group={{ snapserver_gname }}
+SupplementaryGroups={{ snapserver_groups | join(' ') }}
+EnvironmentFile=-{{ snapserver_environment_file }}
+ExecStart=/usr/bin/snapserver $SNAPSERVER_OPTS
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

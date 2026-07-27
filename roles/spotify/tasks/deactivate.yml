@@ -1,0 +1,51 @@
+---
+- name: "Stop and disable systemd service {{ spotify_service }}"
+  register: spotify_r_stop
+  # Allow for the service not existing
+  failed_when: spotify_r_stop.state is defined and spotify_r_stop.state != 'stopped'
+  systemd:
+    name: "{{ spotify_service }}.service"
+    enabled: false
+    state: stopped
+
+- name: "Stop and disable systemd service {{ spotify_crash_service }}"
+  register: spotify_r_stop
+  # Allow for the service not existing
+  failed_when: spotify_r_stop.state is defined and spotify_r_stop.state != 'stopped'
+  systemd:
+    name: "{{ spotify_crash_service }}.service"
+    enabled: false
+    state: stopped
+
+- name: Remove non-packaged service instances
+  when: spotify_extra
+  block:
+
+  - name: "Remove {{ spotify_service_file }}"
+    notify: Reload systemd for spotify_active=false
+    file:
+      path: "{{ spotify_service_file }}"
+      state: absent
+
+  - name: "Remove {{ spotify_crash_service_file }}"
+    notify: Reload systemd for spotify_active=false
+    file:
+      path: "{{ spotify_crash_service_file }}"
+      state: absent
+
+  - name: "Remove {{ spotify_crash_shell_script }}"
+    file:
+      path: "{{ spotify_crash_shell_script }}"
+      state: absent
+
+# https://github.com/dtcooper/raspotify/issues/727 workaround
+- name: Remove Hosts file entry for librespot issue with apresolve.spotify.com
+  when: spotify_etc_hosts_workaround is defined
+  tags:
+  - spotify-etc-hosts
+  blockinfile:
+    path: /etc/hosts
+    block: "{{ spotify_etc_hosts_workaround }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - RASPOTIFY"
+    insertafter: EOF
+    state: absent

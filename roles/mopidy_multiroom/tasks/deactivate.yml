@@ -1,0 +1,47 @@
+---
+- name: "Service 1: librespot source"
+  block:
+
+  - name: Deactivate Mopidy Multiroom source
+    vars:
+      mopidy_active: false
+      mopidy_service: "{{ mopidy_multiroom_service1 }}"
+      mopidy_scan_service: "{{ mopidy_multiroom_service2 }}"
+    import_role:
+      name: mopidy
+
+- name: "Service 2: snapserver sink"
+  block:
+
+  - name: Deactivate Mopidy Multiroom sink
+    vars:
+      snapserver_active: false
+      snapserver_service: "{{ mopidy_multiroom_service3 }}"
+    import_role:
+      name: snapserver
+
+- name: "Service 0: FIFO"  # do this last because snapserver may try to recreate it
+  block:
+
+  - name: "Stop and disable systemd service {{ mopidy_multiroom_service0 }}"
+    notify: Reload systemd for mopidy_multiroom_active=false
+    register: mopidy_multiroom_r_stop
+    # Allow for the service not existing
+    failed_when:
+    - mopidy_multiroom_r_stop.state is defined
+    - mopidy_multiroom_r_stop.state != 'stopped'
+    systemd:
+      name: "{{ mopidy_multiroom_service0 }}"
+      enabled: false
+      state: stopped
+
+  - name: "Remove {{ mopidy_multiroom_service0_file }}"
+    notify: Reload systemd for mopidy_multiroom_active=false
+    file:
+      name: "{{ mopidy_multiroom_service0_file }}"
+      state: absent
+
+  - name: Remove the Mopidy Multiroom FIFO
+    file:
+      path: "{{ mopidy_multiroom_fifo }}"
+      state: absent

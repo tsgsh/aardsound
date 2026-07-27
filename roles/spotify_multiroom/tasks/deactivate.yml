@@ -1,0 +1,67 @@
+---
+- name: "Service 1: librespot source"
+  block:
+
+  - name: Deactivate Spotify Multiroom source
+    vars:
+      spotify_active: false
+      spotify_service: "{{ spotify_multiroom_service1 }}"
+    import_role:
+      name: spotify
+
+- name: "Service 2: FFMPEG bridge"
+  block:
+
+  - name: "Stop and disable systemd service {{ spotify_multiroom_service2 }}"
+    notify: Reload systemd for spotify_multiroom_active=false
+    register: spotify_multiroom_r_stop
+    # Allow for the service not existing
+    failed_when:
+    - spotify_multiroom_r_stop.state is defined
+    - spotify_multiroom_r_stop.state != 'stopped'
+    systemd:
+      name: spotify_multiroom_service2
+      enabled: false
+      state: stopped
+
+  - name: "Remove {{ spotify_multiroom_service2_file }}"
+    notify: Reload systemd for spotify_multiroom_active=false
+    file:
+      name: "{{ spotify_multiroom_service2_file }}"
+      state: absent
+
+- name: "Service 3: snapserver sink"
+  block:
+
+  - name: Deactivate Spotify Multiroom sink
+    vars:
+      snapserver_active: false
+      snapserver_service: "{{ spotify_multiroom_service3 }}"
+    import_role:
+      name: snapserver
+
+- name: "Service 0: FIFO"  # do this last because snapserver may try to recreate it
+  block:
+
+  - name: "Stop and disable systemd service {{ spotify_multiroom_service0 }}"
+    notify: Reload systemd for spotify_multiroom_active=false
+    register: spotify_multiroom_r_stop
+    # Allow for the service not existing
+    failed_when:
+    - spotify_multiroom_r_stop.state is defined
+    - spotify_multiroom_r_stop.state != 'stopped'
+    systemd:
+      name: spotify_multiroom_service0
+      enabled: false
+      state: stopped
+
+  - name: "Remove {{ spotify_multiroom_service0_file }}"
+    notify: Reload systemd for spotify_multiroom_active=false
+    file:
+      name: "{{ spotify_multiroom_service0_file }}"
+      state: absent
+
+  - name: Remove the Spotify Multiroom FIFO
+    file:
+      path: "{{ spotify_multiroom_fifo }}"
+      state: absent

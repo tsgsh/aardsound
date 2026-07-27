@@ -1,0 +1,182 @@
+---
+- name: Determine the card number for the ALSA loopback device
+  register: spotify_multiroom_r_cards
+  changed_when: false
+  check_mode: false
+  failed_when: false  # in case there is no soundcard
+  vars:
+    pipe:
+    - aplay -l
+    - grep ^card
+    - cut -d ':' -f1
+    - cut -b6-
+    - tail -n1
+  shell:
+    cmd: |
+      set -o pipefail
+      {{ pipe | join('|') }}
+    executable: /bin/bash
+
+- name: Set up the snd-asound loopback device
+  community.general.modprobe:
+    name: snd-aloop
+    params: "{{ spotify_multiroom_aloop_parameters | join(' ') }}"
+    state: present
+    persistent: present
+
+- name: Snapserver user and groups
+  # Create these early because they are needed to define the FIFO before running snapserver
+  # snapserver is imported so we can use its variables
+  vars:
+    snapserver_service: "{{ spotify_multiroom_service3 }}"
+    snapserver_description: "{{ spotify_multiroom_snapserver_description }}"
+    snapserver_extra_groups: "{{ [spotify_multiroom_gname] }}"
+  block:
+
+  - name: "Group(s) {{ spotify_multiroom_define_groups | join(',') }}"
+    loop: "{{ spotify_multiroom_define_groups }}"
+    group:
+      name: "{{ item }}"
+      state: present
+      system: true
+
+  - name: "User {{ snapserver_uname }}"
+    # parameters must match those that are used in the imported snapserver role
+    user:
+      name: "{{ snapserver_uname }}"
+      group: "{{ snapserver_gname }}"
+      groups: "{{ snapserver_groups }}"
+      home: "{{ snapserver_datadir }}"
+      create_home: false  # added below
+      shell: '/usr/sbin/nologin'
+      expires: -1
+      system: true
+      comment: "{{ snapserver_description }}"
+
+- name: "Service 0: FIFO"
+  # This creates the FIFO used by the snapserver sink at boot time before the sink is started
+  block:
+
+  - name: "{{ spotify_multiroom_service0_file }}"
+    notify: Enable Spotify Multiroom FIFO service
+    template:
+      src: "{{ spotify_multiroom_service0_template }}"
+      dest: "{{ spotify_multiroom_service0_file }}"
+      mode: '0644'
+
+  - name: Check whether the FIFO exists
+    register: spotify_multiroom_r_fifo
+    stat:
+      path: "{{ spotify_multiroom_fifo }}"
+
+  - name: "FIFO {{ spotify_multiroom_fifo }}"
+    block:
+
+    - name: "FIFO {{ spotify_multiroom_fifo }}"
+      when: not spotify_multiroom_fifo_exists
+      changed_when: true
+      command:
+        cmd: "mkfifo --mode 0660 --context {{ spotify_multiroom_fifo }}"
+
+    - name: Change ownership of the FIFO  # can't use the file module to create but we can for this
+      file:
+        path: "{{ spotify_multiroom_fifo }}"
+        owner: "{{ spotify_multiroom_service3 }}"
+        group: "{{ snapserver_gname }}"
+        mode: '0660'
+
+    rescue:
+
+    - name: "Error creating/modifying the FIFO {{ spotify_multiroom_fifo }}"
+      pause:
+        prompt: >-
+          Pausing foor 1 minute, press Ctrl-C to interrupt the countdown
+          then press C to continue or A to abort
+        minutes: 1
+
+- name: "Service 1: librespot source"
+  block:
+
+  - name: Activate Spotify Multiroom source
+    # most Spotify defaults are the same as for the standard spotify instance
+    vars:
+      spotify_active: true
+      spotify_service: "{{ spotify_multiroom_service1 }}"
+      spotify_location: "{{ spotify_multiroom_name }}"
+      spotify_description: "{{ spotify_multiroom_spotify_description }}"
+      spotify_backend: alsa
+      spotify_output_device: hw:Loopback,0,0
+      spotify_mixer: false  # mixing is the responsibility of the client
+      spotify_initial_volume: "{{ spotify_multiroom_initial_volume }}"
+      spotify_volume_control: "{{ spotify_multiroom_volume_control }}"
+      spotify_format: "{{ spotify_multiroom_format }}"
+      spotify_verbose: "{{ spotify_multiroom_source_verbose }}"
+      spotify_port: "{{ spotify_multiroom_port }}"
+      spotify_interface: "{{ spotify_multiroom_interface }}"
+      spotify_start_after_services: "{{ [spotify_multiroom_service2] }}"
+    import_role:
+      name: spotify
+
+- name: "Service 2: FFMPEG bridge"
+  block:
+
+  - name: "Group {{ spotify_multiroom_gname }}"
+    group:
+      name: "{{ spotify_multiroom_gname }}"
+      state: present
+      system: true
+
+  - name: "User {{ spotify_multiroom_service2 }}"
+    user:
+      name: "{{ spotify_multiroom_service2 }}"
+      group: "{{ spotify_multiroom_gname }}"
+      groups: audio
+      create_home: false
+      shell: '/usr/sbin/nologin'
+      expires: -1
+      system: true
+      comment: "{{ spotify_multiroom_bridge_description }}"
+
+  - name: "{{ spotify_multiroom_script2_file }}"
+    template:
+      src: "{{ spotify_multiroom_script2_template }}"
+      dest: "{{ spotify_multiroom_script2_file }}"
+      mode: '0755'
+
+  - name: "{{ spotify_multiroom_service2_file }}"
+    notify:
+    - Reload systemd
+    - Enable and (re)start Spotify Multiroom bridge service
+    template:
+      src: "{{ spotify_multiroom_service2_template }}"
+      dest: "{{ spotify_multiroom_service2_file }}"
+      mode: '0644'
+
+  - name: "Set up {{ spotify_multiroom_environment2_file }}"
+    notify: Enable and (re)start Spotify Multiroom bridge service
+    template:
+      src: "{{ spotify_multiroom_environment2_template }}"
+      dest: "{{ spotify_multiroom_environment2_file }}"
+      owner: root
+      group: root
+      mode: '0644'
+      backup: true
+
+- name: "Service 3: snapserver sink"
+  block:
+
+  - name: Activate Spotify Multiroom sink
+    vars:
+      snapserver_active: true
+      snapserver_service: "{{ spotify_multiroom_service3 }}"
+      snapserver_description: "{{ spotify_multiroom_snapserver_description }}"
+      snapserver_port_offset: "{{ spotify_multiroom_snap_port_offset }}"
+      snapserver_fifo: "{{ spotify_multiroom_sink_fifo }}"
+      snapserver_fifo_service: "{{ spotify_multiroom_service0 }}"
+      snapserver_rate: "{{ spotify_multiroom_rate }}"
+      snapserver_depth: "{{ spotify_multiroom_depth }}"
+      snapserver_channels: "{{ spotify_multiroom_channels }}"
+      snapserver_logging: "{{ spotify_multiroom_sink_logging }}"
+      snapserver_extra_groups: "{{ [spotify_multiroom_gname] }}"
+    import_role:
+      name: snapserver

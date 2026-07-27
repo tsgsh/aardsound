@@ -1,0 +1,10 @@
+#jinja2: lstrip_blocks: True
+[Unit]
+Description={{ mopidy_description }} scanning service timer
+
+[Timer]
+OnCalendar={{ mopidy_local_scan_time }}
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,19 @@
+---
+- name: Enable and (re)start librespot service
+  systemd:
+    name: "{{ spotify_service }}.service"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: Enable and (re)start spotify crash service
+  systemd:
+    name: "{{ spotify_crash_service }}.service"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: Reload systemd
+  listen: Reload systemd for spotify_active=false
+  systemd:
+    daemon_reload: true

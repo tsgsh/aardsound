@@ -1,0 +1,25 @@
+---
+- name: Stop and disable snapclient service(s) in systemd
+  register: snapclient_r_stop
+  # Allow for the service not existing
+  failed_when: snapclient_r_stop.state is defined and snapclient_r_stop.state != 'stopped'
+  loop: "{{ snapclient_of_list }}"
+  loop_control:
+    loop_var: snapserver
+    index_var: snapclient_index
+    label: "{{ snapclient_service }}"
+  systemd:
+    name: "{{ snapclient_service }}.service"
+    enabled: false
+    state: stopped
+
+- name: "Remove /etc/systemd/system service files"
+  notify: Reload systemd for snapclient_active=false
+  loop: "{{ snapclient_of_list }}"
+  loop_control:
+    loop_var: snapserver
+    index_var: snapclient_index
+    label: "{{ snapclient_service }}"
+  file:
+    name: "{{ snapclient_service_file }}"
+    state: absent

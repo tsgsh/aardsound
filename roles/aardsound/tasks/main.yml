@@ -1,0 +1,475 @@
+---
+- name: Assertions and facts
+  tags:
+  - always
+  - assert
+  block:
+
+  - name: Check we are not running against all hosts
+    when: not aardsound_allow_all_inventory | bool
+    assert:
+      that: ansible_play_hosts_all != query('inventory_hostnames', 'all')
+      fail_msg: >-
+        Cannot run against all hosts in the inventory unless the variable
+        aardsound_allow_all_inventory is true"
+
+  - name: Confirm that if aardsound_mopidy is true, that we have a defined media library
+    when: aardsound_mopidy | bool
+    assert:
+      that: aardsound_local_media != none or
+            mopidy_media_library is defined and mopidy_media_library != none
+      fail_msg: A local media library must be specified if aardsound_mopidy is true
+
+  - name: Confirm that if aardsound_mopidy_multiroom is true, that we have a defined media library
+    when: aardsound_mopidy_multiroom | bool
+    assert:
+      that: aardsound_local_media != none or
+            mopidy_multiroom_media_library is defined and mopidy_multiroom_media_library != none
+      fail_msg: A local media library must be specified if aardsound_multiroom_mopidy is true
+
+  - name: Confirm that if snapclient is true, we have a snapserver to use
+    when: aardsound_snapclient | bool
+    assert:
+      that:
+      - snapclient_of is defined
+      - snapclient_of != none
+      - snapclient_of is sequence
+      - snapclient_of is not string
+      - snapclient_of | map(attribute='host') | default([]) != []
+      fail_msg: snapclient_of must be defined if ardsound_snapclient is true
+
+- name: Check whether we have a graphical installation  # for the default mopidy installation type
+  register: aardsound_r_get_default
+  changed_when: false
+  check_mode: false
+  tags:
+  - always
+  command:
+    cmd: systemctl get-default
+
+- name: Set _ as a shortcut to the Python site-packages directory
+  # may be used for mopidy_installer and mopidy roles
+  # see ../README.md#aardsound_mopidy_extensions=*dictionary-of-dictionaries*
+  tags:
+  - always
+  set_fact:
+    _: "{{ aardsound_mopidy_site_packages }}"  # noqa: var-naming[no-role-prefix]
+
+- name: Pi configuration
+  when: ('rpi' in ansible_facts.kernel)
+  tags:
+  - pi
+  - initial
+  block:
+
+  - name: Read /sys/firmware/devicetree/base/model
+    register: aardsound_r_model
+    slurp:
+      path: /sys/firmware/devicetree/base/model
+
+  - name: Permanently set HDMI to enabled for hotplug to stabilise ALSA device numbers
+    # single HDMI needs hdmi_force_hotplug=1
+    # dual HDMI needs hdmi_force_hotplug:0=1 and hdmi_force_hotplug:1=1
+    # this could be done with conditional sections in the file but there would be a lot
+    # and it would be harder to maintain.  Instead, this relies on there being an [all]
+    # section at the end of the file, which there should be
+    when: aardsound_output and aardsound_hdmi_force_hotplug | bool and aardsound_pi_hdmi
+    register: aardsound_r_hdmi_hotplug_enabled
+    loop: "{{ suffixes }}"
+    vars:
+      suffixes: "{{ [':0', ':1'] if aardsound_pi_dual_hdmi else [''] }}"
+      line: "hdmi_force_hotplug{{ item }}="
+    lineinfile:
+      path: "{{ aardsound_boot_config_file }}"
+      regexp: "{{ '^' + line }}"
+      line: "{{ line + '1' }}"
+      state: present
+
+- name: Run apt upgrade
+  when: aardsound_upgrade | bool
+  notify: "{{ aardsound_reboot_handlers }}"
+  tags:
+  - patch
+  - initial
+  apt:
+    state: latest  # noqa: package-latest
+    update_cache: true
+    upgrade: dist
+
+- name: Install the required packages
+  tags:
+  - install
+  - initial
+  block:
+
+  - name: Raspotify installer
+    when: aardsound_spotify | bool or aardsound_spotify_multiroom | bool
+    tags:
+    - install-raspotify
+    - spotify
+    - spotify-multiroom
+    import_role:
+      name: raspotify_installer
+
+  - name: Mopidy installer
+    when: aardsound_mopidy | bool or aardsound_mopidy_multiroom | bool
+    tags:
+    - install-mopidy
+    - mopidy
+    - mopidy-multiroom
+    block:
+
+    - name: Mopidy installer
+      vars:
+        mopidy_installer_nfs: "{{ aardsound_nfs_media }}"
+        mopidy_installer_library: "{{ aardsound_local_media }}"
+        mopidy_installer_extensions: "{{ aardsound_mopidy_installer_extensions }}"
+        mopidy_installer_sudoers: "{{ aardsound_mopidy_installer_sudoers }}"
+        mopidy_installer_install: "{{ aardsound_mopidy_installer_install }}"
+      import_role:
+        name: mopidy_installer
+
+  - name: Snapserver
+    when: aardsound_spotify_multiroom | bool or
+          aardsound_mopidy_multiroom | bool or
+          aardsound_bluetooth_multiroom | bool
+    tags:
+    - install-snapserver
+    - spotify-multiroom
+    - mopidy-multiroon
+    block:
+
+    - name: Install snapserver
+      apt:
+        name: snapserver
+        state: present
+
+    - name: Stop, disable and mask the snapserver service  # we will build our own custom services
+      systemd:
+        name: snapserver
+        state: stopped
+        enabled: false
+        masked: true
+
+  - name: Snapclient
+    when: aardsound_snapclient | bool
+    tags:
+    - install-snapclient
+    block:
+
+    - name: Install snapclient
+      apt:
+        name: snapclient
+        state: present
+
+    - name: Stop, disable and mask the snapclient service  # we will build our own custom services
+      systemd:
+        name: snapclient
+        state: stopped
+        enabled: false
+        masked: true
+
+  - name: Install FFMPEG
+    when: aardsound_spotify_multiroom | bool
+    tags:
+    - install-ffmpeg
+    apt:
+      name: ffmpeg
+      state: present
+
+  - name: "Flush the handlers listening for {{ aardsound_reboot_handlers | join(', ') }}"
+    meta: flush_handlers
+
+- name: ALSA device detection
+  when: aardsound_output
+  tags:
+  - always
+  - detect
+  block:
+
+  - name: Determine default ALSA card
+    block:
+
+    - name: Find the first card that is not HDMI, nor Headphones nor Loopback using aplay -l
+      when: aardsound_output_device == none and aardsound_card == none
+      register: aardsound_r_aplay_cards
+      changed_when: false
+      check_mode: false
+      vars:
+        pipe:
+        - aplay -l
+        - tail -n+2
+        - grep -i '^card'
+        - grep -iv -e 'HDMI' -e 'Headphones' -e 'Loopback'
+        - head -n1
+        - cut -d ':' -f2
+        - cut -d ' ' -f2
+      shell:
+        cmd: |
+          set -o pipefail
+          {{ pipe | join('|') }}
+        executable: /bin/bash
+
+    - name: Confirm that there is a suitable default ALSA card
+      when: aardsound_aplay_r_cards is defined
+      assert:
+        that: aplay_r_aplay_cards.stdout_lines | length == 1
+        fail_msg: "No suitable default ALSA card found"
+        quiet: true
+
+  - name: Determine default ALSA device
+    when: aardsound_output_device == none and aardsound_device == none
+    block:
+
+    - name: Determine the correct PCM device for the selected card as listed by aplay -L
+      register: aardsound_r_aplay_devices
+      changed_when: false
+      check_mode: false
+      vars:
+        pipe: "{{ pipe_number if aardsound_card | int | string == aardsound_card | string else
+                  pipe_name }}"
+        pipe_number:
+        - aplay -L
+        - "grep '^hw:'"
+        - "tail +{{ aardsound_card | int + 1 }}"
+        - head -n1
+        - "cut -d '=' -f3"
+        pipe_name:
+        - aplay -L
+        - "grep '^hw:CARD={{ aardsound_card }}'"
+        - cut -d '=' -f3
+      shell:
+        cmd: |
+          set -o pipefail
+          {{ pipe | join('|') }}
+        executable: /bin/bash
+
+    - name: Confirm that there is a suitable default ALSA device
+      assert:
+        that: aplay_r_alpay_devices.stdout_lines | count == 1
+        fail_msg: "No suitable default ALSA device found on card {{ aardsound_card }}"
+        quiet: true
+
+  - name: Determine default ALSA mixer control
+    when: aardsound_mixer | bool and aardsound_mixer_control == none
+    block:
+
+    - name: Determine the first mixer volume control for the identified sound card
+      register: aardsound_r_amixer
+      changed_when: false
+      check_mode: false
+      vars:
+        pipe:
+        - "amixer -c{{ aardsound_mixer_card }}"
+        - "grep -E -B1 '\\svolume|\\spvolume'"
+        - head -n1
+        - "cut -d \\' -f2"
+      shell:
+        cmd: |
+          set -o pipefail
+          {{ pipe | join('|') }}
+        executable: /bin/bash
+
+- name: If any ALSA simple controls need to be set for the card, nows the time to do it
+  when: aardsound_output and alsa_scontrols_controls != {}
+  vars:
+    alsa_scontrols_card: "{{ aardsound_card }}"
+  tags:
+  - scontrols
+  - initial
+  import_role:
+    name: alsa_scontrols
+
+- name: /etc/asound.conf changes
+  when: aardsound_output
+  tags:
+  - asound
+  block:
+
+  - name: Create or remove dmix plugin device in /etc/asound.conf for multiple stream support
+    vars:
+      dmixer_active: "{{ aardsound_dmixer | bool }}"
+      dmixer_plugin: "{{ aardsound_dmixer_plugin }}"
+      dmixer_dmix_device: "{{ aardsound_dmix_device }}"
+      dmixer_card: "{{ aardsound_card }}"
+      dmixer_output_device: "{{ aardsound_output_device }}"
+      dmixer_rate: "{{ aardsound_rate }}"
+      dmixer_channels: "{{ aardsound_channels }}"
+    tags:
+    - detect  # if detect is skipped, dmixer will generate an invalid configuration
+    import_role:
+      name: dmixer
+
+- name: Finally, configure the selected services
+  # Because we, in general, run the spotify, mopidy and bluetooth roles up to twice and the
+  # snapserver role up to three times, each time with a different service name, there is a
+  # challenge with the handler that restarts that service in that handlers are global and
+  # loaded early and executed late.  That means the handler will be executed once with the
+  # variables set by the last invocation _even if it is skipped!_
+  # Therefore, we include the roles, to defer the handler loading to the point of execution
+  # and flush immediately after.  This requies no changes to the roles, including the
+  # multiroom roles
+  block:
+
+  - name: Spotify
+    tags:
+    - spotify
+    block:
+
+    - name: "{{ ('Activate' if aardsound_spotify | bool else 'Deactivate') + ' Spotify' }}"
+      vars:
+        spotify_active: "{{ aardsound_spotify | bool }}"
+        spotify_service: "{{ aardsound_spotify_service }}"
+        spotify_location: "{{ aardsound_location }}"
+        spotify_output_device: "{{ aardsound_sink_device }}"
+        spotify_initial_volume: "{{ aardsound_initial_volume }}"
+        spotify_volume_control: "{{ aardsound_volume_control }}"
+        spotify_mixer: "{{ aardsound_mixer }}"
+        spotify_mixer_plugin: "{{ aardsound_mixer_plugin }}"
+        spotify_mixer_card: "{{ aardsound_mixer_card }}"
+        spotify_mixer_device: "{{ aardsound_mixer_device }}"
+        spotify_mixer_control: "{{ aardsound_mixer_control }}"
+        spotify_format: "{{ aardsound_format }}"
+        spotify_port: "{{ aardsound_spotify_port }}"
+        spotify_interface: "{{ aardsound_spotify_interface }}"
+      include_role:  # Ensure handlers are not pre-loaded
+        name: spotify
+        apply:
+          tags:
+          - spotify
+
+    - name: Flush handlers for this invocation of the spotify role
+      meta: flush_handlers
+
+  - name: Spotify Multiroom
+    tags:
+    - spotify-multiroom
+    block:
+
+    - name: "{{ ('Activate' if aardsound_spotify_multiroom | bool else
+                 'Deactivate') + ' Spotify Multiroom' }}"
+      vars:
+        spotify_multiroom_active: "{{ aardsound_spotify_multiroom | bool }}"
+        spotify_multiroom_service0: "{{ aardsound_spotify_multiroom_service0 }}"
+        spotify_multiroom_service1: "{{ aardsound_spotify_multiroom_service1 }}"
+        spotify_multiroom_service2: "{{ aardsound_spotify_multiroom_service2 }}"
+        spotify_multiroom_service3: "{{ aardsound_spotify_multiroom_service3 }}"
+        spotify_multiroom_name: "{{ aardsound_multiroom_name }}"
+        # spotify_multiroom_format: "{{ aardsound_format }}"  # Leave at default S16!
+        # spotify_multiroom_rate: "{{ aardsound_rate }}"      # Leave at default 44100!
+        # spotify_multiroom_snap_port_offset is set in ../vars/main.yml
+        spotify_multiroom_depth: "{{ aardsound_depth }}"
+        spotify_multiroom_channels: "{{ aardsound_channels }}"
+        spotify_multiroom_port: "{{ aardsound_spotify_multiroom_port }}"
+        spotify_multiroom_interface: "{{ aardsound_spotify_multiroom_interface }}"
+      include_role:
+        name: spotify_multiroom
+        apply:
+          tags:
+          - spotify-multiroom
+
+    - name: Flush handlers for this invocation of the spotify and snapserver roles
+      meta: flush_handlers
+
+  - name: Mopidy
+    tags:
+    - mopidy
+    block:
+
+    - name: "{{ ('Activate' if aardsound_mopidy | bool else 'Deactivate') + ' Mopidy' }}"
+      vars:
+        mopidy_active: "{{ aardsound_mopidy | bool }}"
+        mopidy_service: "{{ aardsound_mopidy_service }}"
+        mopidy_location: "{{ aardsound_location }}"
+        mopidy_media_library: "{{ aardsound_local_media }}"
+        mopidy_output_device: "{{ aardsound_sink_device }}"
+        # mopidy_initial_volume: "{{ aardsound_initial_volume }}"  # mopidy doesn't support
+        mopidy_volume_control: "{{ aardsound_volume_control }}"
+        mopidy_mixer: "{{ aardsound_mixer }}"
+        # mopidy_mixer_plugin: "{{ aardsound_mixer_plugin }}"  # mopidy doesn't support
+        mopidy_mixer_card: "{{ aardsound_mixer_card }}"
+        mopidy_mixer_control: "{{ aardsound_mixer_control }}"
+        mopidy_use_venv: "{{ aardsound_mopidy_use_venv }}"
+        mopidy_venv: "{{ aardsound_mopidy_venv }}"
+        mopidy_http_bind_address: "{{ aardsound_mopidy_http_bind_address }}"
+        mopidy_http_port: "{{ aardsound_mopidy_http_port }}"
+        mopidy_mpd_bind_address: "{{ aardsound_mopidy_mpd_bind_address }}"
+        mopidy_mpd_port: "{{ aardsound_mopidy_mpd_port }}"
+        mopidy_extensions: "{{ aardsound_mopidy_extensions_bis }}"
+      include_role:  # Ensure handlers are not pre-loaded
+        name: mopidy
+        apply:
+          tags:
+          - mopidy
+
+    - name: Flush handlers for this invocation of the mopidy role
+      meta: flush_handlers
+
+  - name: Mopidy Multiroom
+    tags:
+    - mopidy-multiroom
+    block:
+
+    - name: "{{ ('Activate' if aardsound_mopidy_multiroom | bool else
+                 'Deactivate') + ' Mopidy Multiroom' }}"
+      vars:
+        mopidy_multiroom_active: "{{ aardsound_mopidy_multiroom | bool }}"
+        mopidy_multiroom_service0: "{{ aardsound_mopidy_multiroom_service0 }}"
+        mopidy_multiroom_service1: "{{ aardsound_mopidy_multiroom_service1 }}"
+        mopidy_multiroom_service2: "{{ aardsound_mopidy_multiroom_service2 }}"
+        mopidy_multiroom_service3: "{{ aardsound_mopidy_multiroom_service3 }}"
+        mopidy_multiroom_name: "{{ aardsound_multiroom_name }}"
+        mopidy_multiroom_media_library: "{{ aardsound_local_media }}"
+        mopidy_multiroom_use_venv: "{{ aardsound_mopidy_use_venv }}"
+        mopidy_multiroom_venv: "{{ aardsound_mopidy_venv }}"
+        mopidy_multiroom_http_bind_address: "{{ aardsound_mopidy_multiroom_http_bind_address }}"
+        mopidy_multiroom_http_port: "{{ aardsound_mopidy_multiroom_http_port }}"
+        mopidy_multiroom_mpd_bind_address: "{{ aardsound_mopidy_multiroom_mpd_bind_address }}"
+        mopidy_multiroom_mpd_port: "{{ aardsound_mopidy_multiroom_mpd_port }}"
+        mopidy_multiroom_extensions: "{{ aardsound_mopidy_multiroom_extensions_bis }}"
+        # mopidy_multiroom_snap_port_offset is set in ../vars/main.yml
+        # mopidy_multiroom_format: "{{ aardsound_format }}"  # Leave at default S16!
+        # mopidy_multiroom_rate: "{{ aardsound_rate }}"      # Leave at default 44100
+        mopidy_multiroom_depth: "{{ aardsound_depth }}"
+        mopidy_multiroom_channels: "{{ aardsound_channels }}"
+      include_role:
+        name: mopidy_multiroom
+        apply:
+          tags:
+          - mopidy-multiroom
+
+    - name: Flush handlers for this invocation of the mopidy and snapserver roles
+      meta: flush_handlers
+
+  # - name: Bluetooth and bluealsa installer
+  #   when: aardsound_bluetooth | bool
+  #   vars:  # noqa: var-naming[no-role-prefix]
+  #     # let install default - it will install if needed
+  #     active: "{{ aardsound_bluetooth | bool }}"
+  #     # not remotely supported yet!
+  #     alsa_card: "{{ aardsound_card }}"
+  #     alsa_device: "{{ aardsound_device }}"
+  #     alsa_plugin: "{{ aardsound_mixer_plugin }}"
+  #     snapcast: false
+  #   tags:
+  #   - bluetooth
+  #   include_role:
+  #     name: aardsound_bluetooth
+  #     apply:
+  #       tags:
+  #       - bluetooth
+
+  - name: "{{ ('Activate' if aardsound_snapclient | bool else
+               'Deactivate') + ' Snapclient' }}"
+    vars:
+      snapclient_active: "{{ aardsound_snapclient | bool }}"
+      snapclient_output_device: "{{ aardsound_sink_device }}"
+      snapclient_mixer: "{{ aardsound_mixer }}"
+      snapclient_mixer_card: "{{ aardsound_mixer_card }}"
+      snapclient_rate: "{{ aardsound_rate }}"
+      snapclient_depth: "{{ aardsound_depth }}"
+      snapclient_channels: "{{ aardsound_channels }}"
+    tags:
+    - snapclient
+    import_role:
+      name: snapclient

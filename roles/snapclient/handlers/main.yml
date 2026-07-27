@@ -1,0 +1,18 @@
+---
+- name: Reload systemd
+  listen:
+  - Enable and (re)start Snapserver client(s)
+  - Reload systemd for snapclient_active=false
+  systemd:
+    daemon_reload: yes
+
+- name: Enable and (re)start Snapserver client(s)
+  loop: "{{ snapclient_of_list }}"
+  loop_control:
+    loop_var: snapserver
+    index_var: snapclient_index
+    label: "{{ snapclient_service }}"
+  systemd:
+    name: "{{ snapclient_service }}.service"
+    enabled: true
+    state: restarted

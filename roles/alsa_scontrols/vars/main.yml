@@ -1,0 +1,2 @@
+---
+alsa_scontrols_cards: "{{ alsa_scontrols_r_cards.stdout_lines }}"

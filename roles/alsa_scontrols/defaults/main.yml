@@ -1,0 +1,3 @@
+---
+alsa_scontrols_card: 0
+alsa_scontrols_controls: "{{ alsa_scontrols | default({}) }}"

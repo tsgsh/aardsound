@@ -1,0 +1,15 @@
+---
+- name: "Stop and disable systemd service {{ snapserver_service }}"
+  register: snapserver_r_stop
+  # Allow for the service not existing
+  failed_when: snapserver_r_stop.state is defined and snapserver_r_stop.state != 'stopped'
+  systemd:
+    name: "{{ snapserver_service }}.service"
+    enabled: false
+    state: stopped
+
+- name: "Remove {{ snapserver_service_file }}"
+  failed_when: false
+  file:
+    name: "{{ snapserver_service_file }}"
+    state: absent

@@ -1,0 +1,35 @@
+---
+- name: "Stop and disable systemd service {{ mopidy_service }}"
+  register: mopidy_r_stop
+  # Allow for the service not existing
+  failed_when: mopidy_r_stop.status is defined and mopidy_r_stop.status.ActiveState == 'Active'
+  systemd:
+    name: "{{ mopidy_service }}.service"
+    enabled: false
+    state: stopped
+
+- name: "Remove {{ mopidy_service_file }}"
+  notify: Reload systemd for mopidy_active=false
+  file:
+    name: "{{ mopidy_service_file }}"
+    state: absent
+
+# cannot disable scan service because it isn't eligible
+- name: "Remove {{ mopidy_scan_service_file }}"
+  notify: Reload systemd for mopidy_active=false
+  file:
+    name: "{{ mopidy_scan_service_file }}"
+    state: absent
+
+- name: "Disable systemd timer {{ mopidy_scan_service }}"
+  failed_when: mopidy_r_stop.status is defined and mopidy_r_stop.status.ActiveState == 'Active'
+  systemd:
+    name: "{{ mopidy_scan_service }}.timer"
+    state: stopped
+    enabled: false
+
+- name: "Remove {{ mopidy_scan_timer_file }}"
+  notify: Reload systemd for mopidy_active=false
+  file:
+    name: "{{ mopidy_scan_timer_file }}"
+    state: absent

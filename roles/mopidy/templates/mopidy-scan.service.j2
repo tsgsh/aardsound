@@ -1,0 +1,12 @@
+#jinja2: lstrip_blocks: True
+[Unit]
+Description={{ mopidy_description }} scanning service
+
+[Service]
+Type=oneshot
+User={{ mopidy_uname }}
+Group={{ mopidy_gname }}
+{% if mopidy_use_venv %}
+Environment="VIRTUAL_ENV={{ mopidy_venv }}"
+{% endif %}
+ExecStart={{ mopidy_scan_command }}

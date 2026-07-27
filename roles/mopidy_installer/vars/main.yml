@@ -1,0 +1,42 @@
+---
+# vars file for mopidy_installer
+mopidy_installer_apt: "{{ mopidy_installer_apt_packages +
+                          mopidy_installer_prereq_packages +
+                          (mopidy_installer_venv_install_packages if mopidy_installer_use_venv else
+                           []) }}"
+mopidy_installer_apt_packages:
+# This is the Trixie list of APT packages
+- mopidy
+- mopidy-alsamixer
+# - mopidy-beets
+# - mopidy-dleyna
+# - mopidy-doc
+# - mopidy-internetarchive
+- mopidy-local
+- mopidy-mpd
+# - mopidy-mpris
+# - mopidy-podcast-itunes
+# - mopidy-podcast
+# - mopidy-scrobbler
+# - mopidy-somafm
+# - mopidy-soundcloud
+# - mopidy-tunein
+mopidy_installer_prereq_packages:
+- git                       # for PIP installs from github
+- gstreamer1.0-libav
+- python3-pip
+- python3-standard-imghdr   # removed from Python 3.13 with PEP-0594; add it back
+- python3-venv
+- python3-virtualenv
+- libasound2-dev
+- libcairo2-dev
+- libgirepository-2.0-dev
+mopidy_installer_venv_install_packages: []
+# - cmake
+# - libasound2-dev
+# - libcairo2-dev
+# - libgirepository-2.0-dev
+mopidy_installer_pip: "{{ mopidy_installer_apt_packages +
+                          mopidy_installer_extensions +
+                          mopidy_installer_venv_install_packages }}"
+mopidy_installer_graphical: "{{ mopidy_installer_r_get_default.stdout == 'graphical.target' }}"

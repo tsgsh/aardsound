@@ -1,0 +1,32 @@
+#jinja2: lstrip_blocks: True
+[Unit]
+Description={{ mopidy_description }}
+After=avahi-daemon.service
+After=dbus.service
+After=network-online.target
+Wants=network-online.target
+After=nss-lookup.target
+After=pulseaudio.service
+After=remote-fs.target
+After=sound.target
+{% if mopidy_mount_point != none %}
+BindsTo={{ mopidy_mount_name }}.mount
+After={{ mopidy_mount_name }}.mount
+{% endif %}
+{% for service in [mopidy_start_after_services] | flatten %}
+After={{ service }}.service
+{% endfor %}
+
+[Service]
+User={{ mopidy_uname }}
+Group={{ mopidy_gname }}
+SupplementaryGroups={{ mopidy_groups | join(' ') }}
+{% if mopidy_use_venv %}
+Environment="VIRTUAL_ENV={{ mopidy_venv }}"
+{% endif %}
+ExecStartPre=+/bin/mkdir -p /var/cache/{{ mopidy_service }}
+ExecStartPre=+/bin/chown {{ mopidy_uname }}:{{ mopidy_gname}} /var/cache/{{ mopidy_service }}
+ExecStart={{ mopidy_command }}
+
+[Install]
+WantedBy=multi-user.target

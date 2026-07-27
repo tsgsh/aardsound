@@ -1,0 +1,12 @@
+[Unit]
+Description=Create FIFO for multi-room Mopidy
+
+[Service]
+Type=oneshot
+User={{ mopidy_multiroom_service3 }}
+Group={{ snapserver_gname }}
+ExecStart=-mkfifo --mode 0660 --context {{ mopidy_multiroom_sink_fifo }}
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

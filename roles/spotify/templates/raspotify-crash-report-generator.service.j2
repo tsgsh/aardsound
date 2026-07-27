@@ -1,0 +1,6 @@
+[Unit]
+Description={{ spotify_service[0] | upper + spotify_service[1:] }} Crash Report Generator
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/{{ spotify_service }}-crash-report-generator.sh

@@ -1,0 +1,30 @@
+---
+mopidy_multiroom_gname: mopidy
+# definition of service names
+mopidy_multiroom_service0: mopidy-multiroom-fifo
+mopidy_multiroom_service1: mopidy-multiroom-source
+mopidy_multiroom_service2: mopidy-multiroom-scan
+mopidy_multiroom_service3: mopidy-multiroom-sink
+# service files those for service1, 2 and 3 are created by ../../mopidy or  ../../snapserver
+mopidy_multiroom_service0_template: "mopidy-multiroom-fifo.service.j2"
+mopidy_multiroom_service0_file: "/etc/systemd/system/{{ mopidy_multiroom_service0 }}.service"
+# source_fifo or sink_fifo should only be changed for degugging with, e.g. pv
+# If different they are NOT created automatically and there is no FIFO service
+mopidy_multiroom_source_fifo: "{{ mopidy_multiroom_fifo }}"
+mopidy_multiroom_sink_fifo: "{{ mopidy_multiroom_fifo }}"
+mopidy_multiroom_fifo_exists: "{{ mopidy_multiroom_r_fifo.stat.exists }}"
+# description is prefixed by "Mopidy" or "Snapcast" for the thwo services
+mopidy_multiroom_description: 'service for Mopidy Multiroom'
+mopidy_multiroom_mopidy_description: "{{ 'Mopidy ' + mopidy_multiroom_description }}"
+mopidy_multiroom_snapserver_description: "{{ 'Snapserver ' + mopidy_multiroom_description }}"
+mopidy_multiroom_audio_parms:
+- audio/x-raw
+- "rate={{ mopidy_multiroom_rate }}"
+- "channels={{ mopidy_multiroom_channels }}"
+- "format={{ mopidy_multiroom_format }}LE"
+mopidy_multiroom_audio_output: >-
+  audioresample !
+  audioconvert !
+  {{ mopidy_multiroom_audio_parms | join(',') }} !
+  filesink location={{ mopidy_multiroom_fifo }}
+mopidy_multiroom_define_groups: "{{ ([snapserver_gname] + [snapserver_extra_groups]) | flatten }}"

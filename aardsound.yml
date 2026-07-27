@@ -1,0 +1,555 @@
+# Invocation through variable files (inventory or extra vars with @filename.yml, etc.)
+#
+# Ideally, the extra variables should be omitted in favour of inventory variables: there are a lot
+# of them
+#
+# For this playbook to "do something" then you need to choose at least one of these as "true".
+# When "true", software packages will be installed, the appropriate role will be called,
+# config files created or modified and services enabled and started.  When "false",  software
+# packages will not be changed, the same role will be called but config files will be left in
+# place (but not changes to /etc/asound.conf), services will be stopped and disabled and service
+# files removed.  Defaults are "false" except as specified
+#
+# Software installations can be suppressed if the "install" tag is skipped; there are specific tags
+# of the form "install-<package>" which can be used or skipped to (not) install a specific package.
+# Packages are not upgraded if installed.  Note that this tag name matches the package, not the
+# function, e.g. the "spotify" is used to enable Spotify support, but because the underlying package
+# for this is "raspotify", the tag for the package installation is "install-raspotify" and not
+# "install-spotify"
+#
+# The following variables define which components are installed, each has a matching tag
+# with the install tag
+#   spotify -- calls raspotify_installer to install the raspotify package (which uses librespot)
+#              and spotify [role] to configure it
+#   mopidy -- calls mopidy_installer to manage the mopidy package and some of its extensions
+#   bluetooth -- calls blueala_installer to manage the bluez-alsa package and bluetooth in general
+#   spotify_multiroom -- calls snapserver_installer with librespot as a backend
+#                        defaults to no unless snapserver is yes
+#   mopidy_multiroom-- calls mopidy_installer to manage mopidy with a snapserver as a backend
+#                      defaults to no unless snapserver is yes
+#   snapclient -- calls snapclient_installer to receive audio from one or more snapserver
+# The following options control the installation/configuration of pre-reqs for the above
+#
+#   librespot -- manages an up- or down-level librespot (from crates.io) for Spotify (default, no)
+#   dmixer -- installs a dmixer plugin device into /etc/asound.conf (default yes, needed whenever
+#             there are multiple inpus from spotify, mopidy, bluetooth and/or snapclient but must be
+#
+# See below for variables specific to the raspotify_installer, mopidy_installer, bluealsa_installer
+# and librespot_installer roles and for other variables for the aardsound role.
+#
+# Setting them to yes will install enable and start the service, setting them to no will stop and
+# disable it (but will leave the config files).  Leaving them as the null default will do nothing.
+# For librespot, there is no service; if it is yes then the behaviour is determined by the values
+# of librespot_local, otherwise no action is taken.
+#
+# librespot is used for Spotify Connect,  The systemd service name is spotify or spotify-multiroom
+# to leave the standard raspotify installation untouched (but masked in systemd)
+#
+# Mopidy (mopidy-local) is used for (NFS) file access
+# Simple alsa chain:
+#
+#   spotify -------------------> hw:1
+#                  or
+#   mopidy --------------------> hw:1
+#                  or
+#   bluetooth ---> bluealsa ---> hw:1
+#
+# With dmixer
+#
+#   spotify -----------------> dmix -> hw:1
+#                            |
+#   mopidy ------------------|
+#                            |
+#   bluetooth ---> bluealsa -'
+#
+# With snapserver and snapclient for multiroom; different snapservers and snapclients are
+# needed in each case to allow downstream multiplexing, but primarily because librespot
+# currently doesn't work with fifos and snapserver can use librespot as an info but can't
+# use mopidy so an intermediate fifo is used
+#
+#   spotify -> snd-aloop -> fifo -> snapserver ---> snapclient -> hw:1 or dmix
+#     or                                        |
+#   mopidy                                      |-> snapclient -> hw:2 or dmix
+#                                               |
+#                                               '-> snapclient -> hw:3 or dmix
+#
+# Note that bluetooth is not an option for multiroom because there's no method (yet) to distinguish
+# between two instances; it could be done with two bluealsa daemons, two bluealsa-aplay daemons,
+# snd-aloop (to feed a fifo) and two bluetooth adapters.  Since bluetooth itself doesn't work yet,
+# this is moot.
+#
+# Note that mopidy will only be acccessible from the localhost (unless you install a suitable proxy)
+# by default.  Specify mopidy_trusted_network=yes to make it available.  This is the same default
+# behaviour as the mopidy package: there is no security built into mopidy for HTTP or MPD traffic.
+# Mopidy MPD is enabled by default but may be disabled with mopidy_mpd=false.
+#
+# Local media must be installed in the directory defined in aardsound_local_media or alternatively
+# an NFS mount at that location can be defined in aardsound_nfs_media.  If aardsound_nfs_media
+# is defined then aardsound_local_media defaults to /mnt/mopidy
+#
+# Mopidy local scan will be run daily at 4am (and when the scanning service is intially created)
+# By default it takes place at 04:00 but this can be changed by setting mopidy_local_scan_timer
+# (to any value accepted by the systemd timer OnCalendar setting)
+#
+# Snapcast (which consists of Snapclient and Snapserver) is used to create a multi-room setup.
+#
+# Note that snapclient will fail unless snapclient_of is specified and the various *_multiroom
+# variants will not do anything without snapserver because they just point at the FIFO used by
+# snapserver.  However, it is OK to have snapclient and snapserver together, normally snapclient is
+# a client of its own snapserver, but that's not required.  It's also OK to have spotify, mopidy,
+# bluetooth and snapclient in any combination: ALSA will sort out who's making noises at any time,
+# provded that either the sound card supports it or dmixer=yes is set.
+#
+# On the subject of defaults, aardsound has quite a number of sensible built-in defaults for
+# variables built in that change as other variables are specified.  This should give something that
+# works with a single succesful run of the playbook, or even multiple runs with the same variables.
+# However, if you run it multiple times with different variables (e.g., just mopidy on one pass then
+# just spotify on a second pass) and rely on defaults then you are likely to get inconsistent
+# results at best or no sound at worst.
+#
+# "yes|no" values are tested with "|bool", which treats, "yes", "true", etc. as true and
+# everything else as false
+#
+# INSTALLATION OPTIONS (which control which tasks and roles are called)
+#
+# all are prefixed with aardsound_
+#
+#     allow_all_inventory=yes|no will this playbook function without limiting the inventory
+#                               to less than all?  Default no because it's unlikely you want
+#                               to run this against the full inventory in /etc/ansible/hosts
+#                               but you may want to set this to yes if you are using a
+#                               different inventory file
+#
+#     upgrade=yes|no            apt upgrade (default yes)
+#
+#     reboot=yes|no             reboot after upgrade or hdmi change (default yes);
+#                               If no is specified, things may not work again after the eventual
+#                               reboot
+#
+#     aardsound_reboot_prompt=no|yes      Prompt before performing the reboot (default no).
+#                               This is useful for testing and particularly with a QEMU virtulised
+#                               RPi because the reboot won't work and the reboot module will time
+#                               out unless the vPi is manually restarted
+#
+# HDMI OPTIONS
+#
+# Why have HDMI options for a device which is intended to be headless?  Because it might not always
+# be.  This is a minimal set of safe HDMI options with sensible defaults.
+#
+#     hdmi_force_hotplug=yes|no Force HDMI hotplug in /boot/config.txt (default yes)
+#
+#                               This is important for the default card number if the RPi sometimes
+#                               (but not always) has an HDMI connection because the ALSA device
+#                               number will not be stable if this is not set, which is crucial
+#                               to the whole setup of aardsound. It's safe to set it to no if
+#                               your RPI is always headless.
+#
+#                        NOTE:  Not yet tested (much) against dual HDMI RPi4s or later.
+#
+# GENERAL OPTIONS
+#
+# The apply to multiple services, although not all of them are relevant to all of them (and are
+# ignored if they are irrelevant)
+#
+# In each case, prefix the variable name with aardsound_ to apply to all services or with
+# spotify_, mopidy_, bluetooth_ or spotify_multiroom_, mopidy_multiroom_ or bluetooth_multiroom_
+# to apply to a specific service
+#
+#     location=<string>         user-friendly string where is this located, e.g. Kitchen
+#                               this is used by the spotify roles to advertise this device
+#                               (with inventory_hostname_short as the name, by default)
+#
+#     output_device             An ALSA PCM device to use for the ultimate sound output
+#                               Otherwise the device is based on the aardsound_plugin,
+#                               _card and _device values, i.e: plugin:card,device
+#
+#     plugin=plughw|hw|dmix|dsnoop
+#                               The ALSA PCM plugin to use for the device.
+#
+#                               Default: hw if dmixer is yes or mixer is no or plughw otherwise
+#                               (dmix only supports hw: for slave PCMs)
+#                               Ignored if pcm_device is specified
+#
+#     card=<index_number>       Card index as reported by alsamixer/aplay.  Default is the first
+#                               card that is not HDMI nor Headphones nor Loopback if a daemon that
+#                               uses audio output has been requested
+#                               Default: first card reported by aplay that is not Loopback, HDMI or
+#                               Headphones
+#                               Ignored if pcm_device is specified
+#
+#     device=<index_number>     If the desired or default card has more than one device then
+#                               specify a number if a device other than 0 is desired.  If undefined
+#                               and a daemon that uses audio output has been requested then aplay -l
+#                               will be used to find the correct card,device combination according
+#                               to the logic described under card above, which should find device 0
+#                               for a USB or HAT device
+#
+#     initial_volume=<1-100>    (default: 50 or 100 for multiroom servers); set the initial playback
+#                               volume for Spotify, ALSA; for multiroom, volume should be managed by
+#                               the client
+#
+#     volume_control=linear|log|cubic|fixed (default cubic or linear for Multiroom)
+#                               for Spotify and Mopidy, as supported by librespot, mopidy-core
+#
+#     mixer=no|yes              Do we route sound via Alsamixer or are volume, balance, etc.
+#                               controlled by the source (with softmixer).
+#                               Default: no
+#
+#     mixer_card=<number>       the number of sound_card to use for alsamixer (defaultsto <card>)
+#
+#     mixer_control=<string>    the name of an alsamixer control supported by <card>.  Default is
+#                               the first control with either the 'volume' or the 'pvolume'
+#                               capability as reported by 'amixer -c <card> scontrol'.
+#
+#     dmixer=no|yes             Install a psuedo-plugin in /etc/asound.conf that uses the dmix
+#                               plugin to allow multiple sources to share one output nicely.  This
+#                               is created with permissions 0666 and can be accessed by any user
+#                               once created.
+#                               Default: yes, if more than one of spotify, mopidy, bluetooth,
+#                               snapclient is yes
+#
+#     dmixer_plugin=string      Name of the ALSA dmix plugin
+#                               Default: aardmixer
+#
+#     dmix_device=string        Name of the ALSA dmix PCM and Control devices
+#                               Default: aarddmix
+#
+#     dmixer_ipc_key=integer    Unique integer used to distinguish this dmix plugin from others that
+#                               may be configured on this system.
+#                               Default: 54321 (arbitrary but not random)
+#                               Defined in aardsound_dmixer/defaults/main.yml
+#
+#     format                    F64|F32|S32|S24|S24_3|S16 Default: S24
+#                               Little-endian
+#                               Used by spotify and FFMPEG in spotify-multiroom
+#                               FFMPEG format is set to xxxle
+#                               FFMPEG codec is set to pcm_xxxle
+#                               where xxx is the value in lower case
+#                               Used by mopidy in mopdiy-multiroom
+#                               audio format set to XXXLE
+#                               where XXX is the value in upper case
+#
+#     rate:                     Sample frequency in Hz Default 44100
+#                               Note that changing from 44100 for Spotify will cause the source to
+#                               be resampled and that this is a feature of the raspotify version of
+#                               librespot and is not present in the upstream version
+#
+#     depth:                    Audio bit depth  Default 16
+#
+#     channels                  The number of audio channels Default 2, untested with anything else
+#
+# REALLY NOT SURE WHETHER PLUGIN MULTIROOM HELPS
+#
+# RASPOTIFY OPTIONS (from the spotify role: written to /etc/default/spotify; the spotify_multiroom
+#                    role: written to /etc/default/spotify_snapserver; defaults are defined in #
+#                    roles/spotify/defaults/main.yml)
+#
+#     spotify_name=<string> (default: '<Hostname>' plus '(<Location>)' if defined plus
+#                             'for Snapcast' if applicable)
+#                             sets the name as seen by Spotify Connect).
+#
+#     spotify_autoplay=yes|no (default no); Autoplay similar songs when your music ends
+#
+#     spotify_bitrate=96|160|320 (default 320); set low, medium or high quality rate in kbps
+#
+#     spotify_verbose=no|yes  (default no); append the --verbose option to the librespot
+#                             invocation
+#
+#     spotify_volume_normalisation=no|yes Default yes
+#
+# The following normalisation options (note the UK spelling) correspond directly to librespot
+# options without the spotify prefix and with underscores in place of hyphens.  No value checking is
+# done.
+#
+#     spotify_normalisation_method=basic|dynamic
+#                             Specify the normalisation method to use.  Defaults to dynamic.
+#
+#     spotify_normalisation_gain_type=track|album|auto
+#                             Specify the normalisation gain type to use.  Defaults to auto.
+#
+#     spotify_normalisation_pregain=PREGAIN
+#                             Pregain (dB) applied by volume normalisation. Defaults to 0.
+#
+#     spotify_normalisation_threshold=THRESHOLD
+#                             Threshold (dBFS) to prevent clipping. Defaults to _2.0.
+#
+#     spotify_normalisation_attack=TIME
+#                             Attack time (ms) in which the dynamic limiter is reducing gain.
+#                             Defaults to 5.
+#
+#     spotify_normalisation_release=TIME
+#                             Release or decay time (ms) in which the dynamic limiter is restoring
+#                             gain. Defaults to 100.
+#
+#     spotify_normalisation_knee=KNEE
+#                             Knee steepness of the dynamic limiter. Defaults to 1.0.
+#
+# MOPIDY OPTIONS (from the mopidy_installer role)
+#
+#     mopidy_media=<path>       directory used by mopidy-local
+#                               default is /var/lib/mopidy/media
+#
+#     mopidy_nfs=<server>:<path>|. NFS mount to be mounted over the mopidy_media directory
+#                               creates an fstab entry to mount the stated directory at
+#                               mopidy_media with type "nfs" and options "ro,bg".  Path is the path
+#                               as reported by the NFS server when the exportfs command is issued
+#                               without arguments and will be of the form /srv/Music/library
+#                               If the special value . (dot) is provided then any existing mount is
+#                               removed
+#                               If this is not defined then no NFS mount is created.
+#
+#     mopify_nfs_remount=no|yes Do we remount the NFS directory?  The mounted parameter
+#                               of the Ansible Posix mount module will not remount a
+#                               directory if the current mount differs from requested one;
+#                               it will only change /etc/fstab.  Specify remounted=yes
+#                               to force a remount (which will always return changed=yes)
+#                               There is a side-effect that if mopidy, mopidy_multiroom and
+#                               mopidy_nfs_remount are all yes then the remount will
+#                               occur twice: this a sufficiently rare corner case that
+#                               coding the state of this between two invocations of
+#                               the mopidy_installer role is not worth it.
+#                               Default: no
+#
+#     mopidy_local_scan=0..23   Hour of the day to run mopidy local scan via crontab.
+#                               Default is not to run it.  The value Will be passed to
+#                               ansible.builtin.cron's hour parameter without further checking
+#                               if defined. Alternative crontab values such as '*' or '*/2' can
+#                               be used to run more often than daily.  See also the issue below
+#                               mopdiy-local-scan memory leakage.
+#
+#     mopdiy_local_scan_now=yes|no Run initial (async) local scan after installation?
+#                               The mopidy_local_scan_limit is applied to this scan as well.
+#                               Default: yes
+#
+#     mopidy_local_scan_limit=n Limit on number of files scanned in one go by local scan.
+#                               Default = 0
+#                                   due to an open mopidy-local memory leak in
+#                               local scan which is unlikely to be resolved soon due to
+#                               a lack of a permanent maintainer for mopidy local.
+#                               https://github.com/mopidy/mopidy-local/issues/22
+#                               With a large library, a limit of, say, 500 and the fact that local
+#                               scan suffers (on a Raspberry Pi Zero W anyway) from frequent
+#                               database timeouts from its backend, scanning your library
+#                               may take weeks or months via crontab.
+#
+#                               Repeated (or batch) manual scanning with mopidyctl may be
+#                               needed:
+#
+#                                 sudo mopidyctl -v --config /etc/mopidy/mopidy.conf \
+#                                 local scan --limit 500
+#
+#                               Note that both the mopidy and mopidysnap (for mopidy multiroom)
+#                               instances have to scan if you enable both: they don't share a
+#                               database.
+#
+#                                 sudo mopidyctl -v --config /etc/mopidy/mopidysnap.conf \
+#                                 local scan --limit 500
+#
+#                               -v is quite noisy but shows the successes as well as the
+#                               timeout failures.
+#
+#     mopidy_trusted_network=no|yes Do we trust the local network to open up http/mpd to
+#                               clients?  Default is no (which means we only trust localhost
+#                               but that's not very helpful in most cases because aardsound
+#                               is aimed at a headless setup.  You either need your network
+#                               to be secure or you have secured this behind a proxy because
+#                               mopidy-http has no authentication or authorization and
+#                               mopify-mpd has only a password and neither supports
+#                               encyrption.  If you don't trust all the clients on your
+#                               network, consider mopidy=no to disable the installation.
+#                               You have been warned.
+#                               See https://docs.mopidy.com/en/latest/ext/http/ and
+#                               https://github.com/mopidy/mopidy-mpd
+#
+#     mopidy_http_port          Which TCP port mopidy-http listens on, default 6680
+#
+#     mopidy_mpd=no|yes         Do we enable MPD or just HTTP
+#
+#     mopidy_mpd_port           Which TCP port mopidy-mpd listens on, default 6600
+#
+#     mopidy_mpd_password=<word> Password for access to mopidy-mpd (all-or-nothing)
+#                               Default is no password
+#
+#     mopidy_verbosity=0..4     Verbosity level for logging/verbosity section of mopidy config
+#                               Default 0
+#
+#  MULTIROOM OPTIONS
+#
+#     multiroom_location=string Location string for the raspotify multiroom instance
+#                               default is "Multiroom"
+#
+#     spotify_multiroom_snap_port_offset   (Set to: 0)
+#     mopidy_multiroom_snap_port_offset    (Set to: 10000)
+#     bluetooth_multiroom_snap_port_offset (Set to: 20000)
+#                               Snapserver by default has three ports at 1704, 1705 and 1780
+#                               With multiple snapserver instances, we need to avoid collisions
+#                               The value of these three variables is a number added to the
+#                               default ports depending on the role of the snapserver
+#                               NB.  These variables are shown with their role prefix; there is
+#                               no aardsound_ version of them.  The default values are 0 in each
+#                               role, but aardsound sets the value above in its vars/main.yml
+#                               file, (i.e. at a higher priority than inventory variables)
+#
+#     snapserver_debug: false|true If true, sets default of snapserver_logging to '*:debug'
+#     snapserver_logging=<log>  More fine-grained control of snapserver logging
+#                               Set the snapserver logging filter:
+#                                  <tag>:<level>[,<tag>:<level>]*
+#                               where
+#                                     tag = * or <log tag>
+#                                     level = [trace,debug,info,notice,warning,error,fatal]
+#                               see https://github.com/snapcast/snapcast/\
+#                                   blob/develop/server/etc/snapserver.conf
+#                               Default is none (equivalent to *:info)
+#
+#     snapclient=no|yes         Do we install a snapclient.
+#                               default is no
+#
+#     snapclient_of=<snapserver_spec>
+#     snapclient_of=[<snapserver_spec>, ...]
+#                               Where snapserver spec is a dictionary:
+#                                 host: hostname_or_fqdn_or_IP address
+#                                 port: number <optional, default: 1704)
+#                                 name: string <optional, default: none>
+#                               If specified as a list, multiple snapclients will be configured,
+#                               for different combinaitons of server and port.
+#                               The snapclient service is named 'snapclient-' followed by:
+#                               - the value if the 'name' attribute if defined
+#                               - 'host'-'port' if the 'port' attribute is defined
+#                               - 'host' otherwise
+#                               In each case, it is folded to lower case, dots are converted to
+#                               hypens and non-alphanumeric, non-hyphen characters are removed
+#                               Note if snapclient_of is defined as a list of two or more servers
+#                               and subsequently redefined as a shorter list or as a single server
+#                               then the snapserver instance(s) at the end of the original list will
+#                               not be deleted and will need to be removed manually.
+#
+#
+#     snapclient_debug: false|true If true, sets default of snapclient_logging to '*:debug'
+#     snapclient_logging=<log>  More fine-grained control of snapserver logging
+#                               Set the snapclient logging filter:
+#                                  <tag>:<level>[,<tag>:<level>]*
+#                               where
+#                                     tag = * or <log tag>
+#                                     level = [trace,debug,info,notice,warning,error,fatal]
+#                               Default is none (equivalent to *:info)
+#
+# The following vars are define the service names we use
+#
+#     spotify_service=<name>    name of the raspotify instance that supports Spotify Connect
+#                               default is spotify
+#
+#     spotify_multiroom_service0=<name>
+#                               name of the "oneshot" service that creates the FIFO between
+#                               spotify_multiroom_service2 and spotify_multiroom_service3
+#                               default is spotify-multiroom-fifo
+#
+#     spotify_multiroom_service1=<name>
+#                               name of the raspotify instance that feeds snapserver via snd-aloop
+#                               and FIFO
+#                               default is spotify-multiroom-source
+#
+#     spotify_multiroom_service2=<name>
+#                               name of the ffmpeg instance that bridges the output of snd-aloop
+#                               to the fifo created by mopidy_multiroom_service3
+#                               default is spotify-multiroom-bridge
+#
+#     spotify_multiroom_service3=<name>
+#                               name of the snapserver instance that consumes the output of
+#                               mopidy_multiroom_service2
+#                               default is spotify-multiroom-sink
+#
+#     mopidy_service=<name>     name of the mopidy instance that reads local or network audio
+#                               default is mopidy
+#
+#     spotify_multiroom_service0=<name>
+#                               name of the "oneshot" service that creates the FIFO between
+#                               mopidy_multiroom_service1 and mopidy_multiroom_service2
+#                               default is mopidy-multiroom-fifo
+#
+#     mopidy_multiroom_service1=<name>
+#                               name of the mopidy instance that feeds snapserver via fifo
+#                               default is mopidy-multiroom-source
+#
+#     mopidy_multiroom_service2=<name>
+#                               name of the service that runs a regular scan of the mopidy local
+#                               database
+#                               default is mopidy-multiroom-scan
+#
+#     mopidy_multiroom_service3=<name>
+#                               name of the snapserver instance that consumes the output of
+#                               mopidy_multiroom_service1
+#                               default is mopidy-multiroom-sink
+#
+# Snapserver, which provides multiroom support, expects input from a FIFO; two are defined
+#
+#     spotify_multiroom_fifo=<path> (default /tmp/spotify-fifo)
+#
+#     mopidy_multiroom_fifo=<path> (default /tmp/mopidy-fifo)
+#
+# This assumes /tmp is a RAM disk; relocating them to /var/run was problematic in testing due to
+# permission issues
+#
+# The following vars aer defined in the spotify-multiroom and mopidy-multiroom roles to define the
+# source and sink ends of the FIFO separately.  Don't mess with them unless debugging, If either or
+# both is changed, nothing will flow unless something is done outside aardsound to join them (the
+# changed FIFO(s) are not created automatically)
+#
+#     spotify_multiroom_source_fifo=<path> (default: spotify_multiroom_fifo)
+#
+#     spotify_multiroom_sink_fifo=<path> (default: spotify_multiroom_fifo)
+#
+#     mopidy_multiroom_source_fifo=<path> (default: mopidy_multiroom_fifo)
+#
+#     mopidy_multiroom_sink_fifo=<path> (default: mopidy_multiroom_fifo)
+#
+# This is specifically designed for running (in a terminal) something like
+#
+#   mkfifo -m 666 /tmp/spotify-fifo1
+#   pv -W /tmp/spotify-fifo1 > /tmp/spotify-fifo
+#
+# assuming that spotify_multiroom_source_fifo is set /tmp/spotify-fifo1
+#
+# Note that snapserver will try to create its FIFO (the sink), if the source FIFO is different
+# it has to be created outside aardsound
+#
+#
+# MOPIDY MULTIROOM OPTIONS (from the mopidy_installer role)
+#
+# Most options are the same as for the non-multiroom mopidy installer, except for the
+# TCP port numbers.  The defaults assume that the server will run mopidy locally as well
+# so they are increased by 1.  If you want the default ports for multiroom mopidy then
+# specify mopidy_multiroom_http_port=6680 and for MPD mopidy_multiroom_mpd_port=6600
+#
+#     mopidy_multiroom_http_port  Which TCP port mopidy-http listens on, default 6681
+#
+#     mopidy_mulltiroom_mpd_port  Which TCP port mopidy-mpd listens on, default 6601
+#
+#     BLUETOOTH OPTIONS
+#
+#     hci_device=<n>            Which bluetooth device are we interested in?  Default 0
+#                               See also bt_disable_onboard, which if yes will disable the device
+#                               which is hci0 on reboot and therefore renumber any USB-attached HCI
+#                               device[s], typically from 1 to 0
+#
+#     bluealsa_install=no|yes   Installs blueslsa from github.  Default is yes if bluealsa is not
+#                               installed, otherwise no.
+#
+#     bluetooth_pin=<[nn]nnnn>  Bluetooth PIN defined to bt-agent
+#
+
+#
+# To do list:
+# - linting
+# - actually get bluetooth working!
+# - attenuate mopidy-webclient output to match spotify and or add gain to spotify
+# - bluetooth multiroom with two bluealsa daemons and two adapters
+# - alsa sound mixer web page a la snapdroid??
+# - bluetooth pairing button web page
+# - resurrect peppyalsa?
+---
+- name: Setup multi-room Spotify and/or Mopidy on a RasPiOS server wih a sound card
+  # limit this with -l; or set aardsound_allow_all_inventory=true
+  hosts: aardsound
+  become: true
+  roles:
+  - aardsound

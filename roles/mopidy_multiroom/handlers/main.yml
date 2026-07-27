@@ -1,0 +1,12 @@
+---
+# source and sink services are restarted by handlers in ../../mopidy and ../../snapserver
+- name: Enable Mopidy Multiroom FIFO service
+  systemd:
+    name: "{{ mopidy_multiroom_service0 }}"
+    enabled: true
+    daemon_reload: true
+
+- name: Reload systemd
+  listen: Reload systemd for mopidy_multiroom_active=false
+  systemd:
+    daemon_reload: true

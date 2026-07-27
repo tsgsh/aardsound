@@ -1,0 +1,30 @@
+---
+- name: Add the source repo to APT
+  register: raspotify_installer_r_repo_added
+  deb822_repository:
+    name: "{{ raspotify_installer_package }}"
+    types: deb
+    uris: "{{ raspotify_installer_source_uri }}"
+    suites: "{{ raspotify_installer_package }}"
+    components:
+    - main
+    signed_by: "{{ raspotify_installer_key_url }}"
+    install_python_debian: true
+
+- name: Update APT cache if repo was added
+  when: raspotify_installer_r_repo_added.changed  # noqa: no-handler
+  changed_when: true
+  apt:
+    update_cache: true
+
+- name: "Install {{ raspotify_installer_package }}"
+  apt:
+    name: "{{ raspotify_installer_package }}"
+    state: present
+
+- name: Stop, disable and mask the raspotify service  # we will build our own custom services
+  systemd:
+    name: raspotify
+    state: stopped
+    enabled: false
+    masked: true

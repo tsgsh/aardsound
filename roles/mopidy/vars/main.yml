@@ -1,0 +1,70 @@
+---
+mopidy_package: mopidy
+mopidy_scan_service: "{{ mopidy_service }}-scan"
+mopidy_name: "{{ mopidy_location if mopidy_location != none else
+                 inventory_hostname_short | capitalize }}"
+mopidy_uname: "{{ mopidy_service }}"
+mopidy_gname: "{{ mopidy_package }}"
+mopidy_groups: "{{ (['audio'] + [mopidy_extra_groups]) | flatten | unique }}"
+mopidy_install_dir: "{{ mopidy_venv if mopidy_use_venv else '/usr' }}"
+mopidy_conf_file: "/etc/{{ mopidy_package }}/{{ mopidy_service }}.conf"
+mopidy_conf_template: "{{ mopidy_package }}.conf.j2"
+mopidy_service_file: "/etc/systemd/system/{{ mopidy_service }}.service"
+mopidy_service_template: '{{ mopidy_package }}.service.j2'
+mopidy_scan_service_file: "/etc/systemd/system/{{ mopidy_scan_service }}.service"
+mopidy_scan_service_template: "{{ mopidy_package + '-scan' }}.service.j2"
+mopidy_scan_timer_file: "/etc/systemd/system/{{ mopidy_scan_service }}.timer"
+mopidy_scan_timer_template: "{{ mopidy_package + '-scan' }}.timer.j2"
+# Ansible doesn't yet implement a systemd-escape filter
+# https://github.com/ansible-collections/community.general/issues/2601
+# anything other than a hyphen is a corner case we aren't worrying about
+mopidy_mount_name: "{{ mopidy_mount_point[1:] | replace('-', '\\x2d') | replace('/', '-') }}"
+mopidy_mount_file: "/etc/systemd/system/{{ mopidy_mount_name }}.mount"
+mopidy_mount_template: '{{ mopidy_package }}.mount.j2'
+# can't scan with mopidyctl because it hard codes the values of DAEMON_USER and CONFIG_FILES to
+# refer to mopidy and /etc/mopidy/mopidy.conf etc.
+mopidy_description: "{{ ((mopidy_location + ' ') if mopidy_location != none else '') +
+                        mopidy_service | capitalize +
+                        '' if mopidy_service == mopidy_package else (' (' + mopidy_package + ')') +
+                        ' service' }}"
+mopidy_command: >-
+  {{ mopidy_install_dir }}/bin/{{ mopidy_package }}
+  --config /usr/share/{{ mopidy_package }}/conf.d:{{ mopidy_conf_file }}
+mopidy_scan_command: >-
+  {{ mopidy_command }}
+  {{ ('--limit ' + mopidy_local_scan_limit | int) if mopidy_local_scan_limit | int > 0 else '' }}
+  local scan
+# is this really needed?
+mopidy_su_scan_command: "su -s /bin/sh -c '{{ mopidy_scan_command }}' -- {{ mopidy_service }}"
+# sudo apt install mopidy mopidy-alsamixer mopidy-local mopidy-mpd
+# creates the following
+# $ sudo tree -x /var/lib/mopidy
+# /var/lib/mopidy
+# ├── local
+# ├── m3u
+# └── media
+mopidy_var_dirs:
+- "/var/cache/{{ mopidy_service }}"
+- "/var/lib/{{ mopidy_service }}"
+- "/var/lib/{{ mopidy_service }}/local"
+- "/var/lib/{{ mopidy_service }}/m3u"
+- "{{ mopidy_media_dir }}"
+mopidy_media_dir: "/var/lib/{{ mopidy_service }}/media"
+mopidy_mount_point: "{{ none if mopidy_media_library == mopidy_media_dir else
+                        mopidy_media_dir }}"
+mopidy_audio_output: "alsasink device = {{ mopidy_output_device }}"
+mopidy_bind_address: "{{ '::' if mopidy_trusted_network and mopidy_ipv6 else
+                         '0.0.0.0' if mopidy_trusted_network else
+                         '::1' if mopidy_ipv6 else
+                         '127.0.0.1' }}"
+mopidy_extension_list: "{{ mopidy_extensions |
+                           dict2items(key_name='extension', value_name='config') }}"
+mopidy_untrusted_warning: >-
+  mopidy_trusted_network is false:
+  {{ mopidy_service }} can only be accessed from this server, which is secure but won't necessarily
+  be useful unless you install a reverse proxy too
+mopidy_trusted_warning: >-
+  mopidy_trusted_network is true:
+  {{ mopidy_service }} can be accessed by anything that can reach this server, which may be useful
+  but is not secure at all; if you don't trust all of the hosts on this network with access, then
+  consider disabling {{ mopidy_service }}"

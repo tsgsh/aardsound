@@ -1,0 +1,35 @@
+---
+# Four handlers, which ones can be notified depends upon the values of aardsound_reboot and
+# aardsound_reboot_prompt.  They run in this order and use the flag aardsound_reboot_needed.
+#
+# - Reboot needed (used unless aardsound_reboot_prompt is true) - sets the flag to reboot
+# - Reboot prompt (used if both are true) - prompts to set the flag to reboot
+# - Reboot (used if aardsound_reboot is true) - reboots if the reboot flag is true
+# - Clear reboot flag (listens to Reboot) clears the flag after the reboot to prevent a second one
+
+- name: Reboot needed
+  set_fact:
+    aardsound_reboot_needed: true
+
+- name: Reboot prompt
+  block:
+
+  - name: Pause before rebooting
+    register: aardsound_r_reboot
+    pause:
+      prompt: "Reboot hosts that need it? (Y/n;), Ctrl+C to interrupt:"
+
+  - name: Interpret the user response
+    set_fact:
+      aardsound_reboot_needed: "{{ false if aardsound_r_reboot is defined else
+                                   upper(aardsound_r_reboot.user_input) in ['Y', 'YE', 'YES'] }}"
+
+
+- name: Reboot
+  when: aardsound_reboot_needed | bool
+  reboot:
+
+- name: Clear reboot flag
+  listen: Reboot
+  set_fact:
+    aardsound_reboot_needed: false

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# FFMPEG bridge service for spotify-multiroom used by
+# spotify-multiroom-bridge.service
+#
+# Reads output from ALSA snd-aloop loopback device (which should be fed by
+# librespot) and writes to a FIFO which is used as input to snapserver
+#
+# The FIFO should be created by spotify-multiroom-fifo.service before this
+# service is started
+#
+# Sample format should match between source and sink but if resampling is
+# required, adjust one or both of values of the -ar options and add the option
+# -af aresample=resampler=soxr:precision=28:dither_method=none
+/usr/bin/ffmpeg $SPOTIFY_MULTIROOM_FFMPEG_OPTS > $SPOTIFY_MULTIROOM_FIFO

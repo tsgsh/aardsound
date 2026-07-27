@@ -1,0 +1,36 @@
+---
+- name: Run mopidy local scan
+  changed_when: true
+  command:
+    name: "{{ mopidy_service }} -c {{ mopidy_conf_file }} local scan"
+
+- name: Enable and (re)start mopidy service
+  systemd:
+    name: "{{ mopidy_service }}.service"
+    state: restarted
+    enabled: true
+    daemon_reload: true
+
+- name: Start mopidy local scan service  # does initial scan and enables timed service
+  async: 3600  # arbitrary, we'll finish before this
+  poll: 0      # fire and forget
+  systemd:
+    name: "{{ mopidy_scan_service }}.service"
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Enable mopidy local scan timer  # does initial scan and enables timed service
+  systemd:
+    name: "{{ mopidy_scan_service }}.timer"
+    enabled: true
+    daemon_reload: true
+
+- name: Reload systemd
+  listen: Reload systemd for mopidy_active=false
+  systemd:
+    daemon_reload: true
+
+- name: Mopidy network notification
+  debug:
+    msg: "{{ mopidy_trusted_warning if mopidy_trusted_network else mopidy_untrusted_warning }}"

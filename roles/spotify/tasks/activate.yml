@@ -1,0 +1,93 @@
+---
+- name: Confirm that the bitrate value is one of the three supported ones
+  assert:
+    that: spotify_bitrate | int in [96, 160, 320]
+    fail_msg: "Supported librespot bit rates are 96 [Low], 160 [Medium] or 320 [High]"
+    quiet: true
+
+- name: "Group {{ spotify_gname }}"
+  group:
+    name: "{{ spotify_gname }}"
+    state: present
+    system: true
+
+- name: "User {{ spotify_uname }}"
+  failed_when: false  # RC=8 if this is done by the raspotify installation
+  user:
+    name: "{{ spotify_uname }}"
+    group: "{{ spotify_gname }}"
+    groups: "{{ spotify_groups }}"
+    create_home: true
+    home: "/var/cache/{{ spotify_service }}"
+    shell: "/usr/sbin/nologin"
+    expires: -1
+    system: true
+    comment: "{{ spotify_description }}"
+
+- name: "{{ spotify_service_file }}"
+  notify: Enable and (re)start librespot service
+  template:
+    src: "{{ spotify_service_template }}"
+    dest: "{{ spotify_service_file }}"
+    mode: '0644'
+
+- name: "/etc/{{ spotify_service }}"
+  notify: Enable and (re)start librespot service
+  file:
+    path: "/etc/{{ spotify_service }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0600'  # per ConfigurationDirectoryMode=0600 in .service file
+
+- name: "{{ spotify_conf_file }}"
+  notify: Enable and (re)start librespot service
+  template:
+    src: "{{ spotify_conf_template }}"
+    dest: "{{ spotify_conf_file }}"
+    owner: root
+    group: root
+    mode: '0600'
+    backup: true
+
+- name: Ensure existing crash service is enabled and started
+  when: not spotify_extra
+  systemd:
+    name: "{{ spotify_crash_service }}.service"
+    enabled: true
+    state: started
+
+- name: Setup the crash service
+  when: spotify_extra
+  block:
+
+  - name: "Set up {{ spotify_crash_shell_script }}"
+    template:
+      src: "{{ spotify_crash_shell_template }}"
+      dest: "{{ spotify_crash_shell_script }}"
+      owner: root
+      group: root
+      mode: '0755'
+      backup: true
+
+  - name: "{{ spotify_crash_service_file }}"
+    notify: Enable and (re)start spotify crash service
+    template:
+      src: "{{ spotify_crash_service_template }}"
+      dest: "{{ spotify_crash_service_file }}"
+      mode: '0644'
+
+# https://github.com/dtcooper/raspotify/issues/727 workaround
+- name: >
+    Hosts file entry for librespot issue with apresolve.spotify.com
+    {{ ' not' if spotify_etc_hosts_workaround_needed else '' + 'required' }}"
+  when: spotify_etc_hosts_workaround is defined
+  tags:
+  - spotify-etc-hosts
+  blockinfile:
+    path: /etc/hosts
+    block: "{{ spotify_etc_hosts_workaround }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - RASPOTIFY"
+    insertafter: EOF
+    state: "{{ 'present' if spotify_etc_hosts_workaround_needed | default(false) else
+               'absent' }}"

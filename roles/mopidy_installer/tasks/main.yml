@@ -1,0 +1,139 @@
+---
+- name: Check whether we have a graphical installation
+  register: mopidy_installer_r_get_default
+  changed_when: false
+  check_mode: false
+  tags:
+  - always
+  command:
+    cmd: systemctl get-default
+
+- name: Mount the NFS music directory  # mopidy instances will bind mount to it
+  when: mopidy_installer_nfs != none and mopidy_installer_library != none  # see defaults/main.yml
+  tags:
+  - nfs
+  block:
+
+  - name: "{{ mopidy_installer_library }}"
+    when: mopidy_installer_library not in ansible_facts.mounts | map(attribute='mount')
+    file:
+      path: "{{ mopidy_installer_library }}"
+      state: directory
+      mode: '0644'
+
+  - name: Create the NFS mount
+    notify: Reload systemd
+    ansible.posix.mount:
+      src: "{{ mopidy_installer_nfs }}"
+      path: "{{ mopidy_installer_library }}"
+      fstype: nfs
+      opts: "{{ mopidy_installer_nfs_options }}"
+      state: mounted
+
+- name: APT installation
+  tags:
+  - apt
+  block:
+
+  - name: Unmount the media directory from /var/mopidy/media prior to APT installation
+    register: mopidy_installer_r_umount
+    failed_when: false  # service doesn't exist until the mopidy role has run
+    systemd_service:
+      name: var-mopidy-media.mount
+      state: stopped
+
+  - name: Install pre-reqs, mopidy and APT-packaged mopidy plugins
+    apt:
+      name: "{{ mopidy_installer_apt }}"
+      state: present
+
+  always:
+
+  - name: Remount the media directory from /var/mopidy/media prior to APT installation
+    when: mopidy_installer_r_umount.changed  # noqa: no-handler
+    systemd_service:
+      name: var-mopidy-media.mount
+      state: stopped
+
+- name: PIP venv installation
+  when: mopidy_installer_pip not in [none, '', []]
+  tags:
+  - pip
+  block:
+
+  - name: Group mopidy
+    group:
+      name: mopidy
+      system: true
+
+  - name: User mopidy
+    user:
+      name: mopidy
+      system: true
+      group: mopidy
+      groups: audio
+      append: true
+      home: /var/lib/mopidy
+      create_home: true
+      shell: /usr/sbin/nologin
+      expires: -1
+
+  - name: Ensure the venv parent directory exists
+    vars:
+      mopidy_installer_own_parent: "{{ mopidy_installer_venv | dirname | basename == 'mopidy' }}"
+    file:
+      path: "{{ mopidy_installer_venv | dirname }}"
+      state: directory
+      owner: "{{ 'mopidy' if mopidy_installer_own_parent else omit }}"
+      group: "{{ 'mopidy' if mopidy_installer_own_parent else omit }}"
+      mode: '0755'
+
+  - name: Block for running as Mopidy
+    become: true  # already true but... linting
+    become_user: mopidy
+    block:
+
+    - name: Workaround block
+      # ansible.builtin.pip wants to write to the whole directory tree if the venv doesn't already
+      # exist!
+      block:
+
+      - name: Check if the venv exists
+        register: mopidy_installer_r_stat
+        stat:
+          path: "{{ mopidy_installer_venv }}"
+
+      - name: Create the venv
+        when: not mopidy_installer_r_stat.stat.exists
+        changed_when: true
+        command:
+          cmd: "/usr/bin/python3 -m venv {{ mopidy_installer_venv }}"
+
+    - name: Install PIP packages into the virtual environment
+      register: mopidy_installer_r_pip
+      pip:
+        name: "{{ mopidy_installer_pip }}"
+        virtualenv: "{{ mopidy_installer_venv }}"
+
+- name: Create sudoers entries for Mopidy extensions
+  when: mopidy_installer_sudoers != []
+  tags:
+  - sudoeers
+  community.general.sudoers:
+    name: 50-mopidy
+    group: mopidy
+    nopassword: true
+    commands: "{{ mopidy_installer_sudoers }}"
+
+- name: Run any post-package installation commands
+  loop: "{{ mopidy_installer_install | map('dict2items') | map('first') }}"
+  become: true
+  become_user: "{{ item.key }}"
+  changed_when: true
+  tags:
+  - install
+  shell:
+    cmd: |
+      set -o pipefail
+      {{ item.value }}
+    executable: /bin/bash

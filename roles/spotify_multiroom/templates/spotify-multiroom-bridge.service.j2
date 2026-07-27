@@ -1,0 +1,14 @@
+[Unit]
+Description=FFMPEG bridge service for multi-room Spotify
+After=sound.target {{ spotify_multiroom_service3 }}.service
+
+[Service]
+User={{ spotify_multiroom_service2 }}
+Group={{ spotify_multiroom_gname }}
+SupplementaryGroups=audio {{ snapserver_gname }}
+EnvironmentFile=-%E/default/%N
+ExecStart={{ spotify_multiroom_script2_file }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

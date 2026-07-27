@@ -1,0 +1,79 @@
+---
+snapclient_package: snapclient
+snapclient_gname: _snapclient  # as installed by the snapclient package
+snapclient_location_: "{{ (snapclient_location | string + ' ') if snapclient_location != none else
+                           '' }}"
+snapclient_of_list: "{{ [snapclient_of] | flatten }}"
+snapclient_of_count: "{{ snapclient_of_list | length }}"
+snapclient_environment_template: "{{ snapclient_package }}.j2"
+snapclient_environment_file: "/etc/default/{{ snapclient_service }}"
+snapclient_service_template: "{{ snapclient_package }}.service.j2"
+snapclient_service_file: "/etc/systemd/system/{{ snapclient_service }}.service"
+snapclient_sample_format: "{{ snapclient_rate | string + ':' +
+                              snapclient_depth | string + ':' +
+                              snapclient_channels | string }}"
+snapclient_output_string: "{{ '--soundcard ' + snapclient_output_device }}"
+snapclient_software_mixer_string: "--player alsa --mixer software"
+snapclient_hardware_mixer_string: >-
+  --player alsa --mixer '{{ snapclient_mixer_plugin + ':' +
+                            snapclient_mixer_card | strin + ','
+                            snapclient_mixer_control }}'
+snapclient_mixer_string: "{{ snapclient_hardware_mixer_string if snapclient_mixer | bool else
+                             '' }}"
+snapclient_instance_string: "--instance {{ snapclient_index }}"
+snapclient_logging_string: "{{ '' if snapclient_logging == none or
+                                  snapclient_logging | trim == '' else
+                               (' --logfilter ' + snapclient_logging) }}"
+snapclient_hosts: "{{ snapclient_of_list | map(attribute='host', default=none) }}"
+snapclient_ports: "{{ snapclient_of_list | map(attribute='port', default=1704) | map('int') }}"
+snapclient_names: "{{ snapclient_of_list | map(attribute='name', default=none) }}"
+snapclient_port_min: "{{ snapclient_ports | min }}"
+snapclient_port_max: "{{ snapclient_ports | max }}"
+# hostport lsiut is host for port 1704 otherwise host:port (hyphen would be risky for joining
+snapclient_hostports: "{{ snapclient_hosts |
+                          zip([':'] |
+                              product(snapclient_ports) |
+                              map('join') |
+                              map('regex_replace', '^:1704$', '')) |
+                          map('join') }}"
+# snapclient_labels are the name if present or the host_port list
+snapclient_labels: "{{ snapclient_names |
+                       zip(snapclient_hostports) |
+                       map('reject', 'eq', none) |
+                       map('first') }}"
+# snapclient_services is the label in lower case with whitespace, colons, underscores and dots
+# converted to hyphens and any characters outside only a-z0-9- de;eted
+snapclient_services: "{{ snapclient_labels |
+                         map('lower') |
+                         map('regex_replace', '[:_\\s\\.]', '-') |
+                         map('regex_replace', '[^a-z0-9-]', '') |
+                         product(['snapclient']) |
+                         map('reverse') |
+                         map('join', '-') |
+                         map('regex_replace', '^(.{0,255}).*', '\\1') }}"
+# snapclien_unamst is snapclient_services truncated after 32 characters
+snapclient_unames: "{{ snapclient_services | map('regex_replace', '^(.{0,32}).*', '\\1') }}"
+
+# variables that depend upon loop over snapclient_of_list with snapclient_server as the loop
+# variable # and snapclient_index as the index variable
+snapclient_host: "{{ snapclient_hosts[snapclient_index] }}"
+snapclient_port: "{{ snapclient_ports[snapclient_index] }}"
+snapclient_name: "{{ snapclient_names[snapclient_index] }}"
+snapclient_name_: "{{ (' (' + snapclient_name + ')') if snapclient_name != none else '' }}"
+snapclient_hostport: "{{ snapclient_hostports[snapclient_index] }}"
+snapclient_service: "{{ snapclient_services[snapclient_index] }}"
+snapclient_uname: "{{ snapclient_unames[snapclient_index] }}"
+snapclient_datadir: "/var/lib/{{ snapclient_uname }}"
+snapclient_description: "{{ snapclient_location_ + 'Snapcast client of ' +
+                            snapclient_hostport + snapclient_name_ }}"
+snapclient_of_string: >-
+      --host {{ snapclient_host }}
+      --port {{ snapclient_port | string }}
+      --host-id {{ ansible_hostname }}
+snapclient_opts:
+- "{{ snapclient_of_string }}"
+- "{{ snapclient_output_string }}"
+- "{{ snapclient_mixer_string }}"
+- "{{ snapclient_instance_string }}"
+- "{{ snapclient_logging_string }}"
+snapclient_opts_string: "{{ snapclient_opts | reject('eq', '') | join(' ') }}"

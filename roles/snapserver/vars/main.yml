@@ -1,0 +1,19 @@
+---
+snapserver_package: snapserver
+# Snapcast (somewhatt annoyingly) adds a prefix of '_' to user and group names
+snapserver_uname: "{{ '_snapserver' if snapserver_service == 'snapserver' else
+                      snapserver_service }}"
+snapserver_gname: _snapserver  # as installed by the snapserver package
+snapserver_groups: "{{ (['audio'] + [snapserver_extra_groups]) | flatten | unique }}"
+snapserver_environment_file: "/etc/default/{{ snapserver_service }}"
+snapserver_environment_template: "{{ snapserver_package }}.j2"
+snapserver_conf_file: "/etc/{{ snapserver_service }}.conf"
+snapserver_conf_template: "{{ snapserver_package }}.conf.j2"
+snapserver_service_file: "/etc/systemd/system/{{ snapserver_service }}.service"
+snapserver_service_template: '{{ snapserver_package }}.service.j2'
+snapserver_datadir: "/var/lib/{{ snapserver_service }}"
+# Sysctl file for disable sysctl fs.protected_fifos
+snapserver_sysctl_file: '/etc/sysctl.d/{{ snapserver_package }}.conf'
+snapserver_sample_format: "{{ snapserver_rate | string + ':' +
+                              snapserver_depth | string + ':' +
+                              snapserver_channels | string }}"

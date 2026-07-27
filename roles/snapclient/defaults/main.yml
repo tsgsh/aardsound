@@ -1,0 +1,15 @@
+---
+snapclient_active: true
+snapclient_of: []
+snapclient_location:
+snapclient_output_device: default
+snapclient_mixer: false
+snapclient_mixer_plugin: hw
+snapclient_mixer_card: 0
+snapclient_mixer_control: Master
+snapclient_passthrough: false
+snapclient_rate: 44100
+snapclient_depth: 16
+snapclient_channels: 2
+snapclient_debug: false
+snapclient_logging: "{{ '*:debug' if snapclient_debug | bool else none }}"

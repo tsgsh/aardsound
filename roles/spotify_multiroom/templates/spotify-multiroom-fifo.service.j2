@@ -1,0 +1,12 @@
+[Unit]
+Description=Create FIFO for multi-room Spotify
+
+[Service]
+Type=oneshot
+User={{ spotify_multiroom_service3 }}
+Group={{ snapserver_gname }}
+ExecStart=-mkfifo --mode 0660 --context {{ spotify_multiroom_fifo }}
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

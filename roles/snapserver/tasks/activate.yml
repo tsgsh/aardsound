@@ -1,0 +1,62 @@
+---
+- name: "Group {{ snapserver_gname }}"
+  group:
+    name: "{{ snapserver_gname }}"
+    state: present
+    system: true
+
+- name: "User {{ snapserver_uname }}"
+  user:
+    name: "{{ snapserver_uname }}"
+    group: "{{ snapserver_gname }}"
+    groups: "{{ snapserver_groups }}"
+    home: "{{ snapserver_datadir }}"
+    create_home: false  # added below
+    shell: '/usr/sbin/nologin'
+    expires: -1
+    system: true
+    comment: "{{ snapserver_description }}"
+
+- name: "Directory {{ snapserver_datadir }}"
+  file:
+    path: "{{ snapserver_datadir }}"
+    state: directory
+    owner: "{{ snapserver_uname }}"
+    mode: '0755'
+
+- name: "{{ snapserver_service_file }}"
+  notify: Enable and (re)start Snapcast server service
+  when: snapserver_service != snapserver_package
+  template:
+    src: "{{ snapserver_service_template }}"
+    dest: "{{ snapserver_service_file }}"
+    mode: '0644'
+
+- name: "Set up {{ snapserver_environment_file }}"
+  notify: Enable and (re)start Snapcast server service
+  template:
+    src: "{{ snapserver_environment_template }}"
+    dest: "{{ snapserver_environment_file }}"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+
+- name: "Set up {{ snapserver_conf_file }}"
+  notify: Enable and (re)start Snapcast server service
+  template:
+    src: "{{ snapserver_conf_template }}"
+    dest: "{{ snapserver_conf_file }}"
+    owner: root
+    group: root
+    mode: '0644'
+    backup: true
+
+- name: Disable sysctl fs.protected_fifos
+  ansible.posix.sysctl:
+    name: fs.protected_fifos
+    reload: true
+    state: present
+    sysctl_file: "{{ snapserver_sysctl_file }}"
+    sysctl_set: true
+    value: '0'
