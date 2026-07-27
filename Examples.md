@@ -20,7 +20,7 @@ By default, Aardsound will select something like `hw:IQaudIODAC,0` where:
   Other plugins are available but for now we will just use `hw`.
 - `IQaudIODAC` is the name that the sound card declares to **ALSA**, possibly with a suffix like
   `_2`   assigned by **ALSA** if there is more than one of the same type.
-  "IQaudIODAC" is the name  declared the [IQaudio DAC+ HAT](
+  "IQaudIODAC" is the name  declared by the [IQaudio DAC+ HAT](
   https://shop.pimoroni.com/products/pi-dac).
 - `0` is the index number of the output device on the sound card; most sound cards have the
   playback device as 0.
@@ -63,9 +63,9 @@ Despite changing the hardware model, this still appears to **ALSA** as an `IQaud
 
 ## Simple Room Setup
 
-In other words, as far as **ALSA** is concerned (and, therefore, **Spotify** or **Mopidy**), the
-HiFi equipment isn't significant and the important part of the Figures 1-3 in the previous section
-is simply:
+In other words, as far as **ALSA** is concerned (and, therefore, **Spotify**, **Mopidy** and, 
+indeed, **Snapcast** too), the HiFi equipment isn't important, only the soundcard.
+Therefore, the Figures 1-3 in the previous section can all be reduced to this simpler diagram:
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")          ┃
@@ -77,6 +77,7 @@ is simply:
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
 *Figure 4*
+
 
 Obviously, your sound card is likely to have a different **ALSA** card name, particularly given that
 my IQaudIO cards are discontinued (don't worry, they have been replaced by equivalents sold under
@@ -111,7 +112,8 @@ The same will apply, naturally, to the **Mopidy** configurations in the other ex
 If we decided to replace "Spotify or Mopidy" in the diagram with "Spotify and Mopidy" then one of 
 the two wouldn't work.
 One would succeed in connecting to the `hw:IQAudIODAC,0` PCM and would prevent the other from
-accessing it; to solve this **ALSA** provides the direct mixer (**dmix**) plugin.
+accessing it.
+To solve this **ALSA** provides the direct mixer (**dmix**) plugin.
 To use **dmix** we need to define a PCM that uses it (actually we also need to define a second 
 PCM of type `dmix` to connect to the output PCM, but we'll ignore that detail: it's handled
 quietly in the `dmixer` **Ansible** role).
@@ -148,7 +150,7 @@ aardsound:
 ## Multi-room Audio
 Let's play **Mopidy** across two (or more) rooms (there is a subtlety with **Spotify**, which we
 will come to soon).
-To do this, we introduce[Snapcast](https://github.com/snapcast/snapcast), which consists of a
+To do this, we introduce [Snapcast](https://github.com/snapcast/snapcast), which consists of a
 server, and a streaming client: `snapclient` and `snapserver`.
 There are also separate control clients (e.g., `snapdroid`) that control the volume level of each
 streaming client.
@@ -181,7 +183,7 @@ big enough to test it).
 The **Ansible** inventory needed for this is a little more complex, because now we have three
 hosts doing two different things.
 We can add a little simplification with an **Ansible** group for `Gromit` and `Feathers`.
-We will keep the "aard" prefix for the group name to avoid clashes with an existing **Ansible**
+We will keep the "aard" prefix for the group name to avoid clashes with any existing **Ansible**
 groups.
 ```YAML
 aardsound:
@@ -275,7 +277,7 @@ aardsound:
 ### Multi-room **Spotify**
 There is a small technical difference with Spotify: although it used to work with a FIFO backend,
 the behaviour has changed.
-**Spotify** Connect now uses the positioning of the playback device to determine whether to keep
+**Spotify Connect** now uses the positioning of the playback device to determine whether to keep
 sending data and **Snapcast** doesn't support this.
 This results in **Spotify Connect** skipping to the next track as soon as it attempts playback.
 The [solution](https://gist.github.com/itskevinb/59630c0a57148ab63cb6325ae6e26da9) to this problem
@@ -370,8 +372,8 @@ single-room instances of **Mopidy** at other times.
 ### **Mopidy**
 This uses different instances of **Mopidy** for the single- and multi-room cases: one **Mopidy** for
 each HiFi-connected Raspberry Pi and one additional one for multi-room.
-You can even mix the two of them, if you turn the multi-room volume down to zero (using a Snapserver
-control client) in rooms where the single-room **Mopidy** is playing.
+You can even mix the two of them, if you turn the multi-room volume down to zero (using a
+**Snapcast** control client) in rooms where the single-room **Mopidy** is playing.
 We need to reintroduce `dmix` for this to work
 ```
                                            ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -425,9 +427,9 @@ aardclient:
 ```
 
 This inventory file introduces a new variable `aardsound_location`.
-We now have three instances in total, but which is which and more importantly, where are they.
-The location is included in the default **Mopidy** zeroconf description of the service so that
-clients that find the three services can distinguish the location of each.
+We now have three instances in total, but which is which and, more importantly, where are they?
+The location is used as the **Mopidy** zeroconf description of the service so that clients that find
+the three services can distinguish the location of each.
 A different variable is used for the multi-room instance: `aardsound_multiroom_name`;
 it has a default value of `Multiroom`, so there is no need to change that in the inventory.
 
@@ -450,7 +452,7 @@ Of course, it is possible to combine the **Snapcast** client and server, like th
 ```
 *Figure 11*
 
-Again, just a the `aardsound_location:` and `aardsound_mopidy:` lines are added to the inventory
+Again, just the `aardsound_location:` and `aardsound_mopidy:` lines are added to the inventory
 from Figure 7.
 ```YAML
 aardsound:
@@ -472,7 +474,8 @@ aardsound:
 ```
 
 ### **Spotify** Multi-room
-The **Spotify** equivalents are more complex because of additional steps in the server pipeline:
+The **Spotify** equivalents are slightly more complex because of the additional steps in the 
+multi‑room pipeline:
 ```
                                                ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
                                                ┃ Raspberry Pi ("Gromit")               ┃
@@ -676,7 +679,7 @@ aardsound:
     - name: Wallace Spotify
       host: wallace
 ```
-Rememner that in all of these cases, it is straightforward to add more hosts to any group and to
+Remember that in all of these cases, it is straightforward to add more hosts to any group and to
 add additional groups with different variables if you want differing configurations on different
 Raspberry Pis.
 
@@ -732,7 +735,13 @@ Wallace, Cooker and Piella are connected via Wifi; everything else via Ethernet 
 Both WiFi and Ethernet-connected devices are connected to the same VLAN and subnet;
 this is important because **Spotify Connect** relies on ZeroConf, which is normally limited to one
 subnet.
+If you need multiple VLANs and subnets to work with **Aardsound** then you will need to set up
+**mDNS** forwarding between the subnets on the firewall or router that interconnects them.
 
-I am also running DNS (BIND9) and DHCP (ISC Kea) services on my network, which means that each of
-the devices has a fixed hostname and IP address.
-
+I run DHCP (ISC Kea) and DNS (BIND9) services on my network, and have a DHCP reservation for each
+device in `/etc/kea/kea-dhcp4.conf` and a "A" record for each device in my DNZ zone file at
+`/var/named/my.domain.db` that matches the IP address on the DHCP reservation.  "Option data"
+statements in the DHCP config set the `domain-name-service` option to the IP address of the DNS
+server and the `domain-search` option to `my.domain`.  
+This gives every device a fixed IP address that can be reached by hostname without the need
+to specifyc the fully-qualified domain name.

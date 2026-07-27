@@ -4,9 +4,9 @@ Ansible Infrastructure as Code setup of (possibly multi-room) Spotify Connect, M
 Raspberry Pi (any model with ARMv7 or ARMv8 hardware) running RasPiOS and with a suitable sound
 card driven by ALSA.
 
-**aardsound** is intended to be used on newly-built Raspberry Pi OS image, however it is written to be
+**aardsound** is intended to be used on newly‑built Raspberry Pi OS image, however it is written to be
 idempotent, assuming the same inventory variables (and/or any extra variables) are passed to it, so
-re-running it should work as expected.
+re‑running it should work as expected.
 
 ## Meaning of **Aardsound** (or **AARDSound**)
 
@@ -18,7 +18,7 @@ after characters from Aardman Animation's Wallace and Gromit films
 
 
 This is a project I started to learn how to use **Ansible**.
-It was refactored in 2026 after the multi-room element stopped working: this improved the strudture,
+It was refactored in 2026 after the multi‑room element stopped working: this improved the strudture,
 removed hundreds of linting errors, added support for Debian Trixie, dropped code that was specific
 to Debian Bullseye and older (e.g., code to compile [librespot](
   https://github.com/librespot-org/librespot) from source).
@@ -26,13 +26,13 @@ to Debian Bullseye and older (e.g., code to compile [librespot](
 ## Components
 
 The primary purpose of **Aardsound** is to automate the deployment of audio software to Raspberry
-Pis connected to Hi-Fi systems.
+Pis connected to Hi‑Fi systems.
 There are three main parts:
 
 - [Spotify Connect](https://connect.spotify.com/) &ndash; specifically for listening to Spotify
   Premium (a free Spotify account won't work);
   **Aardsound** uses the [Raspotify](https://dtcooper.github.io/raspotify/) package, which
-  provides [librespot](https://github.com/librespot-org/librespot) pre-packaged for Debian-based
+  provides [librespot](https://github.com/librespot-org/librespot) pre‑packaged for Debian‑based
   systems
 - [Mopidy](https://mopidy.com/) &ndash; as a more general and extensible music server (Mopidy is 
   not used for Spotify support, but in theory you could do that if you wanted to)
@@ -47,7 +47,7 @@ use PulseAudio, Pipewire or JACK).
 
 Aardsound is intended to configure one or more Raspberry Pi servers to play music from **Spotify**
 or [**Mopidy**](https://mopidy.com/) via an attached sound card and speakers.
-For multi-room audio, **Snapcast** clients can connect each Raspberry Pi to one or more **Snapcast**
+For multi‑room audio, **Snapcast** clients can connect each Raspberry Pi to one or more **Snapcast**
 servers.
 **Snapcast** servers can run alongside **Snapcast** clients or on a dedicated Raspberry Pi or a
 Debian Linux server.
@@ -57,9 +57,9 @@ Once the [**Ansible** Inventory](#ansible-inventory) has been set up, Raspberry 
 to the network with known hostnames (in DNS or `/etc/hosts`) then **Aardsound** is installed and
 configured using the command, from the directory where **Aardsound** is installed:
 ```BASH
-steve@linux:~/github/aardsound $ ansible-playbook aardsound.yml
+steve@linux:~/github/aardsound $ ansible‑playbook aardsound.yml
 ```
-The option `--limit` or `-l` may be useful if you want to install it on one of several possible
+The option `‑‑limit` or `‑l` may be useful if you want to install it on one of several possible
 targets.
 
 Note that, the playbook doesn't set up any of the sound capabilities.  To do that you need to
@@ -67,13 +67,13 @@ configure **Ansible** inventory variables as explained in the
 [example configurations](./Examples.md).
 
 These explain how the various components deployed by **Aardsound** combine to create different
-single-, multi-room and hybrid combinations of Spotify and Mopidy.
+single-, multi‑room and hybrid combinations of Spotify and Mopidy.
 Read this if you are unsure what the best audio setup is for you: there are 12 example setups with
 a corresponding Ansible inventories and the variables needed to deploy that configuration.
 
 **The point of Aardsound** is to make the configuration of your environment to match one of these
 (or some other setup you need) a matter of configuring a few simple Ansible inventory variables
-then running one `ansible-playbook` command and waiting for the magic (technically,
+then running one `ansible‑playbook` command and waiting for the magic (technically,
 [Infrastructure-as-Code](https://en.wikipedia.org/wiki/Infrastructure_as_code) (IaC) automation)
 to happen.
 
@@ -81,7 +81,7 @@ to happen.
 
 You need a computer that can serve the **Ansible control node**, which includes Linux, BSD, macOS
 and Windows using the
-[Windows Subsystem for Linux (WSL)]https://docs.microsoft.com/en-us/windows/wsl/about.
+[Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/about).
 See the [Ansible Installation Guide](https://docs.ansible.com/projects/ansible/latest/installation_guide/intro_installation.html#installation-guide) for more information.
 The control node could be one of the managed nodes, although that has not been tested.
 
@@ -91,7 +91,7 @@ At the time of writing, that was Ansible 13 (based on **ansible-core** 2.20).
 Older versions are not supported but will probably work back to **ansible-core** 2.14
 (Ansible 7).
 
-If your Linux distribution has a `ansible-core` package instead of an `ansible` package (e.g., 
+If your Linux distribution has a `ansible‑core` package instead of an `ansible` package (e.g., 
 RHEL and its clones) that will work (subject the provisos about versions above), but you will need
 to install supported versions of the following Ansible collections to be
 installed:
@@ -109,9 +109,9 @@ If the **ansible-core** version is 2.18 or earlier, native Jinja2 templating ope
 ### Downloading Aardsound
 
 Download from Github, e.g. with `git clone`, to a directory, e.g. `~/aardsound`: this directory will
-be the location for running the `ansible-playbook` command.
+be the location for running the `ansible‑playbook` command.
 
-Note that, althouth **Aardsound** contains a `roles` directory, as described in
+Note that, although **Aardsound** contains a `roles` directory, as described in
 [Aardsound Role Structure](#aardsound-role-structure) below, **Aardsound** is *not* an Ansible
 Collection.
 This is because the roles are not intended for general use in playbooks other than `aardsound.yml`.
@@ -135,14 +135,14 @@ a value of `forks` in the `[defaults]` section of your
 from the default value of 5.
 Without this, each time the `aardsound` playbook has to executes a task on all hosts, it will do so
 on 5 hosts, then repeat the task on another 5 until all are done.
-You can also set the Environment Variable `ANSIBLE_FORKS` or use the `--forks` (or `f`) option on
-the `ansible-playbook` command.
+You can also set the Environment Variable `ANSIBLE_FORKS` or use the `‑‑forks` (or `f`) option on
+the `ansible‑playbook` command.
 Be aware that increasing the number of forks increases the memory usage on the control host.
 
 **Aardsound** does not make use of the Ansible `serial` feature for rolling deployments, because
 the individual hosts do not provide the same service as each other.
-If you want to deploy changes to a subset of your hosts, use the `--limit` (or `-l`) option on the
-`ansible-playbook` command.
+If you want to deploy changes to a subset of your hosts, use the `‑‑limit` (or `‑l`) option on the
+`ansible‑playbook` command.
 
 ### Managed Nodes (the audio players)
 
@@ -157,7 +157,7 @@ You can also use a Debian Trixie node as a source for multiroom audio.
 
 At a minimum you need *fixed* (or, at least, *known*) IP addresses for all devices for the
 installation of **Aardsound** and *fixed* addresses for any nodes that will be sources for
-multi-room audio.
+multi‑room audio.
 If you have that, but no DNS service, then it is probably a good idea to set up `/etc/hosts` entries
 on each device, including the Ansible control node, to map each IP address to a hostname.
 
@@ -174,31 +174,24 @@ This can be done by:
   https://docs.ansible.com/projects/ansible/latest/reference_appendices/config.html#default-remote-user)
 - Setting `remote_user` in the `[defaults]` section of the Ansible [configuration file](
   https://docs.ansible.com/projects/ansible/latest/reference_appendices/config.html#generating-a-sample-ansible-cfg-file)
-- Adding the variable to each `ansible` or `ansible-playbook` command with
-  `-e ansible_user=<my_user>`
+- Adding the variable to each `ansible` or `ansible‑playbook` command with
+  `‑e ansible_user=<my_user>`
 
 If your user does not have an SSH authorized_key on the target, then fix this!  Failing that, if
-password login is allowed over SSH, add the option `-k` to each `ansible` or `ansible-playbook`
+password login is allowed over SSH, add the option `‑k` to each `ansible` or `ansible‑playbook`
 command, but please note that SSH-key-based login is more secure than using a password to login.
 
 If your user does not have the privileges to run the `sudo` command on the managed node without
-entering a password, add the option `-K` to each `ansible` or `ansible-playbook`command.
+entering a password, add the option `‑K` to each `ansible` or `ansible‑playbook`command.
 
 For a quick guide to setting up your Raspberry Pi(s) like this, see the
 [Quick Guide to Setting up you Raspberry Pi(s) for Aardsound](../PiSetup.md).
 See also the [**Limitations**](#limitations) section for the types of Raspberry Pi you can use.
 
-### Notes
-- By default, **Aardsound** enables HDMI hot-plugging on Raspberry Pis to stabilise ALSA card
-  numbers across reboots.
-  After this setting is changed and following a reboot, the HDMI "sound card(s)" should be `0` and
-  `1` for Raspberry Pi 4 and later or `0` for older models.
-  By default, aardsound uses ALSA card names not numbers, so this behaviour can be turned off.
-
-## Major To-Do Items
+## Major To‑Do Items
 - Bluetooth as input and output
 
-## Minor To-Do Items
+## Minor To‑Do Items
 - HTTPS support for Mopidy (nginx reverse proxy)
 
 ## Limitations
@@ -208,7 +201,7 @@ See also the [**Limitations**](#limitations) section for the types of Raspberry 
   This is because recent versions of **librespot** have dropped ARMv6 support.
 - No testing has been done with
   - Raspberry Pi 2s (the Zero 2 W has been tested)
-  - Raspberry Pi 5s (which would be over-specified for the need)
+  - Raspberry Pi 5s (which would be over‑specified for the need)
   - Raspberry Pi 400 or 500, the former should work and the latter should work if the Raspberry Pi 5
     works
   - Raspberry Pi Compute Modules with IO Boards
@@ -225,37 +218,39 @@ See also the [**Limitations**](#limitations) section for the types of Raspberry 
 - Playing Mopidy does not stop Spotify playing, and vice versa; the two sources are just mixed.
 - Sound volume levels for the differing sources are not consistent, e.g. Mopidy at 50% volume sounds
   louder than Spotify at 50% volume.
-- Multi-room currently only works at CD quality (44.1 kHz 16 bit depth); in fact no testing has been 
+- Multi‑room currently only works at CD quality (44.1 kHz 16 bit depth); in fact no testing has been 
   done at higher qualities for any part of **Aardsound**.
   You could force a higher quality by explicitly setting the appropriate role variables but this is
   untested and will probably result in white noise or silence.
-- If you have a multi-room server with no active `snapclients` but active **Spotify Connect** and/or
+- If you have a multi‑room server with no active `snapclients` but active **Spotify Connect** and/or
   **Mopidy** clients it is possible that the **Snapcast** server FIFO(s) will fill the entirety of
-  the in-memory `/tmp` filesystem.
+  the in‑memory `/tmp` filesystem.
   If this happens, a `reboot` of the affected server is likely to be needed (and an **Ansible**
-  ac-hoc `ansible -bm reboot` command is likely to fail because of the shortage of space on /tmp).
+  ac‑hoc `ansible ‑bm reboot` command is likely to fail because of the shortage of space on /tmp).
   For this reason, it is recommended *not* to use a 512GiB RAM Raspberry Pi (3A+ or Zero 2W) as
   a production **Snapcast** server.
 
 ## Untested
 - HDMI outputs are explicitly excluded from use with Aardsound; it should be possible force the
   selection of an HDMI device by explicitly setting the variable `aardsound_card` to match the ALSA
-  card name or number (as reported by the command `aplay -l`) but this is untested.
-  If HDMI hot-plugging is enabled (the default), this should be possible even if the output HDMI
-  device is disconnected. 
+  card name or number (as reported by the command `aplay ‑l`) but this is untested.
+  If HDMI hot‑plugging is enabled (see
+  [aardsound_hdmi_force_hotplug](./roles/aardsound/README.md#aardsound_hdmi_force_hotplug--true--false)
+),
+  this should be possible even if the output HDMI device is disconnected. 
   With HDMI hotplugging, the HDMI card(s) should be the lowest numbered (`0` or `0` and `1`,
-  depending on the Raspberry Pi model) reported by `aplay -l`.
+  depending on the Raspberry Pi model) reported by `aplay ‑l`.
 - 3.5mm jack (headphone) outputs are explicitly excluded from use with **Aardsound**; it should be
   possible to force the selection of the headphone device by explicitly setting the variable
-  `aardsound_card` to match the ALSA card name or number (as reported by the command `aplay -l`) but
+  `aardsound_card` to match the ALSA card name or number (as reported by the command `aplay ‑l`) but
   this is untested.
   The headphone "sound card" should be the next device after the HDMI ALSA card(s), once the latter
   are stabilised, i.e. `0`, `1` or `2` depending on the number of HDMIs connected, or present if
   HDMI hotplugging is enabled.
-- All recent testing has been done with 64-bit versions of RasPiOS/Debian Trixie, but the previous
-  Bookworm version should work, as should 32-bit versions.
+- All recent testing has been done with 64‑bit versions of RasPiOS/Debian Trixie, but the previous
+  Bookworm version should work, as should 32‑bit versions.
 - Ubuntu or other Debian derivatives are not supported but *may* work if they have repositories that
-  provide the required Mopidy and Snapcast packages (a non-multiroom Spotify-only installation does
+  provide the required Mopidy and Snapcast packages (a non‑multiroom Spotify‑only installation does
   not need them).
 
 ## Rebuilding your Aardsound Device
@@ -265,9 +260,9 @@ called Infrastructure as Code).
 This means you can always redeploy your Raspberry Pis.
 There are two approaches you can use.
 
-### Re-running the Ansible Playbook
+### Re‑running the Ansible Playbook
 
-If you re-run the Ansible playbook, it will make no changes to your Rapberry Pi if you have not
+If you re‑run the Ansible playbook, it will make no changes to your Rapberry Pi if you have not
 changed the configuration in your Ansible Inventory (see below).
 This is a concept called *idempotency*.
 If you change the Ansinle inventory variables defining your audio configuration, the configuration
@@ -279,13 +274,13 @@ package will will be installed.
 If you later remove Snapcast from the configuration, the software will not be removed.
 
 There are a few other configuration options that are not reversible, such as enabling HDMI 
-hotplugging.  **Aardsound** will enable this by default but, once enabled, it won't disable it.
+hotplugging.
 
 ### Replacing the Micro SD card
 
 Provided that you haven't made manual changes to the server, you can create a new RasPiOS SD
-card, insert it in place of the old card and re-run the `ansible-playbook aardsound.yml` command.
-You may want the `--limit` (or `-l`) option to restrict the command to work against one device
+card, insert it in place of the old card and re‑run the `ansible‑playbook aardsound.yml` command.
+You may want the `‑‑limit` (or `‑l`) option to restrict the command to work against one device
 at a time.
 
 This approach is strongly recommended when upgrading to a new major version of RasPiOS.
@@ -293,17 +288,17 @@ This approach is strongly recommended when upgrading to a new major version of R
 ## Ansible Inventory
 There are many ways to build an [Ansible inventory](
 https://docs.ansible.com/projects/ansible/latest/inventory_guide/intro_inventory.html).
-If you already use Ansible, then add the **Aardsound** "hosts" (Ansible refers to a target server
-as a *host*), and at least the `aardsound` group to match your current inventory.
-If you are new to Ansible, then the inventory approach described here is a simple one but it isn't
-suitable for a complex Ansible environment (which is not an issue for Aardsound).
+If you already use Ansible, then add the **Aardsound** hosts in an `aardsound` group to your current
+inventory.
+If you are new to Ansible, then the inventory approach described here is a simple one suitable for
+**Aardsound**.
 
 ### A basic YAML inventory
-Although Ansible supports many inventory formats, we will use one of the built-in ones: YAML.
+Although Ansible supports many inventory formats, we will use one of the built‑in ones: YAML.
 This should be saved in the file `/etc/ansible/hosts`, although if you already have an Ansible
-iventory that you don't want to or can't modify, you can save the inventory somewhere else and
-pass the path to the file to the `ansible` or `ansible-playbook` command with the `-i` or
-`--inventory` option.
+inventory that you don't want to or can't modify, you can save the inventory somewhere else and
+pass the path to the file to the `ansible` or `ansible‑playbook` command with the `‑i` or
+`‑‑inventory` option.
 
 A very simple inventory, for one host that supports Spotify Connect, might be:
 ```YAML
@@ -319,7 +314,7 @@ A more complex example might be this, which corresponds to the setup shown in Fi
 the [Example Setup README](./Examples.md).
 This defines one multroom server (`wallace`) supporting Spotify and Mopidy, with no output
 audio device, and a group of two clients (`gromit` and `feathers`) that can run Spotify and
-Mopidy locally and also play either of the two multi-room streams supplied by `wallace`.
+Mopidy locally and also play either of the two multi‑room streams supplied by `wallace`.
 ```YAML
 aardsound:
   hosts:
@@ -356,12 +351,12 @@ using the commands
 ansible -bm apt -a "name='*' state=latest" aardsound
 ansible -bm reboot aardsound
 ```
-If you don't have passwordless `sudo`, include `-K` in the options for each.
+If you don't have passwordless `sudo`, include `‑K` in the options for each.
 If you want to patch one server at a time, replace `aardsound` with the hostname of the server.
 
 Alternatively, you can create a simple **Ansible** playbook to manage this:
 ```YAML
-# reboot_aardsound.yml
+# patch_aardsound.yml
 ---
 - name: Patch and reboot aardsound servers
   hosts: aardsound
@@ -377,7 +372,7 @@ Alternatively, you can create a simple **Ansible** playbook to manage this:
     reboot:
 ```
 This has the advantage that the reboot will not occur if no updates were applied.
-To restrict this to a particular server or servers, use the `--limit` (or `-l`) option:
+To restrict this to a particular server or servers, use the `‑‑limit` (or `‑l`) option:
 ```BASH
 steve@linux:~ $ ansible-playbook -l wallace,gromit reboot_aardsound.yml
 ```
@@ -390,7 +385,7 @@ subnet.
 
 If you want your devices on multiple subnets (or have your **Spotify Connect** and **Mopidy** clients
 on a different subnet from your Raspberry Pis), you will need to:
-- set the `aardsound_spotify_port` and/or  `aardsound_spotify_multiroom_port` variables to define
+- Set the `aardsound_spotify_port` and/or  `aardsound_spotify_multiroom_port` variables to define
   the static port(s) that `librespot` will listen on and advertise over ZeroConf.
 - Set up firewall rules between your subnets to allow **Spotify Connect**, **Mopidy MPD** and/or
   **Mopidy HTTP** traffic.
@@ -446,7 +441,7 @@ including the main `aardsound` role.
    Snapcast servers
 - `snapserver` &ndash; configures an instance of Snapserver
 - `raspotify_installer` &ndash; installs Raspotify (and thus librespot)
-- `spotify` &ndash; configures (or removes) Raspotify-style systemd services for Spotify
+- `spotify` &ndash; configures (or removes) Raspotify‑style systemd services for Spotify
 - `spotify_multiroom` &ndash; configures librespot as a source for Snapserver; calls `spotify` and
   `snapserver`
 
@@ -458,7 +453,7 @@ The hierarchy of these roles is:
 ┌──────────────────────────┬───────────┬─────────┴──────────┬────────────┬──────┐
 │                          │           │                    │            │      │
 │  ┌─────────────────────┐ │ ┌─────────┴─────────┐ ┌────────┴─────────┐  │  ┌───┴────┐
-├──┤ raspotify_installer │ │ │ spotify-multiroom │ │ mopidy-multiroom │  │  │ dmixer │
+├──┤ raspotify_installer │ │ │ spotify_multiroom │ │ mopidy_multiroom │  │  │ dmixer │
 │  └─────────────────────┘ │ └─────┬───────┬─────┘ └──────┬─────┬─────┘  │  └────────┘
 │                          │       │       │              │     │        │
 │  ┌──────────────────┐    │       │       │              │     │        │
@@ -470,7 +465,7 @@ The hierarchy of these roles is:
    └────────────────┘         └─────────┘  └────────────┘  └────────┘  └────────────┘
 ```
 In other words, `aardsound` calls all of the other roles directly, except `snapserver`, which is 
-called by `spotify-multiroom` and `mopidy multiroom`, which also call `spotify` and `mopidy`
+called by `spotify_multiroom` and `mopidy_multiroom`, which also call `spotify` and `mopidy`
 respectively.
 
 ### Role Variables
@@ -487,7 +482,7 @@ For example, the defaults for the `spotify` role are intended for the setup of a
 of Raspotify/librespot but are not specific to the requirements of either the `aardsound` or the
 `spotify_multiroom` roles.
 Both of those roles have their own defaults, similarly the defaults for `spotify_mutliroom` are
-not specific to aardsound.
+not specific to `aardsound`.
 
 When `aardsound` invokes `spotify` or `spotify_multiroom` or when `spotify_multiroom` invokes
 `spotify` the `include_role` or `import_role` task has a `vars` statement that applies the
