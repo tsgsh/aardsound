@@ -4,7 +4,7 @@ For a fuller description of the operation of the Aardsound project, see the
 [Aardsound README](../../README.md).
 
 The `snapserver` role is *imported* by the `spotify_multiroom` and the `mopidy_multiroom` roles,
-which are *included* by Enable and (re)start Snapserver client(s) `aardsound role`.
+which are *included* by the `aardsound role`.
 The `aardsound` role, is imported by the `aardsound.yml` playbook.
 The paths of these are related as follows:
 ```

@@ -3,7 +3,7 @@
 For a fuller description of the operation of the Aardsound project, see the
 [Aardsound README](../../README.md).
 
-The `mopidy_multiroom` role is *included* by Enable and (re)start Snapserver client(s) `aardsound` role and *imports* the 
+The `mopidy_multiroom` role is *included* by the `aardsound` role and *imports* the 
 `mopidy` and `snapserver` roles.
 The `aardsound` role, is imported by the `aardsound.yml` playbook.
 The paths of these are related as follows:
