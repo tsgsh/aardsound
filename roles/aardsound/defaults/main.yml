@@ -13,13 +13,12 @@ aardsound_spotify_multiroom: false
 aardsound_mopidy_multiroom: false
 aardsound_snapclient: false
 # aardsound_bluetooth_multiroom: false
-# aardsound_bluealsa_install: "{{ aardsound_bluetooth | bool or
-#                                 aardsound_bluetooth_multiroom | bool }}"
 aardsound_allow_all_inventory: false
 aardsound_upgrade: false
 aardsound_reboot: false
 aardsound_reboot_prompt: false
 aardsound_hdmi_force_hotplug: false
+aardsound_disable_onboard_bt: false
 
 # Installation
 # duplicates the logic in ../../mopidy_installer/default/main.yml and applies it to the includes for

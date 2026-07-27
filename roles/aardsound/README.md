@@ -114,6 +114,19 @@ number of monitors attached or if you do not refer to ALSA cards by their index 
 
 Default: false
 
+#### aardsound_disable_onboard_bt = true | false
+Disable the onboard Bluetooth adapter in  `/boot/firmware/config.txt`
+
+This is useful if you have a USB Bluetooth adapter that you wish to use exclusively.
+The `blustoothctl` utility does not make a significant distinction between an onboard Bluetooth
+adapter and a USB one, and the order they appear in may depend on whether the latter was present at
+boot time or was hot-plugged.
+
+Without this option, you need to know the MAC address of the USB Bluetooth adapter in order to
+identify it.
+
+Default: false
+
 ## Initial Setup Variables for the Mopidy installation
 
 #### aardsound_mopidy_use_venv
