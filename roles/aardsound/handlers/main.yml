@@ -15,7 +15,7 @@
   listen: Reboot prompt
   register: aardsound_r_reboot
   pause:
-    prompt: "Reboot hosts that need it? (Y/n;), Ctrl+C to interrupt:"
+    prompt: "Reboot hosts that need it? (y/N;), Ctrl+C to interrupt:"
 
 - name: Interpret the user response
   listen: Reboot prompt
