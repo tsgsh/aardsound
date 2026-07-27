@@ -20,9 +20,8 @@
 - name: Interpret the user response
   listen: Reboot prompt
   set_fact:
-    aardsound_reboot_needed: "{{ false if aardsound_r_reboot is defined else
-                                  upper(aardsound_r_reboot.user_input) in ['Y', 'YE', 'YES'] }}"
-
+    aardsound_reboot_needed: "{{ aardsound_r_reboot is defined and
+                                 aardsound_r_reboot.user_input | upper in ['Y', 'YE', 'YES'] }}"
 
 - name: Reboot
   when: aardsound_reboot_needed | bool
