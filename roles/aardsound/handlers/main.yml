@@ -11,18 +11,17 @@
   set_fact:
     aardsound_reboot_needed: true
 
-- name: Reboot prompt
-  block:
+- name: Pause before rebooting
+  listen: Reboot prompt
+  register: aardsound_r_reboot
+  pause:
+    prompt: "Reboot hosts that need it? (Y/n;), Ctrl+C to interrupt:"
 
-  - name: Pause before rebooting
-    register: aardsound_r_reboot
-    pause:
-      prompt: "Reboot hosts that need it? (Y/n;), Ctrl+C to interrupt:"
-
-  - name: Interpret the user response
-    set_fact:
-      aardsound_reboot_needed: "{{ false if aardsound_r_reboot is defined else
-                                   upper(aardsound_r_reboot.user_input) in ['Y', 'YE', 'YES'] }}"
+- name: Interpret the user response
+  listen: Reboot prompt
+  set_fact:
+    aardsound_reboot_needed: "{{ false if aardsound_r_reboot is defined else
+                                  upper(aardsound_r_reboot.user_input) in ['Y', 'YE', 'YES'] }}"
 
 
 - name: Reboot
