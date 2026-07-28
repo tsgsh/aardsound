@@ -63,19 +63,22 @@ Sampling rate for *`dmixer_output_device`*
 Default: 44100
 
 #### dmixer_period_time = *integer*
-Period time for *`dmixer_output_device`*
+Period time for *`dmixer_output_device`* in μs
 
-Default: 0; not tested with other values
+A period time that is a multiple of 10,000μs or 10ms will avoid rounding errors with either 44.1kHz
+streams (Spotify and Bluetooth A2DP defaults) or any streams with bitrates in whole kHz: 44.1kHz
+generates 441 audio frames in 10ms and 48kHz generates 480 frames.
+Setting the period time that does not contain a whole number of frames can cause significant
+synchronization drift.
 
-#### dmixer_period_size = *integer*
-Period size for *`dmixer_output_device`*
+See https://github.com/arkq/bluez-alsa/blob/master/doc/bluealsa-aplay.1.rst#dmix
 
-Default: 1024; not tested with other values
+Default: 20000
 
-#### dmixer_buffer_size = *integer*
-Buffer size for *`dmixer_output_device`*
+#### dmixer_periods = *integer*
+The number of sample periods that will be buffered,
 
-Default: 4096; not tested with other values
+Default: 4
 
 #### dmixer_ipc_key = 0-65535
 IPC key for *`dmixer_output_device`*; arbitrary but not random.
