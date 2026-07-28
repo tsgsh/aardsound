@@ -91,13 +91,16 @@ At the time of writing, that was Ansible 13 (based on **ansible-core** 2.20).
 Older versions are not supported but will probably work back to **ansible-core** 2.14
 (Ansible 7).
 
-If your Linux distribution has a `ansible‑core` package instead of an `ansible` package (e.g., 
+If your Linux distribution has an `ansible‑core` package instead of an `ansible` package (e.g., 
 RHEL and its clones) that will work (subject the provisos about versions above), but you will need
 to install supported versions of the following Ansible collections to be
 installed:
 - **ansible.posix**
 - **ansible.utils**
 - **community.general**
+
+The Python environment used by Ansible also requires [**jc**](https://pypi.org/project/jc/) to be
+installed (this is needed for Bluetooth only).
 
 These are available as packages in the **EPEL** repoitory as **ansible-collection-ansible-posix**,
 etc.
@@ -185,7 +188,7 @@ If your user does not have the privileges to run the `sudo` command on the manag
 entering a password, add the option `‑K` to each `ansible` or `ansible‑playbook`command.
 
 For a quick guide to setting up your Raspberry Pi(s) like this, see the
-[Quick Guide to Setting up you Raspberry Pi(s) for Aardsound](../PiSetup.md).
+[Quick Guide to Setting up your Raspberry Pi(s) for Aardsound](./PiSetup.md).
 See also the [**Limitations**](#limitations) section for the types of Raspberry Pi you can use.
 
 ## Major To‑Do Items
@@ -229,6 +232,23 @@ See also the [**Limitations**](#limitations) section for the types of Raspberry 
   ac‑hoc `ansible ‑bm reboot` command is likely to fail because of the shortage of space on /tmp).
   For this reason, it is recommended *not* to use a 512GiB RAM Raspberry Pi (3A+ or Zero 2W) as
   a production **Snapcast** server.
+
+## Deprecation Warnings
+**Ansible** may issue deprecation warnings, depending on the versions of `ansible-core` and the 
+collections installed with or alongside it.
+These should be harmless:
+
+For example:
+```
+[WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.
+[DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`.
+```
+may be issued by the Bluetooth role:
+this is a deprecation warning about the `ansible.utils.imdex_of` lookup that is used to map a
+Bluetooth MAC addresses to the corresponding `hciN` device number.
+
+It is better *not* to set `deprecation_warnings=False` in `ansible.cfg` if you intend to develop
+your own **Ansible** playbooks.
 
 ## Untested
 - HDMI outputs are explicitly excluded from use with Aardsound; it should be possible force the
