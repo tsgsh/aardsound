@@ -160,7 +160,7 @@
 
   - name: Snapserver
     when: aardsound_spotify_multiroom | bool or
-          aardsound_mopidy_multiroom | bool
+          aardsound_mopidy_multiroom | bool 
     tags:
     - install-snapserver
     - spotify-multiroom
@@ -322,6 +322,7 @@
       dmixer_card: "{{ aardsound_card }}"
       dmixer_output_device: "{{ aardsound_output_device }}"
       dmixer_rate: "{{ aardsound_rate }}"
+      dmixer_format: "{{ aardsound_format + '_LE' }}"
       dmixer_channels: "{{ aardsound_channels }}"
     tags:
     - detect  # if detect is skipped, dmixer will generate an invalid configuration
@@ -456,8 +457,8 @@
         mopidy_multiroom_mpd_port: "{{ aardsound_mopidy_multiroom_mpd_port }}"
         mopidy_multiroom_extensions: "{{ aardsound_mopidy_multiroom_extensions_bis }}"
         # mopidy_multiroom_snap_port_offset is set in ../vars/main.yml
-        # mopidy_multiroom_format: "{{ aardsound_format }}"  # Leave at default S16!
-        # mopidy_multiroom_rate: "{{ aardsound_rate }}"      # Leave at default 44100
+        mopidy_multiroom_format: "{{ aardsound_format }}"
+        mopidy_multiroom_rate: "{{ aardsound_rate }}"
         mopidy_multiroom_depth: "{{ aardsound_depth }}"
         mopidy_multiroom_channels: "{{ aardsound_channels }}"
       include_role:
