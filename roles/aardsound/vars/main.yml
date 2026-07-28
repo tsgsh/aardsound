@@ -19,6 +19,11 @@ aardsound_stream_count: "{{ aardsound_spotify | bool | int +
                             aardsound_spotify | bool | int *
                                 [snapclient_of] | default([]) | flatten | length }}"
 aardsound_output: "{{ aardsound_stream_count > 0 }}"
+aardsound_group: aardsound
+aardsound_var_lib: /var/lib/aardsound
+aardsound_bluetooth_packagees:
+- bluez-tools
+- bluez-alsa-utils
 aardsound_sink_device: "{{ ('plug:' + aardsound_dmixer_plugin) if aardsound_dmixer | bool else
                            aardsound_output_device }}"
 # These are set as variables to avoid port collisions

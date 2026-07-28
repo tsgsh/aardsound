@@ -1,0 +1,27 @@
+---
+- name: "Stop and disable systemd service {{ bluetooth_service }}"
+  register: bluetooth_r_stop
+  # Allow for the service not existing
+  failed_when: bluetooth_r_stop.state is defined and bluetooth_r_stop.state != 'stopped'
+  systemd:
+    name: "{{ bluetooth_service }}.service"
+    enabled: false
+    state: stopped
+
+- name: "Remove {{ bluetooth_service_file }}"
+  notify: Reload systemd for bluetooth_active=false
+  file:
+    path: "{{ bluetooth_service_file }}"
+    state: absent
+
+- name: Remove the PIN file
+  file:
+    path: "{{ bluetooth_pin_file }}"
+    state: absent
+
+- name: Remove BlueALSA /etc/asound.conf entries
+  blockinfile:
+    path: /etc/asound.conf
+    block: "{{ lookup('template', 'asound.conf.j2') }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK (aardsound_bluealsa)"
+    state: absent

@@ -1,0 +1,26 @@
+[Unit]
+Description={{ bluetooth_description }}
+Requires=bluetooth.service
+Wants=sound.target
+After=bluetooth.service
+{% for service in [bluetooth_start_after_services] | flatten %}
+After={{ service }}.service
+{% endfor %}
+
+[Service]
+User={{ bluetooth_uname }}
+Group={{ bluetooth_gname }}
+SupplementaryGroups={{ bluetooth_groups | join(' ') }}
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Alias {{ bluetooth_name }}
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Powered 1
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set DiscoverableTimeout 0
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set PairableTimeout 0
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Discoverable 1
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Pairable 1
+ExecStart=/usr/bin/bt-agent --capability=NoInputNoOutput --pin  {{ bluetooth_pin_file }} --daemon
+RestartSec=2
+Restart=always
+KillSignal=SIGUSR1
+
+[Install]
+WantedBy=multi-user.target

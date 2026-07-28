@@ -1,0 +1,17 @@
+---
+- name: Restart bluetoothd service
+  systemd:
+    name: bluetoothd
+    state: restarted
+
+- name: Enable and (re)start bt-agent service
+  systemd:
+    name: "{{ bluetooth_service }}.service"
+    enabled: true
+    state: restarted
+    daemon_reload: true
+
+- name: Reload systemd
+  listen: Reload systemd for bluetooth_active=false
+  systemd:
+    daemon_reload: true

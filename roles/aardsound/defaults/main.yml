@@ -8,11 +8,11 @@ aardsound_multiroom_name: Multiroom
 # Main functions of aardsound.
 aardsound_spotify: false
 aardsound_mopidy: false
-# aardsound_bluetooth: false
+aardsound_bluetooth: false
 aardsound_spotify_multiroom: false
 aardsound_mopidy_multiroom: false
 aardsound_snapclient: false
-# aardsound_bluetooth_multiroom: false
+aardsound_bluetooth_multiroom: false
 aardsound_allow_all_inventory: false
 aardsound_upgrade: false
 aardsound_reboot: false

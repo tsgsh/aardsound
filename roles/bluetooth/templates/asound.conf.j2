@@ -1,0 +1,22 @@
+pcm.{{ bluetooth_alsa_plugin }} {
+    type plug
+    slave.pcm "{{ bluetooth_bluealsa_device }}"
+}
+
+pcm.{{ bluetooth_bluealsa_device }} {
+    type bluealsa
+    device "{{ bluetooth_adapter_mac }}"
+    interface "hci{{ bluetooth_adapter_index }}"
+    profile "a2dp"
+    codec "{{ bluetooth_codec }}"
+    slave {
+        pcm "{{ bluetooth_output_device }}"
+        rate {{ bluetooth_rate }}
+    }
+}
+{# May implement this later
+
+ctl.{{ bluetooth_bluealsa_device }} {
+    type hw
+    card {{ bluetooth_card }}
+} #}

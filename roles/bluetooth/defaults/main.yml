@@ -1,0 +1,30 @@
+---
+bluetooth_active: true
+bluetooth_service: bt-agent
+# PIN Management
+bluetooth_var_lib:
+bluetooth_pin:
+bluetooth_pins: "{{ {'device': '*', 'pin': bluetooth_pin} if bluetooth_pin != none else {} }}"
+bluetooth_location:
+bluetooth_adapter: "{{ bluetooth_macs[bluetooth_unblocked_adapters |
+                                      first] if bluetooth_unblocked_adapters | length > 0 else
+                       bluetooth_macs[bluetooth_blocked_adapters |
+                                      first] if bluetooth_blocked_adapters | length > 0 else
+                       none }}"
+bluetooth_codec: SBC
+bluetooth_output_device: default
+# bluetooth_mixer: false
+# bluetooth_mixer_control:
+# bluetooth_mixer_plugin: "{{ 'hw' if bluetooth_mixer_card == none else 0 }}"
+# bluetooth_mixer_card: 0
+# bluetooth_mixer_device: "{{ none if bluetooth_mixer_card == none else 0 }}"
+# bluetooth_verbose: false
+# bluetooth_volume_control: cubic
+# bluetooth_initial_volume: 50
+# bluetooth_format: S16
+
+# Additional grouos we want the bluetooth user to belong to (audio is always present)
+bluetooth_extra_groups: []
+
+# Additional services that we want to wait for
+bluetooth_start_after_services: []  # do not include .service suffix
