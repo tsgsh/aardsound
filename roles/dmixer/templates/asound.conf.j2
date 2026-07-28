@@ -12,9 +12,10 @@ pcm.{{ dmixer_dmix_device }} {
         pcm "{{ dmixer_output_device }}"
         rate {{ dmixer_rate }}
         format {{ dmixer_format }}
+        channels {{ dmixer_channels}}
         period_time {{ dmixer_period_time }}
-        periods {{ dmixer_periods }}
         period_size {{ dmixer_period_size }}
+        periods {{ dmixer_periods }}
         buffer_size {{ dmixer_buffer_size }}
     }
     bindings {
