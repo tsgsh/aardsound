@@ -1,29 +1,29 @@
 pcm.{{ dmixer_plugin }} {
-  type plug
-  slave.pcm "{{ dmixer_dmix_device }}"
+    type plug
+    slave.pcm "{{ dmixer_dmix_device }}"
 }
 
 pcm.{{ dmixer_dmix_device }} {
-  type dmix
-  ipc_key {{ dmixer_ipc_key }}
-  ipc_key_add_uid false
-  ipc_perm 0666
-  slave {
-    pcm "{{ dmixer_output_device }}"
-    rate {{ dmixer_rate }}
-    period_time {{ dmixer_period_time }}
-    period_size {{ dmixer_period_size }}
-    buffer_size {{ dmixer_buffer_size }}
-  }
-  # Channel bindings
-  bindings {
+    type dmix
+    ipc_key {{ dmixer_ipc_key }}
+    ipc_key_add_uid false
+    ipc_perm 0666
+    slave {
+        pcm "{{ dmixer_output_device }}"
+        rate {{ dmixer_rate }}
+        period_time {{ dmixer_period_time }}
+        periods {{ dmixer_periods }}
+        period_size {{ dmixer_period_size }}
+        buffer_size {{ dmixer_buffer_size }}
+    }
+    bindings {
 {% for n in range(dmixer_channels) %}
-    {{ n }} {{ n }}
+        {{ n }} {{ n }}
 {% endfor %}
-  }
+    }
 }
 
 ctl.{{ dmixer_dmix_device }} {
-        type hw
-        card {{ dmixer_card }}
+    type hw
+    card {{ dmixer_card }}
 }
