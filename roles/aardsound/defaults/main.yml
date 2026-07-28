@@ -69,7 +69,7 @@ aardsound_local_media: "{{ none if aardsound_nfs_media == none else '/mnt/mopidy
 
 # ALSA settings
 aardsound_initial_volume: 50
-aardsound_format: S24
+aardsound_format: S16
 aardsound_rate: 44100
 aardsound_depth: 16
 aardsound_channels: 2

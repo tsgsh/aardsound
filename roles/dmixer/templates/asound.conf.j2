@@ -11,6 +11,7 @@ pcm.{{ dmixer_dmix_device }} {
     slave {
         pcm "{{ dmixer_output_device }}"
         rate {{ dmixer_rate }}
+        format {{ dmixer_format }}
         period_time {{ dmixer_period_time }}
         periods {{ dmixer_periods }}
         period_size {{ dmixer_period_size }}

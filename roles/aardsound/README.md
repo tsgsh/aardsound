@@ -322,6 +322,9 @@ Default: `'aarddmix'`
 
 #### aardsound_format = F64 | F32 | S32 | S24 | S24_3 | S16
 Sets the format for Spotify, FFMPEG (used for multi-room Spotify) and Mopidy.
+
+***Experimental***
+
 If the format is *Xnn* or *xnn* (where *X* is 'F' or 'S' and *x* is 'f' or 's', and *nn* is 64, 32,
 etc.) then:
 - The Spotify format is set to '*Xnn*'
@@ -334,15 +337,12 @@ Sets:
 - `spotify_multiroom_format`
 - `mopidy_multiroom_format`
 
-Default: `'S24'`
-
-Fixed to: `'S16'` for multi-room Spotify and Mopidy
+Default: `'S16'`
 
 #### aardsound_rate = *integer*
 Sample frequency in Hz.
 
-Note that changing from 44100 for Spotify will cause the source to be resampled; this is a feature of
-the Raspotify version of librespot and is not present in the upstream version.
+***Experimental***
 
 Sets:
 - `spotify_multiroom_rate`
@@ -351,8 +351,6 @@ Sets:
 - `dmixer_rate`
 
 Default: `44100`, untested with anything else
-
-Fixed to: `44100` for multi-room Spotify and Mopidy
 
 #### aardsound_depth = *integer*
 Audio bit depth, used by Snapcast
