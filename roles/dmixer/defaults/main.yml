@@ -5,8 +5,8 @@ dmixer_plugin: dmixer
 dmixer_dmix_device: dmix
 dmixer_output_device: default
 dmixer_rate: 44100
-# https://github.com/arkq/bluez-alsa/blob/master/doc/bluealsa-aplay.1.rst
-dmixer_period_time: 20000
-dmixer_periods: 4
+dmixer_period_time: 0
+dmixer_period_size: 1024
+dmixer_buffer_size: 4096
 dmixer_ipc_key: 54321
 dmixer_channels: 2
