@@ -1,5 +1,4 @@
 ---
-# tasks file for aardsound_dmixer
 - name: >-
     {{ dmixer_asound_snippet_verb + ' asound.conf entries for aardmixer plugin pseudo-device' }}
   blockinfile:
