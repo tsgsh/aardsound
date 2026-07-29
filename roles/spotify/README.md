@@ -174,7 +174,7 @@ Added to the `systemd` unit definition as an `After=` statement for each entry.
 Each entry must be a valid `systemd` service of the creation of the Spotify systemd unit will fail.
 Do not include the `.service` suffix.
 
-Default: `[]`
+Default: []
 
 #### spotify_verbose
 Whether to enable verbose logging in `librespot`
