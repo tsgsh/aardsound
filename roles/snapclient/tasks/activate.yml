@@ -1,26 +1,14 @@
 ---
-- name: Confirm that snapclient_of is specified
-  assert:
-    that:
-    - snapclient_of != none
-    - snapclient_of | length > 0
-    - snapclient_of is iterable
-    - snapclient_of is not string
-    - snapclient_of_list | json_query('[].type(@)') | unique == ['object']
-    fail_msg: >-
-      {{ snapclient_package }} cannot be enabled the unless one or more servers are
-      correctly specified with snapclient_of
-
+# Cannot do these checks with ../meta/main.yml:validation_specs
 - name: >-
-    Check snapclient_of has a unique list of hosts/ports, any names are unique, all users are unique
-    and all ports are valid
+    Check snapclient_of has a unique lists of names and hosts/ports pairs, all ports are  valid and
+    all users are unique
   assert:
     that:
-    - snapclient_hosts | select('eq', none) == []
     - snapclient_names | reject('eq', none) | unique == snapclient_names | reject('eq', none)
     - snapclient_hostports | unique == snapclient_hostports
-    - snapclient_unames | unique == snapclient_unames
     - snapclient_port_min > 1024 and snapclient_port_max < 65536
+    - snapclient_unames | unique == snapclient_unames
 
 - name: "Group {{ snapclient_gname }}"
   group:

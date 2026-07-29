@@ -7,7 +7,6 @@ snapclient_mixer: false
 snapclient_mixer_plugin: hw
 snapclient_mixer_card: 0
 snapclient_mixer_control: Master
-snapclient_passthrough: false
 snapclient_rate: 44100
 snapclient_depth: 16
 snapclient_channels: 2

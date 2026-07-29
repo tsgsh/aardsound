@@ -1,0 +1,93 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound snapclient role
+    description: >
+      This role installs and configures one or more Snapcast client instances as `systemd` services
+      and connects them to a single ALSA output PCM.
+
+
+      With multiple clients, this should be a direct mixer (`dmix`) PCM; with only one instance,
+      it may be a PCM with a hardware (`hw`) or plug-hardware (`plughw`) ALSA plugin connected to a
+      sound card.
+      If multiple clients connect to the same `hw` or `plughw` PCM, one will succeed and the others
+      will be blocked.
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      snapclient_active:
+        type: bool
+        default: true
+        description: Should the Snapcast client service be installed and configured or removed
+      snapclient_of:
+        type: list
+        elements: dict
+        options:
+          host:
+            type: str
+            required: true
+            description: Yhe hostname, FQDN or IP address of the Snapcast server to connect to
+          port:
+            type: int
+            default: 1704
+            description: The port to connect to
+          name:
+            type: str
+            description: >-
+              A name to describe the Snapserver service.
+              Defaults to the value of host if port equals 1704, otherwise host:port
+        default: []
+        description: Each entry corresponds to a Snapcast client to be created.
+      snapclient_location:
+        type: str
+        description: The place where the audio output can be heard, e.g. 'Kitchen'
+      snapclient_output_device:
+        type: str
+        default: default
+        description: The ALSA PCM to which `snapclient` sends its audio stream.
+      snapclient_mixer:
+        type: str
+        default: false
+        description: Use an ALSA hardware mixer?
+      snapclient_mixer_plugin:
+        type: str
+        default: hw
+        description: >-
+          ALSA hardware mixer control as reported by the sound card
+          (ignored if snapclient_mixer = false)
+      snapclient_mixer_card:
+        type: str
+        default: 0
+        description: >-
+          The sound card to use for the hardware mixer
+          (ignored if snapclient_mixer = false)
+      snapclient_mixer_control:
+        type: str
+        default: Master
+        description: >-
+          The control to use for the hardware mixer
+          (ignored if snapclient_mixer = false)
+      snapclient_rate:
+        type: int
+        default: 44100
+        description: The audio sampling bit rate
+      snapclient_depth:
+        type: int
+        default: 16
+        description: The audio sampling bit depth
+      snapclient_channels:
+        type: int
+        default: 2
+        description: The number of audio sampling channels
+      snapclient_debug:
+        type: bool
+        default: false
+        description: >-
+          Enable debugging of the Snapcast client.
+          May be overridden by snapsclient_logging.
+      snapclient_logging:
+        type: str
+        description: >
+          Set log levels for the Snapcast client.
+          Provides more fine-grained control of debugging than `snapclient_debug`
