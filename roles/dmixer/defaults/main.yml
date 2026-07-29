@@ -1,13 +1,13 @@
 ---
 dmixer_active: true
-dmixer_card: 0
+dmixer_output_device: default
 dmixer_plugin: dmixer
 dmixer_dmix_device: dmix
-dmixer_output_device: default
+dmixer_card: 0
 dmixer_rate: 44100
 dmixer_format: S16_LE
 # https://github.com/arkq/bluez-alsa/blob/master/doc/bluealsa-aplay.1.rst
 dmixer_period_time: 20000
 dmixer_periods: 4
-dmixer_ipc_key: 54321
 dmixer_channels: 2
+dmixer_ipc_key: 54321

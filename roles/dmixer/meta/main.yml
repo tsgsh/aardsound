@@ -1,0 +1,75 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound dmixer role
+    description: >
+      The bluetooth role creates an ALSA direct mixer that mixes multiple input streams and sends
+      the output to an output stream.
+      It creates two devices in /etc/asound.conf
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      dmixer_active:
+        type: bool
+        default: true
+        description: Should the direct mixer plugins be present or absent in /etc/asound.conf
+      dmixer_output_device:
+        type: str
+        default: default
+        description: Output PCM that is a slave to dmixer_dmix_device
+      dmixer_plugin:
+        type: str
+        default: dmixer
+        description: >
+          Name of the plugin that that accepts multiple sources (as plug: dmixer_plugin)
+      dmixer_dmix_device:
+        type: str
+        default: dmix
+        description: Name of the PCM of type dmix that is a slave to dmixer_plugin
+      dmixer_card:
+        type: str
+        default: 0
+        description: >-
+          Card for the ctl entry in the configuration, must correrspond to dmixer_output_device
+      dmixer_rate:
+        type: int
+        default: 44100
+        description: Sampling rate for dmixer_output_device
+      dmixer_format:
+        type: str
+        default: S16_LE
+        description: Sample format used by dmixer_dmix_device
+      dmixer_period_time:
+        type: int
+        default: 20000
+        description: >-
+          Period time for dmixer_output_device in μs
+
+
+          A period time that is a multiple of 10,000μs or 10ms will avoid rounding errors with
+          either 44.1kHz streams (Spotify and Bluetooth A2DP defaults) or any streams with
+          bitrates in whole kHz.
+          44.1kHz generates 441 audio frames in 10ms and 48kHz generates 480 frames.
+          Setting a period time that does not contain a whole number of frames can cause
+          significant synchronization drift.
+
+
+          See https://github.com/arkq/bluez-alsa/blob/master/doc/bluealsa-aplay.1.rst#dmix
+      dmixer_periods:
+        type: int
+        default: 4
+        description: The number of sample periods that will be buffered by dmixer_dmix_device
+      dmixer_channels:
+        type: int
+        default: 2
+        description: The number of channels to be defined for dmixer_dmix_device
+      dmixer_ipc_key:
+        type: int
+        default: 54321
+        description: >-
+          IPC key for dmixer_dmix_device; arbitrary but not random,
+          used to distinguish this IPC instance from others
+
+
+          The default is arbitrary but not random

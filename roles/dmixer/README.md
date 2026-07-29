@@ -33,14 +33,14 @@ Internal variables defined in `./vars/main.yml` have a higher variable precedenc
 inventory variables and should not be modified (e.g. by setting extra variables or role parameters).
 
 #### dmixer_active = true | false
-Should the direct mixer plugins be defined in `/etc/asound.conf`
+Should the direct mixer plugins be present or absent in `/etc/asound.conf`
 
 Default: `true`
 
-#### dmixer_card = *string* | *integer*
-Card for the `ctl` entry in the configuration, must correrspond to `dmixer_output_device`
+#### dmixer_output_device = *string*
+Output PCM that is a slave to *`dmixer_dmix_device`*
 
-Default: 0
+Default: default
 
 #### dmixer_plugin = *string*
 Name of the plugin that that accepts multiple sources (as `plug:`*`dmixer_plugin`*)
@@ -48,27 +48,33 @@ Name of the plugin that that accepts multiple sources (as `plug:`*`dmixer_plugin
 Default: dmixer
 
 #### dmixer_dmix_device = *string*
-Name of the dmix type PCM that is a slave to *`dmixer_plugin`*
+Name of the PCM of type dmix that is a slave to *`dmixer_plugin`*
 
 Default: dmix
 
-#### dmixer_output_device = *string*
-Output PCM that is a slave to *`dmixer_dmix_device`*
+#### dmixer_card = *string* | *integer*
+Card for the `ctl` entry in the configuration, must correspond to *`dmixer_output_device`*
 
-Default: default
+Default: 0
 
 #### dmixer_rate = *integer*
-Sampling rate for *`dmixer_output_device`*
+Sampling rate for *`dmixer_dmix_device`*
 
 Default: 44100
 
+#### dmixer_format = *string*
+Sample format used by *`dmixer_dmix_device`*
+
+Default: S16_LE
+
+
 #### dmixer_period_time = *integer*
-Period time for *`dmixer_output_device`* in μs
+Period time for *`dmixer_dmix_device`* in μs
 
 A period time that is a multiple of 10,000μs or 10ms will avoid rounding errors with either 44.1kHz
-streams (Spotify and Bluetooth A2DP defaults) or any streams with bitrates in whole kHz: 44.1kHz
-generates 441 audio frames in 10ms and 48kHz generates 480 frames.
-Setting the period time that does not contain a whole number of frames can cause significant
+streams (Spotify and Bluetooth A2DP defaults) or any streams with bitrates in whole kHz.
+44.1kHz generates 441 audio frames in 10ms and 48kHz generates 480 frames.
+Setting a period time that does not contain a whole number of frames can cause significant
 synchronization drift.
 
 See https://github.com/arkq/bluez-alsa/blob/master/doc/bluealsa-aplay.1.rst#dmix
@@ -76,20 +82,21 @@ See https://github.com/arkq/bluez-alsa/blob/master/doc/bluealsa-aplay.1.rst#dmix
 Default: 20000
 
 #### dmixer_periods = *integer*
-The number of sample periods that will be buffered,
+The number of sample periods that will be buffered by *`dmixer_dmix_device`*
 
 Default: 4
 
-#### dmixer_ipc_key = 0-65535
-IPC key for *`dmixer_output_device`*; arbitrary but not random.
-Used to distinguish this IPC instance from others
-
-Default: 54321
-
 #### dmixer_channels = *integer*
-Channels for *`dmixer_output_device`*
+The number of channels to be defined for *`dmixer_dmix_device`*
 
 Default: 2; not tested with other values
+
+#### dmixer_ipc_key = 0-65535
+IPC key for *`dmixer_dmix_device`*
+
+Used to distinguish this IPC instance from others
+
+Default: 54321 (arbitrary but non-random)
 
 
 ## Handlers
