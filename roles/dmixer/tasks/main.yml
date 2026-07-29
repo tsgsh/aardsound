@@ -1,12 +1,33 @@
 ---
-- name: >-
-    {{ dmixer_asound_snippet_verb + ' asound.conf entries for aardmixer plugin pseudo-device' }}
+- name: Stat /etc/asound.conf
+  register: dmixer_r_stat
+  stat:
+    path: "{{ dmixer_conf_file }}"
+
+- name: Create asound configuration entries for aardmixer plugin
   blockinfile:
     path: "{{ dmixer_conf_file }}"
     block: "{{ lookup('template', dmixer_template_file) }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK (aardsound_dmixer)"
-    state: "{{ dmixer_asound_snippet_state }}"
+    state: present
     create: true
     owner: root
     group: root
     mode: '0755'
+
+- name: Remove asound configuration entries for aardmixer plugin
+  when: not dmixer_active
+  block:
+
+  - name: Stat /etc/asound.conf
+    register: dmixer_r_stat
+    stat:
+      path: /etc/asound.conf
+
+  - name: Remove asound configuration entries for aardmixer plugin
+    when: dmixer_r_stat.stat.exists
+    blockinfile:
+      path: "{{ dmixer_conf_file }}"
+      marker: "# {mark} ANSIBLE MANAGED BLOCK (aardsound_dmixer)"
+      state: absent
+      create: false
