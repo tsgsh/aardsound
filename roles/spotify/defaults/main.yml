@@ -5,10 +5,9 @@ spotify_location:
 spotify_output_device: default
 spotify_mixer: false
 spotify_mixer_control:
-spotify_mixer_plugin: "{{ 'hw' if spotify_mixer_card == none else 0 }}"
+spotify_mixer_plugin: hw
 spotify_mixer_card: 0
-spotify_mixer_device: "{{ none if spotify_mixer_card == none else 0 }}"
-spotify_verbose: false
+spotify_mixer_device: 0
 spotify_volume_control: cubic
 spotify_initial_volume: 50
 spotify_autoplay: true
@@ -22,13 +21,8 @@ spotify_normalisation_threshold:
 spotify_normalisation_attack:
 spotify_normalisation_release:
 spotify_normalisation_knee:
-
-# Port to listen on (none for random high port)
 spotify_port:
 spotify_interface:
-
-# Additional grouos we want the spotify user to belong to (audio is always present)
 spotify_extra_groups: []
-
-# Additional services that we want to wait for
 spotify_start_after_services: []  # do not include .service suffix
+spotify_verbose: false

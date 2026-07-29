@@ -70,7 +70,7 @@ ALSA hardware mixer control as reported by the sound card
 Default: Master; ignored if `spotify_mixer` = `false`
 
 #### spotify_mixer_plugin = *string*
-ALSA hardware mixer control as reported by the sound card.
+ALSA plugin to use for the mixer control
 
 Default: hw; ignored if `spotify_mixer` = `false`
 
@@ -99,7 +99,7 @@ Automatically play similar songs when your music ends.
 
 Default: `true`
 
-#### spotify_bitrate = 90 | 160 | 320
+#### spotify_bitrate = 96 | 160 | 320
 Spotify bit rate in kbps
 
 Default: 320
@@ -125,12 +125,12 @@ Specify the normalisation gain type to use
 Default: `none` (`librespot` internal default: auto)
 
 #### spotify_normalisation_pregain = *floar*
-Pregain (dB) applied by the normalisation. 
+Pregain (dB) applied by the normalisation.
 
 Default: `none` (`librespot` internal default: 0)
 
 #### spotify_normalisation_threshold = *float*
-Threshold (dBFS) to prevent clipping. 
+Threshold (dBFS) to prevent clipping.
 
 Default: `none` (`librespot` internal default: -2.0)
 
@@ -155,7 +155,7 @@ The port the `librespot` daemon binds to and advertises over ZeroConf.
 Default: `none` (`librespot` internal default is to bind to a random high port)
 
 #### spotify_interface = *ipaddress* | &lsqb;*ipaddress*,&hellip;&rsqb; | *ipaddress*,*ipaddress*&hellip;
-Interface IP addresses or a list of IP addresses or a comma-separated string of IP addresses to
+Interface IP address or a list of IP addresses or a comma-separated string of IP addresses to
 which the `librespot` daemon will bind and advertise over ZeroConf.
 Example: "192.168.0.10,10.0.0.10".
 
@@ -163,22 +163,24 @@ Default: `none`  (`librespot` internal default is to bind to all interfaces)
 
 #### spotify_extra_groups = *list*
 A list of groups that the user running Spotify (as defined by 
-[`spotify_service`](#spotify_service--string)) should belong to, in addition to `spotify` (the primary
-group) and `audio`
+[`spotify_service`](#spotify_service--string)) should belong to, in addition to `raspotify` (the
+primary group) and `audio`
 
 Default: []
 
 #### spotify_start_after_services = *list*
 A list of systemd services that you want to start before the Spotify service.
-Added to the `systemd` unit definition as an `After=` statement for each entry.
-Each entry must be a valid `systemd` service of the creation of the Spotify systemd unit will fail.
+
+Each entry is added to the `systemd` unit definition as an `After=` statement  and must be a valid
+`systemd` service or the creation of the Spotify systemd unit will fail.
 Do not include the `.service` suffix.
 
 Default: []
 
 #### spotify_verbose
 Whether to enable verbose logging in `librespot`
-Logs are seent to the `systemd` journal.
+
+Logs are seent to the `systemd` journal
 
 Default: `false`
 

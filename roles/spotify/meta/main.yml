@@ -1,0 +1,184 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound snapserver role
+    description: >-
+      This role installs and configures (or removes) an instance of librespot
+      (https://github.com/librespot-org/librespot) as provided by the
+      Raspotify (https://dtcooper.github.io/raspotify/) package.
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      spotify_active:
+        type: bool
+        default: true
+        description: Should the librespot service be installed and configured or removed
+      spotify_service:
+        type: str
+        default: raspotify
+        description:
+          The name of the systemd service running Spotify.
+          Also sets the name of the user that owns the service.
+      spotify_location:
+        type: str
+        description: >-
+          The place where the audio output can be heard, e.g. 'Kitchen'
+
+
+          Used to name the Spotify service advertised via ZeroConf.
+          If not defined then the capitalised hostname of the server is used as a name.
+      spotify_output_device:
+        type: str
+        default: default
+        description: The ALSA PCM to which librespot sends its audio streams
+      spotify_mixer:
+        type: bool
+        default: false
+        description: Use an ALSA hardware mixer?
+
+      spotify_mixer_control:
+        type: str
+        default: Master
+        description: >-
+          ALSA hardware mixer control as reported by the sound card.
+          Ignored if spotify_mixer = false.
+
+      spotify_mixer_plugin:
+        type: str
+        default: "{{ 'hw' if spotify_mixer_card == none else 0 }}"
+        description: >-
+          ALSA plugin to use for the mixer control
+          Ignored if spotify_mixer = false.
+      spotify_mixer_card:
+        type: str
+        default: 0
+        description: >-
+          The sound card to use for the hardware mixer
+          Ignored if spotify_mixer = false.
+      spotify_mixer_device:
+        type: int
+        default: 0
+        description: >-
+          The device on the sound card to use for he hardware mixer
+          Ignored if spotify_mixer = false.
+      spotify_volume_control:
+        type: str
+        choices:
+        - cubic
+        - fixed
+        - linear
+        - log
+        default: cubic
+        description: Spotify volume control scale type.
+      spotify_initial_volume:
+        type: int
+        default: 50
+        description: Spotify initial volume as a percentage from 0 to 100.
+      spotify_autoplay:
+        type: bool
+        default: true
+        description: Automatically play similar songs when your music ends.
+      spotify_bitrate:
+        type: int
+        choices:
+        - 96
+        - 160
+        - 320
+        default: 320
+        description: Spotify bit rate in kbps
+      spotify_format:
+        type: str
+        choices:
+        - F64
+        - F32
+        - S32
+        - S24
+        - S24_3
+        - S16
+        default: S24
+        description: Spotify output format to ALSA.
+      spotify_volume_normalisation:
+        type: bool
+        default: false
+        description: Play all tracks at approximately the same apparent volume.
+      spotify_normalisation_method:
+        type: str
+        choices:
+        - basic
+        - dynamic
+        -  # allow for it to be left as none
+        description: >-
+          Specify the normalisation method to use:
+          (librespot defaults to  dynamic)
+      spotify_normalisation_gain_type:
+        type: str
+        choices:
+        - track
+        - album
+        - auto
+        -  # allow for it to be left as none
+        description: >-
+          Specify the normalisation gain type to use
+          (librespot defaults to auto)
+      spotify_normalisation_pregain:
+        type: int
+        description: >-
+          Pregain (dB) applied by the normalisation.
+          (librespot defaults to 0)
+      spotify_normalisation_threshold:
+        type: int
+        description: >-
+          Threshold (dBFS) to prevent clipping.
+          (librespot defaults to -2.0)
+      spotify_normalisation_attack:
+        type: int
+        description: >-
+          Attack time (ms) in which the dynamic limiter is reducing gain.
+          (librespot defaults to 5)
+      spotify_normalisation_release:
+        type: int
+        description: >-
+          Release or decay time (ms) in which the dynamic limiter is restoring gain
+          (librespot defaults to 100)
+      spotify_normalisation_knee:
+        type: float
+        description: >-
+          Knee steepness of the dynamic limiter
+          (librespot defaults to 1.0)
+      spotify_port:
+        type: int
+        description: >-
+          The port the librespot daemon binds to and advertises over ZeroConf
+          (librespot binds to a random high port by default)
+      spotify_interface:
+        type: list
+        elements: str
+        description: >-
+            Interface IP address or a list of IP addresses or a comma-separated string of IP
+            addresses to which the librespot daemon will bind and advertise over ZeroConf.
+
+
+            Example: "192.168.0.10,10.0.0.10".
+      spotify_extra_groups:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          A list of POSIX groups that the user running the Spotify server must belong to, in
+          addition to it's default group (raspotify) and the audio group.
+      spotify_start_after_services:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          A list of systemd services that should start before the Spotify service.
+          Each entry is added to the systemd unit definition as an `After=` statement and must be a
+          valid systemd service or the creation of the Spotify systemd unit will fail.
+          Do not include the .service suffix.
+      spotify_verbose:
+        type: bool
+        default: false
+        description: >-
+          Whether to enable verbose logging in librespot.
+          Logs are seent to the `systemd` journal.

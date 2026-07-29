@@ -382,10 +382,10 @@ Sets: spotify_port
 
 Default: `none` (random high port)
 
-#### aardsound_spotify_address = *comma-separated string of IP addresses*
+#### aardsound_spotify_interface = *comma-separated string of IP addresses*
 Which IP address the `librespot` daemon should bind to
 
-Sets: spotify_address
+Sets: spotify_interface
 
 Default: none ('::' if IPv6 is active, otherwise '0.0.0.0')
 
@@ -396,10 +396,10 @@ Sets: spotify_multiroom_port
 
 Default: `none` (random high port)
 
-#### aardsound_spotify_address = *comma-separated string of IP addresses*
+#### aardsound_multiroom_spotify_interface = *comma-separated string of IP addresses*
 Which IP address the multi-room `librespot` daemon should bind to
 
-Sets: spotify_multiroom address
+Sets: spotify_multiroom_interface
 
 Default: none ('::' if IPv6 is active, otherwise '0.0.0.0')
 
