@@ -1,0 +1,107 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound snapserver role
+    description: >
+      This role installs and configures (or removes) a systemd service to run an instance of the
+      Snapcast server
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      snapserver_active:
+        type: bool
+        default: true
+        description: Should the Snapcast server service be installed and configured or removed
+      snapserver_service:
+        type: str
+        default: snapserver
+        description: >-
+          The name of the systemd service running The Snapcast server.
+          Also sets the name of the user that owns the service: this is _snapserver if the service
+          is named snapserver (the default for the Snapcast package), otherwise the user name is set
+          to the name of the service.
+      snapserver_description:
+        type: str
+        default: Snapcast server
+        description: Used to set the systemd unit description and the comment (GECOS) for the user
+      snapserver_codec:
+        type: str
+        default: flac
+        description: >-
+          In the form codec[:options], where codec = flac | ogg | opus | pcm
+          and options are specific to the selected codec
+      snapserver_rate:
+        type: int
+        default: 44100
+        description: The audio sampling bit rate
+      snapserver_depth:
+        type: int
+        default: 16
+        description: The audio sampling bit depth
+      snapserver_channels:
+        type: int
+        default: 2
+        description: The number of audio sampling channels
+      snapserver_port_offset:
+        type: int
+        default: 0
+        description: >-
+          Aritmetic offset to the default ports used by Snapcast (1704, 1705, 1780) for this
+          instance.
+
+
+          Must be in the ranges -699 to -2 or 2 to 67355.
+          These are the values that will not cause any direct clash with this instance of the
+          Snapcast server only but they may clash with other instances or services.
+
+
+          No checking is done on the input value.
+
+          Overridden by snapserver_http_port, snapserver_tcp_port and/or snapserver_stream_port
+
+      snapserver_http_port:
+        type: int
+        description: >-
+          Explicilty set the HTTP port for control clients and HTTP streaming.
+          Default is 1780 plus the value of snapserver_port_offset
+      snapserver_tcp_port:
+        type: int
+        description: >-
+          Explicitly set the port used for the Snapcast JSON-RPC control service.
+          Default is 1705 plus the value of snapserver_port_offset
+      snapserver_stream_port:
+        type: int
+        description: >-
+          Explicitly set the port used for the Snapcast streaming service.
+          Default is 1704 plus the value of snapserver_port_offset
+      snapserver_fifo:
+        type: str
+        default: /tmp/snapfifo
+        description: The name of the FIFO used to feed input to the Snapcast server.
+      snapserver_fifo_service:
+        type: str
+        description: >-
+           The name of a systemd "oneshot" service that will create the FIFO at boot time.
+
+
+           Note: This service is not created by this role but the Snapcast server role that it does
+           create will have a "Wants" dependency on the FIFO service.
+      snapserver_debug:
+        type: bool
+        default: false
+        description: >-
+          Enable debugging of the Snapcast server.
+          May be overridden by snapsclient_logging.
+      snapserver_logging:
+        type: str
+        description: >
+          Set log levels for the Snapcast server.
+          Provides more fine-grained control of debugging than snapserver_debug
+      snapserver_extra_groups:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          A list of POSIX groups that the user running the Snapcast server must belong to, in
+          addition to it's default group (_snapserver) and the audio group.

@@ -20,10 +20,8 @@ The paths of these are related as follows:
 The use of `include_role` is important for the sequencing of handler definitions: see the
 [**Handlers**](#Handlers) section below.
  
-This role installs and configures (or removes) four `systemd` services:
-- A "oneshot" to create a FIFO to be used by the Snapcast server service
-- A Mopidy source (using the `mopidy` role)
-- A Snapcast server (using the `snapserver` role)
+This role installs and configures (or removes) a `systemd` service to run an instance of the
+**Snapcast** server and optionally a 
 
 ## Variables
 
@@ -39,10 +37,11 @@ Should the Snapcast server service be installed and configured or removed
 Default: `true`
 
 #### snapserver_service = *string*
-The name of the `systemd` service running mpidy.
+The name of the `systemd` service running the Snapcast server
+
 Also sets the name of the user that owns the service: this is `_snapserver` if the service is named
-`snapserver` (the defaults for the Snapcast package), otherwise the user name is set to the name of
-the service.
+`snapserver` (the default for the Snapcast package), otherwise the user name is set to the name of
+the service
 
 Default: snapserver
 
@@ -115,6 +114,9 @@ Default: /tmp/snapfifo
 
 #### snapserver_fifo_service = *string*
 The name of a `systemd` "oneshot" service that will create the FIFO at boot time.
+
+**Note**: This service is not created by this role but the Snapcast server role that it does create
+will have a "Wants" dependency on the FIFO service.
 
 Default: `none` (no server to be created)
 
