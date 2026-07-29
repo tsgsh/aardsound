@@ -29,7 +29,7 @@ inventory variables and should not be modified (e.g. by setting extra variables 
 
 #### mopidy_installer_use_venv = *boolean*
 
-Should Mopidy be installed in a Python Virtual Enviromnment
+Should Mopidy be installed in a Python Virtual Enviromnment?
 
 Default: 
 `true` if the host
@@ -37,6 +37,7 @@ Default:
 - is *not* running a desktop environment; or
 - has any defined (i.e., non-bundled) extensions that require installtion via PIP
 otherwise: `false`
+
 #### mopidy_installer_venv = *path*
 The path to the virtual environment
 
@@ -50,17 +51,19 @@ An entry will be created in `/etc/fstab` to mount this volume if required
 Default: `none`
 
 #### mopidy_installer_nfs_options = *string*
-Options for the NFS mmount
+Options for the NFS mount
 
 Default: bg,ro
 
 #### mopidy_installer_library = *path*
-The NFS mount point
+The location for the Mopidy Local music library
+
+The NFS mount point if `mopidy_installer_nfs is not `none`
 
 Default: `/mnt/mopidy` if `mopidy_installer_nfs` is defined, otherwise `none`
 
 #### mopidy_installer_extensions = *list*
-A list of Mopidy extensions to be installed using PIP.
+A list of Mopidy extensions to be installed
 
 Default: `[]`
 
@@ -79,15 +82,11 @@ Default: `[]`
 #### mopidy_installer_install = *list of dictionaries*
 A list of commands to run to perform Mopidy extension installation tasks.
 
-Each entry is a dictionary with one key/value pair.
-The key is the user that will run the command (e.g. `root` or `mopidy`) and the value is a shell
-command to be run as follows:
+Each entry is a dictionary with keys `user` and `command` where `user` is the user that will run the
+command (e.g. `root` or `mopidy`) and `command` is a shell command to be run as follows:
 ```
-set -o pipefail
-<command>
+set -o pipefail command
 ```
-where `<`*`command`*`>` is the value of the dictionry entry.
-
 
 Default: `[]`
 
