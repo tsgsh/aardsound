@@ -56,14 +56,6 @@ Sets: `spotify_location`
 
 Default: Multiroom
 
-#### spotify_multiroom_source_verbose = *boolean*
-Whether to enable verbose logging in `librespot`
-Logs are seent to the `systemd` journal.
-
-Sets: `spotify_verbose`
-
-Default: `false`
-
 #### spotify_multiroom_format = F64 | F32 | S32 | S24 | S24_3 | S16
 Spotify output format to FFMPEG.
 
@@ -71,19 +63,19 @@ Sets: `spotify_format`
 
 Default: S16
 
-#### spotify_multiroom_initial_volume = 0-100
-Sets: `spotify_initial_volume`
-
-Spotify initial volume as a percentage from 0 to 100
-
-Default: 50
-
 #### spotify_multiroom_volume_control = cubic | fixed | linear | log
 Spotify volume control scale type
 
 Sets: `spotify_volume_control`
 
 Default: cubic
+
+#### spotify_multiroom_initial_volume = 0-100
+Sets: `spotify_initial_volume`
+
+Spotify initial volume as a percentage from 0 to 100
+
+Default: 50
 
 #### spotify_multiroom_port = 1025-65535
 The port the `librespot` daemon binds to and advertises over ZeroConf.
@@ -101,28 +93,19 @@ Sets: `spotify_interface`
 
 Default: `none`  (`librespot` internal default is to bind to all interfaces)
 
+#### spotify_multiroom_source_verbose = *boolean*
+Whether to enable verbose logging in `librespot`
+Logs are seent to the `systemd` journal.
+
+Sets: `spotify_verbose`
+
+Default: `false`
+
 #### spotify_multiroom_fifo = *path*
 The path for the FIFO that will provde input to the Snapcast server.
 Does not require "multiroom" in the name because it is only used for multi-room Spotify.
 
 Default: /tmp/spotify-fifo
-
-#### spotify_multiroom_sink_debug = *boolean*
-Enable debugging of the Snapcast server.
-May be overridden by `spotify_multiroom_sink_logging`.
-
-Sets: `snapserver_debug`
-
-Default: false
-
-#### spotify_multiroom_sink_logging = *string*
-Set log levels for the Snapcast server.
-Provides more fine-grained control of debugging than `spotify_multiroom_sink_debug`
-
-Sets: `snapserver_logging`
-
-Default: *:debug if `spotify_multiroom_sink_debug` is true. otherwise `none`
-(Snapcast internal default: *:info)
 
 #### spotify_multiroom_rate = *integer*
 The audio sample rate to send to snapserver
@@ -146,7 +129,8 @@ Sets: `snapserver_channels`
 Default: 2 (untested with any other value)
 
 #### spotify_multiroom_snap_port_offset = -699 to -2, 2 to 63755
-Aritmetic offset to the default ports used by Mopidy (1704, 1705, 1780) for this instance.
+Aritmetic offset to the default ports used by the Snapcast server (1704, 1705, 1780) for this
+instance.
 
 Note that the values above are the ones that will not cause any direct clash with this instance
 of the Snapcast server only.
@@ -155,6 +139,24 @@ No checking is done on the input value.
 Sets:`snapserver_port_offset`
 
 Default: 0
+
+#### spotify_multiroom_sink_debug = *boolean*
+Enable debugging of the Snapcast server.
+May be overridden by `spotify_multiroom_sink_logging`.
+
+Sets: `snapserver_debug`
+
+Default: false
+
+#### spotify_multiroom_sink_logging = *string*
+Set log levels for the Snapcast server.
+Provides more fine-grained control of debugging than `spotify_multiroom_sink_debug`
+
+Sets: `snapserver_logging`
+
+Default: *:debug if `spotify_multiroom_sink_debug` is true. otherwise `none`
+(Snapcast internal default: *:info)
+
 
 ## Variable interactions with imported roles
 

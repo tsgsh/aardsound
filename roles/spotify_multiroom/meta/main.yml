@@ -1,0 +1,105 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound snapserver role
+    description: >-
+      This role installs and configures (or removes) an instance of librespot
+      (https://github.com/librespot-org/librespot) as provided by the
+      Raspotify (https://dtcooper.github.io/raspotify/) package.
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      spotify_multiroom_active:
+        type: bool
+        default: true
+        description: Should the Spotify multi-room services be installed and configured or removed
+      spotify_multiroom_name:
+        type: str
+        description: The name of the Spotify Connect service to be advertised via ZeroConf
+      spotify_multiroom_format:
+        type: str
+        choices:
+        - F64
+        - F32
+        - S32
+        - S24
+        - S24_3
+        - S16
+        default: S16
+        description: Spotify output format to FFMPEG.
+      spotify_multiroom_volume_control:
+        type: str
+        choices:
+        - cubic
+        - fixed
+        - linear
+        - log
+        default: cubic
+        description: Spotify volume control scale type.
+      spotify_multiroom_initial_volume:
+        type: int
+        default: 50
+        description: Spotify initial volume as a percentage from 0 to 100.
+      spotify_multiroom_port:
+        type: int
+        description: >-
+          The port the librespot daemon binds to and advertises over ZeroConf
+          (librespot binds to a random high port by default)
+      spotify_multiroom_interface:
+        type: list
+        elements: str
+        description: >-
+            Interface IP address or a list of IP addresses or a comma-separated string of IP
+            addresses to which the librespot daemon will bind and advertise over ZeroConf.
+
+
+            Example: "192.168.0.10,10.0.0.10".
+      spotify_multiroom_source_verbose:
+        type: bool
+        default: false
+        description: >-
+          Whether to enable verbose logging in librespot.
+          Logs are seent to the `systemd` journal.
+      spotify_multiroom_fifo:
+        type: str
+        default: /tmp/spotify-fifo
+        description: The path for the FIFO that will provde input to the Snapcast server.
+      spotify_multiroom_rate:
+        type: int
+        default: 44100
+        description: The audio sample rate to send to snapserver
+      spotify_multiroom_depth:
+        type: int
+        default: 16
+        description: Sets the sampling depth for the analogue audio for the Snapcast server.
+      spotify_multiroom_channels:
+        type: int
+        default: 2
+        description: Sets the number of channels for the Snapcast server.
+      spotify_multiroom_snap_port_offset:
+        type: int
+        default: 0
+        description: >-
+          Aritmetic offset to the default ports used by Snapcast (1704, 1705, 1780) for this
+          instance.
+
+
+          Must be in the ranges -699 to -2 or 2 to 67355.
+          These are the values that will not cause any direct clash with this instance of the
+          Snapcast server only but they may clash with other instances or services.
+
+
+          No checking is done on the input value.
+      spotify_multiroom_sink_debug:
+        type: bool
+        default: false
+        description: >-
+          Enable debugging of the Snapcast server.
+          May be overridden by snapsclient_logging.
+      spotify_multiroom_sink_logging:
+        type: str
+        default: "{{ '*:debug' if spotify_multiroom_sink_debug | bool else none }}"
+        description: >-
+          Set log levels for the Snapcast server.
+          Provides more fine-grained control of debugging than snapserver_debug
