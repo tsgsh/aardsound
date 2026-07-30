@@ -33,7 +33,7 @@ argument_specs:
         description: >-
           Should Mopidy be installed in a Python virtual environment?
 
-          
+
           This should be set to `true` if there are mopidy extensions defined that are not available
           as APT packages.
       mopidy_venv:
