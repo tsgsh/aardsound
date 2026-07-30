@@ -1,7 +1,7 @@
 ---
 argument_specs:
   main:
-    short_description: Main entrypoint for the Aardsound snapserver role
+    short_description: Main entrypoint for the Aardsound spotify role
     description: >-
       This role installs and configures (or removes) an instance of librespot
       (https://github.com/librespot-org/librespot) as provided by the
