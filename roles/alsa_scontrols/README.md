@@ -25,7 +25,7 @@ called "Analogue" and "Analogue Playback Boost": both
 
 To do this, set
 ```
-alsa_scontrols:
+alsa_scontrols_controls:
   'Analogue': '100%'
   'Analogue Playback Boost': '100%'
 ```
@@ -53,12 +53,14 @@ Internal variables defined in `./vars/main.yml` have a higher variable precedenc
 inventory variables and should not be modified (e.g. by setting extra variables or role parameters).
 
 #### alsa_scontrols_card = *string* | *integer* 
-The card to wheich the controls are to be applied.
+The card to which the controls are to be applied.
 
 Default: 0
 
 #### alsa_scontrols_controls = *dictionary*
-A dictionary of controls to be set with `amixer sset <`*`key`*`> <`*`value`*`>`
+A dictionary of controls to be set with `amixer sset`
+- The key is the name of the control
+- The value is the value that the control is to be set to
 
 If the dictionary is empty, no controls will be defined.
 
