@@ -22,6 +22,7 @@ argument_specs:
         description: Should the Spotify multi-room services be installed and configured or removed
       spotify_multiroom_name:
         type: str
+        default: Multiroom
         description: The name of the Spotify Connect service to be advertised via ZeroConf
       spotify_multiroom_format:
         type: str
