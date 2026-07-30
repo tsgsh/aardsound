@@ -3,7 +3,7 @@ mopidy_active: true
 mopidy_service: mopidy
 mopidy_scan_service: "{{ mopidy_service + '-scan' }}"
 mopidy_use_venv: false
-mopidy_venv: '/usr/local/mopidy/venv'
+mopidy_venv: /usr/local/mopidy/venv
 mopidy_location:
 mopidy_output_device: default
 mopidy_mixer: false

@@ -22,7 +22,8 @@ The paths of these are related as follows:
 The use of `include_role` is important for the sequencing of handler definitions: see the
 [**Handlers**](#Handlers) section below.
  
-This role installs and configures (or removes) an instance of [Mopidy](https://mopidy.com/).
+This role installs and configures (or removes) an instance of [Mopidy](https://mopidy.com/) and
+associated extensions.
 
 ## Variables
 
@@ -52,7 +53,8 @@ If not defined then the capitalised hostname of the server is used as a name.
 Default: `none`
 
 #### mopidy_use_venv = false|true
-Should Mopidy be installed in a Python virtual environment.
+Should Mopidy be installed in a Python virtual environment?
+
 This should be set to `true` if there are mopidy extensions defined that are not available as APT
 packages
 (see [mopidy_extensions](#mopidy_extensions--dictionary) below).
@@ -60,27 +62,31 @@ packages
 Default: false
 
 #### mopidy_venv = *path*
-The path where the Mopidy virtual environment should be created.
+The path where the Mopidy virtual environment should be created
 
 Default: '/usr/local/mopidy/venv'
 
 #### mopidy_output_device = *string*
-ALSA device to be used for audio output
+The ALSA PCM to which Mopidy sends its audio streams
 
 Default: default
 
 #### mopidy_mixer = *boolean*
-Should Mopidy use an ALSA hardware mixer (or, if not, a an internal software mixer)
+Use an ALSA hardware mixer instead of an internal software mixer?
 
 Default: `false`
 
 #### mopidy_mixer_control = *string*
-The name of the mixer control to use
+ALSA hardware mixer control as reported by the sound card.
+
+Ignored if mopidy_mixer = false.
 
 Default: Master
 
 #### mopidy_mixer_card = *string* | *integer*
 The sound card to use for the hardware mixer
+
+Ignored if mopidy_mixer = false.
 
 Default: `none`
 
@@ -95,7 +101,7 @@ Mopidy initial volume as a percentage from 0 to 100
 Default: 50
 
 #### mopidy_verbosity = -1 to 4
-The verbosit level for Mopidy
+The verbosity level for Mopidy
 
 Default: 0
 
@@ -103,12 +109,12 @@ Default: 0
 The media library for `mopidy-local`
 
 If this is not `/var/lib/mopidy/media` then the specified directory is symbolically linked to there
-with  `systemd` mount unit.
+with a `systemd` mount unit.
 
 Default: /var/lib/mopidy/media
 
 #### mopidy_local_scan = *boolean*
-Should a `systemd` "oneshot"service to run `mopidy local scan` be defined
+Should a `systemd` "oneshot" service to run `mopidy local scan` be defined?
 
 Default: `true`
 
@@ -125,7 +131,7 @@ Can also be any supported format for the `OnCalendar` statement in a `systemd` t
 Default: 04:00
 
 #### mopidy_trusted_network = *boolean*
-Should Mopidy services be bound to network addresses (or only to loopback addresses).
+Should Mopidy services be bound to network addresses (or only to loopback addresses)?
 
 May be overriden by
 [`mopidy_http_bind_address`](#mopidy_http_bind_address--ip-address)
@@ -135,7 +141,7 @@ or
 Default: `false`
 
 #### mopidy_ipv6 = *boolean*
-Should IPv6 addresses be used for Mopidy
+Should IPv6 addresses be used for Mopidy?
 
 May be overriden by
 [`mopidy_http_bind_address`](#mopidy_http_bind_address--ip-address)
@@ -145,18 +151,18 @@ or
 Default: false
 
 #### mopidy_http = *boolean*
-Should the `mopidy-http` extension be used
+Should the `mopidy-http` extension be used?
 
 Default: `true`
 
 #### mopidy_http_bind_address = *IP address*
 Address to bind the `mopidy-http` extension to
 
-Default: 
-- '::' if `mopidy_trusted_network` and `mopidy_ipv6` are true
-- '0.0.0.0' if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
-- '::1' if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
-- '127.0.0.1' if `mopidy_trusted_network` and `mopidy_ipv6` are false
+Default:
+- :: if `mopidy_trusted_network` and `mopidy_ipv6` are true
+- 0.0.0.0 if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
+- ::1 if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
+- 127.0.0.1 if `mopidy_trusted_network` and `mopidy_ipv6` are false
 
 #### mopidy_http_port = 1025-65535
 Port to bind the `mopidy-http` extension to
@@ -164,7 +170,7 @@ Port to bind the `mopidy-http` extension to
 Default: 6680
 
 #### mopidy_mpd = *boolean*
-Should the `mopidy-mpd` extension be used
+Should the `mopidy-mpd` extension be used?
 
 Default: `true`
 
@@ -209,7 +215,6 @@ This allows for the configuration of arbitrary Mopidy extensions.
 Each key of the top-level dictionary is the name of a section in the Mopidy configuration file
 and each value contains a dictionary of configuration settings for that section.
 For example, this:
-
 ```
 iris:
   country: UK
@@ -224,7 +229,6 @@ locale = en_GB
 snapcast_enabled = false
 
 ```
-
 No validation checking of the keys and values is performed.
 
 Default: `{}`

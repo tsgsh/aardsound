@@ -1,0 +1,224 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound mopidy role
+    description: >-
+      This role installs and configures (or removes) an instance of Mopidy and
+      associated extensions.
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      mopidy_active:
+        type: bool
+        default: true
+        description: Should the Mopidy service be installed and configured or removed.
+      mopidy_service:
+        type: str
+        default: mopidy
+        description:
+          The name of the systemd service running Mopidy.
+          Also sets the name of the user that owns the service.
+      mopidy_location:
+        type: str
+        description: >-
+          The place where the audio output can be heard, e.g. 'Kitchen'
+
+
+          Used to name the Mopidy service advertised via ZeroConf.
+          If not defined then the capitalised hostname of the server is used as a name.
+      mopidy_use_venv:
+        type: bool
+        default: false
+        description: >-
+          Should Mopidy be installed in a Python virtual environment?
+
+          
+          This should be set to `true` if there are mopidy extensions defined that are not available
+          as APT packages.
+      mopidy_venv:
+        type: str
+        default: /usr/local/mopidy/venv
+        description: The path where the Mopidy virtual environment should be created
+      mopidy_output_device:
+        type: str
+        default: default
+        description: The ALSA PCM to which Mopidy sends its audio streams.
+      mopidy_mixer:
+        type: bool
+        default: false
+        description: Use an ALSA hardware mixer instead of an internal software mixer?
+      mopidy_mixer_control:
+        type: str
+        default: Master
+        description: >-
+          ALSA hardware mixer control as reported by the sound card.
+          Ignored if mopidy_mixer = false.
+      mopidy_mixer_card:
+        type: str
+        default: 0
+        description: >-
+          The sound card to use for the hardware mixer
+          Ignored if mopidy_mixer = false.
+      mopidy_mixer_device:
+        type: int
+        default: 0
+        description: >-
+          The device on the sound card to use for he hardware mixer
+          Ignored if mopidy_mixer = false.
+      mopidy_volume_control:
+        type: str
+        choices:
+        - cubic
+        - fixed
+        - linear
+        - log
+        default: cubic
+        description: Mopidy volume control scale type.
+      mopidy_initial_volume:
+        type: int
+        default: 50
+        description: Mopidy initial volume as a percentage from 0 to 100.
+      mopidy_verbosity:
+        type: int
+        default: 0
+        choices: [-1, 0, 1, 2, 3, 4]
+        description: The verbosity level for Mopidy
+      mopidy_media_library:
+        type: str
+        default: /var/lib/mopidy/media
+        description: >-
+          The media library for `mopidy-local`.
+          If this is not `/var/lib/mopidy/media` then the specified directory is symbolically linked
+          to there with a `systemd` mount unit.
+      mopidy_local_scan:
+        type: bool
+        default: true
+        description: Should a `systemd` "oneshot" service to run `mopidy local scan` be defined?
+      mopidy_local_scan_limit:
+        type: int
+        default: 0
+        description: >-
+          Value of the `--limit` option on the number of files to be scanned by `mopidy local scan`
+      mopidy_local_scan_time:
+        type: str
+        default: 04:00
+        description: >-
+          Time in hours and minutes each day when the `mopidy_local_scan` will run.
+          Can also be any supported format for the `OnCalendar` statement in a `systemd` timer unit
+          file.
+      mopidy_trusted_network:
+        type: bool
+        default: false
+        description: >-
+          Should Mopidy services be bound to network addresses (or only to loopback addresses)?
+          May be overriden by `mopidy_http_bind_address` or `mopidy_mpd_bind_address`
+      mopidy_ipv6:
+        type: bool
+        default: false
+        description: >-
+          Should IPv6 addresses be used for Mopidy?
+          May be overriden by `mopidy_http_bind_address` or `mopidy_mpd_bind_address`
+      mopidy_http:
+        type: bool
+        default: true
+        description: Should the `mopidy-http` extension be used?
+      mopidy_http_bind_address:
+        type: str
+        description: |
+          Address to bind the `mopidy-http` extension to
+
+          Default:
+          - :: if `mopidy_trusted_network` and `mopidy_ipv6` are true
+          - 0.0.0.0 if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
+          - ::1 if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
+          - 127.0.0.1 if `mopidy_trusted_network` and `mopidy_ipv6` are false
+      mopidy_http_port:
+        type: int
+        default: 6680
+        description: Port to bind the `mopidy-http` extension to in the range 1025-65535.
+      mopidy_mpd:
+        type: bool
+        default: true
+        description: Should the `mopidy-mpd` extension be used?
+      mopidy_mpd_bind_address:
+        type: str
+        description: |
+          Address to bind the `mopidy-mpd` extension to
+
+          Default:
+          - :: if `mopidy_trusted_network` and `mopidy_ipv6` are true
+          - 0.0.0.0 if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
+          - ::1 if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
+          - 127.0.0.1 if `mopidy_trusted_network` and `mopidy_ipv6` are false
+      mopidy_mpd_port:
+        type: int
+        default: 6600
+        description: Port to bind the `mopidy-mpd` extension to in the range 1025-65535.
+      mopidy_mpd_password:
+        type: str
+        default:
+        description: >-
+          Password to be used to access Mopidy MPD.
+          Note that this is not encrypted over the network and is highly insecure.
+      mopidy_extra_groups:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          A list of groups that the user running Mopidy (as defined by `mopidy_service`) should
+          belong to, in addition to `mopidy` (the primary group) and `audio`
+      mopidy_start_after_services:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          A list of systemd services that you want to start before the Mopidy service.
+          Added to the `systemd` unit definition as an `After=` statement for each entry.
+          Each entry must be a valid `systemd` service of the creation of the Spotify systemd
+          unit will fail.
+          Do not include the `.service` suffix.
+      mopidy_extensions:
+        type: dict
+        default: {}
+        # cannot define options because the keys are unknown
+        description: >-
+          A dictionary of dictionaries.
+
+
+          This allows for the configuration of arbitrary Mopidy extensions.
+
+
+          Each key of the top-level dictionary is the name of a section in the Mopidy
+          configuration file and each value contains a dictionary of configuration settings for
+          that section.
+          For example, this:
+
+          ```
+
+          iris:
+
+            country: UK
+
+            locale: en_GB
+
+            snapcast_enabled: false
+
+          ```
+
+          causes the following to be added to the configuration file
+
+          ```
+
+          [iris]
+
+          country = UK
+
+          locale = en_GB
+
+          snapcast_enabled = false
+
+
+          ```
+
+          No validation checking of the keys and values is performed.
