@@ -79,8 +79,11 @@
       mopidy_location: "{{ mopidy_multiroom_name }}"
       mopidy_description: "{{ mopidy_multiroom_mopidy_description }}"
       mopidy_media_library: "{{ mopidy_multiroom_media_library }}"
-      mopidy_audio_output: "{{ mopidy_multiroom_audio_output }}"
-      mopidy_mixer: false  # mixing is the responsibility of the client
+      mopidy_audio_sink: filesink
+      mopidy_filesink: "{{ mopidy_multiroom_fifo }}"
+      mopidy_format: "{{ mopidy_multiroom_format }}"
+      mopidy_rate: "{{ mopidy_multiroom_rate }}"
+      mopidy_channels: "{{ mopidy_multiroom_channels }}"
       mopidy_volume_control: "{{ mopidy_multiroom_volume_control }}"
       mopidy_http_bind_address: "{{ mopidy_multiroom_http_bind_address }}"
       mopidy_http_port: "{{ mopidy_multiroom_http_port }}"

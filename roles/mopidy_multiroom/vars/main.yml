@@ -17,14 +17,4 @@ mopidy_multiroom_fifo_exists: "{{ mopidy_multiroom_r_fifo.stat.exists }}"
 mopidy_multiroom_description: 'service for Mopidy Multiroom'
 mopidy_multiroom_mopidy_description: "{{ 'Mopidy ' + mopidy_multiroom_description }}"
 mopidy_multiroom_snapserver_description: "{{ 'Snapserver ' + mopidy_multiroom_description }}"
-mopidy_multiroom_audio_parms:
-- audio/x-raw
-- "rate={{ mopidy_multiroom_rate }}"
-- "channels={{ mopidy_multiroom_channels }}"
-- "format={{ mopidy_multiroom_format }}LE"
-mopidy_multiroom_audio_output: >-
-  audioresample !
-  audioconvert !
-  {{ mopidy_multiroom_audio_parms | join(',') }} !
-  filesink location={{ mopidy_multiroom_fifo }}
 mopidy_multiroom_define_groups: "{{ ([snapserver_gname] + [snapserver_extra_groups]) | flatten }}"

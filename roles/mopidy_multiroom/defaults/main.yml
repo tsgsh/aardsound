@@ -3,27 +3,22 @@ mopidy_multiroom_active: true
 mopidy_multiroom_name: Multiroom
 mopidy_multiroom_use_venv: false
 mopidy_multiroom_venv: /usr/local/mopidy/venv
+mopidy_multiroom_format: S16
+mopidy_multiroom_rate: 44100
+mopidy_multiroom_channels: 2
+mopidy_multiroom_volume_control: cubic
+mopidy_multiroom_initial_volume: 50
 mopidy_multiroom_media_library: /var/lib/mopidy/media
-mopidy_multiroom_volume_control: cubic  # same as spotify-multiroom
-# the address defaukts rely on the fact that we import the mopidy role
+# the address defaults rely on the fact that we import the mopidy role
 mopidy_multiroom_http_bind_address: "{{ mopidy_bind_address }}"
 mopidy_multiroom_http_port: 6681  # one more than the default
 mopidy_multiroom_mpd_bind_address: "{{ mopidy_bind_address }}"
 mopidy_multiroom_mpd_port: 6601   # one more than the default
-mopidy_multiroom_fifo: /tmp/mopidy-fifo
-mopidy_multiroom_sink_debug: false
-mopidy_multiroom_sink_logging: "{{ '*:debug' if mopidy_multiroom_sink_debug | bool else none }}"
-
-# audio format
-mopidy_multiroom_format: S16
-
-# Snapserver audio sampling defaults
-mopidy_multiroom_rate: 44100
-mopidy_multiroom_depth: 16
-mopidy_multiroom_channels: 2
+mopidy_multiroom_extensions: {}
 
 # snapserver options
+mopidy_multiroom_fifo: /tmp/mopidy-fifo
+mopidy_multiroom_depth: 16
 mopidy_multiroom_snap_port_offset: 0
-
-# Extensions
-mopidy_multiroom_extensions: {}
+mopidy_multiroom_sink_debug: false
+mopidy_multiroom_sink_logging: "{{ '*:debug' if mopidy_multiroom_sink_debug | bool else none }}"

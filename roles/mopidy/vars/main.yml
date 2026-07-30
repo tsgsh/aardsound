@@ -52,7 +52,18 @@ mopidy_var_dirs:
 mopidy_media_dir: "/var/lib/{{ mopidy_service }}/media"
 mopidy_mount_point: "{{ none if mopidy_media_library == mopidy_media_dir else
                         mopidy_media_dir }}"
-mopidy_audio_output: "alsasink device = {{ mopidy_output_device }}"
+mopidy_audio_x_raw:
+- audio/x-raw
+- "rate={{ mopidy_rate }}"
+- "channels={{ mopidy_channels }}"
+- "format={{ mopidy_format }}LE"
+mopidy_audio_output:
+  alsasink: "alsasink device = {{ mopidy_output_device }}"
+  filesink: >-
+    audioresample !
+    audioconvert !
+    {{ mopidy_audio_x_raw | join(',') }} !
+    filesink location = {{ mopidy_filesink }}
 mopidy_bind_address: "{{ '::' if mopidy_trusted_network and mopidy_ipv6 else
                          '0.0.0.0' if mopidy_trusted_network else
                          '::1' if mopidy_ipv6 else

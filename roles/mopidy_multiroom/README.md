@@ -62,6 +62,18 @@ Sets: `mopidy_venv`
 
 Default: /usr/local/mopidy/venv
 
+#### mopidy_multiroom_volume_control = cubic | fixed | linear | log
+Mopidy volume control scale type
+
+Sets: `mopidy_volume_control`
+
+Default: cubic
+
+#### mopidy_multiroom_initial_volume = 0-100
+Mopidy initial volume as a percentage from 0 to 100
+
+Default: 50
+
 #### mopidy_multiroom_media_library = *path*
 The media library for `mopidy-local`
 
@@ -71,13 +83,6 @@ with  `systemd` mount unit.
 Sets: `mopidy_media_library`
 
 Default: /var/lib/mopidy/media
-
-#### mopidy_multiroom_volume_control = cubic | fixed | linear | log
-Mopidy volume control scale type
-
-Sets: `mopidy_volume_control`
-
-Default: cubic
 
 #### mopidy_multiroom_http_bind_address =  *IP address*
 
@@ -121,9 +126,57 @@ Sets: `mopidy_mpd_bind_port`
 Default: 6601
 
 #### mopidy_multiroom_format = F64 | F32 | S32 | S24 | S24_3 | S16
-Output format from Mopidy to Snapcast
+Output format to send to the Snapcast server
+
+Sets:
+- `mopidy_format`
+- `snapserver_format`
 
 Default: S16
+
+#### mopidy_multiroom_rate = *integer*
+The audio sample rate to send to the Snapcast server
+
+Sets:
+- `mopidy_rate`
+- `snapserver_rate`
+
+Default: 44100 (untested with any other value)
+
+#### mopidy_multiroom_depth = *integer*
+Sets the sampling depth for the analogue audio
+
+Sets: `snapserver_depth`
+
+Default: 16 (untested with any other value)
+
+#### mopidy_multiroom_channels = *integer*
+The number of channels 
+
+Sets: 
+- `mopidy_channels`
+- `snapserver_channels`
+
+Default: 2 (untested with any other value)
+
+#### mopidy_multiroom_snap_port_offset = -699 to -2, 2 to 63755
+Aritmetic offset to the default ports used by the Snapcast server (1704, 1705, 1780) for this
+instance.
+
+Note that the values above are the ones that will not cause any direct clash with this instance
+of the Snapcast server only.
+No checking is done on the input value.
+
+Sets:`snapserver_port_offset`
+
+Default: 0
+
+#### mopidy_multiroom_extensions = *dictionary of dictionaries*
+This allows for the configuration of arbitrary Mopidy extensions.
+
+Sets: [`mopidy_extensions`](../mopidy/README.md#mopidy_extensions--dictionary-of-dictionaries)
+
+Default: {}
 
 #### mopidy_multiroom_fifo = *path*
 The path for the FIFO that will provde input to the Snapcast server.
@@ -147,45 +200,6 @@ Sets: `snapserver_logging`
 
 Default: *:debug if `mopidy_multiroom_sink_debug` is true, otherwise `none`
 (Snapcast internal default: *:info)
-
-#### mopidy_multiroom_rate = *integer*
-The audio sample rate to send to snapserver
-
-Sets: `snapserver_rate`
-
-Default: 44100 (untested with any other value)
-
-#### mopidy_multiroom_depth = *integer*
-Sets the sampling depth for the analogue audio
-
-Sets: `snapserver_depth`
-
-Default: 16 (untested with any other value)
-
-#### mopidy_multiroom_channels = *integer*
-The number of channels 
-
-Sets: `snapserver_channels`
-
-Default: 2 (untested with any other value)
-
-#### mopidy_multiroom_snap_port_offset = -699 to -2, 2 to 63755
-Aritmetic offset to the default ports used by Mopidy (1704, 1705, 1780) for this instance.
-
-Note that the values above are the ones that will not cause any direct clash with this instance
-of the Snapcast server only.
-No checking is done on the input value.
-
-Sets:`snapserver_port_offset`
-
-Default: 0
-
-#### mopidy_multiroom_extensions = *dictionary of dictionaries*
-This allows for the configuration of arbitrary Mopidy extensions.
-
-Sets: [`mopidy_extensions`](../mopidy/README.md#mopidy_extensions--dictionary-of-dictionaries)
-
-Default: {}
 
 
 ## Variable interactions with imported roles

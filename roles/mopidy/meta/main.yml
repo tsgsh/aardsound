@@ -40,32 +40,84 @@ argument_specs:
         type: str
         default: /usr/local/mopidy/venv
         description: The path where the Mopidy virtual environment should be created
+      mopidy_audio_sink:
+        type: str
+        choices:
+        - alsasink
+        - filesink
+        default: alsasink
+        description: The audio sink to be used by Mopidy
       mopidy_output_device:
         type: str
         default: default
-        description: The ALSA PCM to which Mopidy sends its audio streams.
+        description: >-
+          The ALSA PCM to which Mopidy sends its audio streams.
+
+          Ignored when `mopidy_audio_sink` is not equal to 'alsasink'
       mopidy_mixer:
         type: bool
         default: false
-        description: Use an ALSA hardware mixer instead of an internal software mixer?
+        description: >-
+          Use an ALSA hardware mixer instead of an internal software mixer?
+
+          Ignored when `mopidy_audio_sink` is not equal to 'alsasink'
       mopidy_mixer_control:
         type: str
         default: Master
         description: >-
           ALSA hardware mixer control as reported by the sound card.
-          Ignored if mopidy_mixer = false.
+
+
+          Ignored when `mopidy_mixer` is `false` or `mopidy_audio_sink` is not equal to 'alsasink'
       mopidy_mixer_card:
         type: str
         default: 0
         description: >-
-          The sound card to use for the hardware mixer
-          Ignored if mopidy_mixer = false.
+          The sound card to use for the hardware mixer.
+
+
+          Ignored when `mopidy_mixer` is `false` or `mopidy_audio_sink` is not equal to 'alsasink'
       mopidy_mixer_device:
         type: int
         default: 0
         description: >-
           The device on the sound card to use for he hardware mixer
-          Ignored if mopidy_mixer = false.
+
+
+          Ignored when `mopidy_mixer` is `false` or `mopidy_audio_sink` is not equal to 'alsasink'
+      mopidy_filesink:
+        type: str
+      mopidy_format:
+        type: str
+        choices:
+        - F64
+        - F32
+        - S32
+        - S24
+        - S24_3
+        - S16
+        default: S32
+        description: >-
+          The audio format to send to the filesink
+
+
+          Ignored when `mopidy_audio_sink` is not equal to 'filesink'
+      mopidy_rate:
+        type: int
+        default: 44100
+        description: >-
+          The audio sample rate to send to the filesink
+
+
+          Ignored when `mopidy_audio_sink` is not equal to 'filesink'
+      mopidy_channels:
+        type: int
+        default: 2
+        description: >-
+          The niumber of channels to send to the filesink
+
+
+          Ignored when `mopidy_audio_sink` is not equal to 'filesink'
       mopidy_volume_control:
         type: str
         choices:

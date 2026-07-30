@@ -1,11 +1,12 @@
 ---
-- name: Confirm that there is a defined library directory for mopidy
+- name: Check that the output sink is properly defined
+  when: mopidy_audio_sink == 'filesink'
   assert:
-    that: mopidy_media_library != none
-
-- name: Confirm that the extensions are defined in a dictionary
-  assert:
-    that: mopidy_extensions is mapping
+    that: mopidy_filesink is defined
+    fail_msg: >-
+      The path of the file sink must be defined in mopdiy_filesink when mopidy_audio_sink is
+      equal to 'filesink'
+    quiet: true
 
 - name: Confirm that each extension is defined as a dictionary
   loop: "{{ mopidy_extension_list }}"

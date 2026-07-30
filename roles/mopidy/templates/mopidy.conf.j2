@@ -17,8 +17,8 @@ color = true
 verbosity = {{ mopidy_verbosity }}
 
 [audio]
-output = {{ mopidy_audio_output }}
-{% if mopidy_mixer | bool %}
+output = {{ mopidy_audio_output[mopidy_audio_sink] }}
+{% if mopidy_audio_sink == 'alsasink' and mopidy_mixer | bool %}
 mixer = alsamixer
 {% else  %}
 mixer = software

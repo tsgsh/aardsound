@@ -66,29 +66,59 @@ The path where the Mopidy virtual environment should be created
 
 Default: '/usr/local/mopidy/venv'
 
+#### mopidy_audio_sink = alsasink | filsink
+The audio sink to be used by Mopidy
+
+Default: alsasink
+
 #### mopidy_output_device = *string*
 The ALSA PCM to which Mopidy sends its audio streams
+
+Ignored when `mopidy_audio_sink` is not equal to 'alsasink'
 
 Default: default
 
 #### mopidy_mixer = *boolean*
 Use an ALSA hardware mixer instead of an internal software mixer?
 
+Ignored when `mopidy_audio_sink` is not equal to 'alsasink'
+
 Default: `false`
 
 #### mopidy_mixer_control = *string*
 ALSA hardware mixer control as reported by the sound card.
 
-Ignored if mopidy_mixer = false.
+Ignored when `mopidy_audio_sink` is not equal to 'alsasink' or mopidy_mixer = false.
 
 Default: Master
 
 #### mopidy_mixer_card = *string* | *integer*
 The sound card to use for the hardware mixer
 
-Ignored if mopidy_mixer = false.
+Ignored when `mopidy_audio_sink` is not equal to 'alsasink' or mopidy_mixer = false.
 
 Default: `none`
+
+#### mopidy_format = F64 | F32 | S32 | S24 | S24_3 | S16
+The audio format to send to the filesink
+
+Ignored when `mopidy_audio_sink` is not equal to 'filesink'
+
+Default: S32
+
+#### mopidy_rate = *integer*
+The audio sample rate to send to the filesink
+
+Ignored when `mopidy_audio_sink` is not equal to 'filesink'
+
+Default: 44100 (untested with any other value)
+
+#### mopidy_channels = *integer*
+The number of channels to send to the filesink
+
+Ignored when `mopidy_audio_sink` is not equal to 'filesink'
+
+Default: 2 (untested with any other value)
 
 #### mopidy_volume_ctrl = cubic | fixed | linear | log
 Mopidy volume control scale type

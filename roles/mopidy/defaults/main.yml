@@ -5,10 +5,17 @@ mopidy_scan_service: "{{ mopidy_service + '-scan' }}"
 mopidy_use_venv: false
 mopidy_venv: /usr/local/mopidy/venv
 mopidy_location:
+mopidy_audio_sink: alsasink
+# options that apply to alsasink
 mopidy_output_device: default
 mopidy_mixer: false
 mopidy_mixer_control: Master
 mopidy_mixer_card: 0
+# options that apply to alsasink
+mopidy_filesink:  # must be defined
+mopidy_format: S32
+mopidy_rate: 44100
+mopidy_channels: 2
 # Other mopidy options
 mopidy_volume_ctrl: cubic
 mopidy_initial_volume: 50
