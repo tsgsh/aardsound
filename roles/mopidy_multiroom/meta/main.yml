@@ -1,0 +1,181 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound mopidy_multioom role
+    description:
+    - This role installs and configures (or removes)
+    - >-
+      An instance of Mopidy and associated extensions.
+    - An instance of the Snapcast server to feed the Mopidy output to remote Snapcast clients
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      mopidy_multiroom_active:
+        type: bool
+        default: true
+        description: Should the Mopidy multi-room services be installed and configured or removed
+      mopidy_multiroom_name:
+        type: str
+        default: Multiroom
+        description: The name of the Mopidy service to be advertised
+      mopidy_use_venv:
+        type: bool
+        default: false
+        description: >-
+          Should Mopidy be installed in a Python virtual environment?
+
+
+          This should be set to `true` if there are mopidy extensions defined that are not available
+          as APT packages.
+      mopidy_venv:
+        type: str
+        default: /usr/local/mopidy/venv
+        description: The path where the Mopidy virtual environment should be created
+      mopidy_multiroom_volume_control:
+        type: str
+        choices:
+        - cubic
+        - fixed
+        - linear
+        - log
+        default: cubic
+        description: Mopidy volume control scale type.
+      mopidy_multiroom_initial_volume:
+        type: int
+        default: 50
+        description: Mopidy initial volume as a percentage from 0 to 100.
+      mopidy_media_library:
+        type: str
+        default: /var/lib/mopidy/media
+        description: >-
+          The media library for `mopidy-local`.
+          If this is not `/var/lib/mopidy/media` then the specified directory is symbolically linked
+          to there with a `systemd` mount unit.
+      mopidy_multiroom_http_bind_address:
+        type: str
+        description: |
+          Address to bind the `mopidy-http` extension to
+
+          This is the default for the `mopidy_http_bind_address` variable used by the `mopidy` role,
+          i.e.:
+          - :: if `mopidy_trusted_network` and `mopidy_ipv6` are true
+          - 0.0.0.0 if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
+          - ::1 if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
+          - 127.0.0.1 if `mopidy_trusted_network` and `mopidy_ipv6` are false
+      mopidy_multiroom_http_port:
+        type: int
+        default: 6681
+        description: Port to bind the `mopidy-http` extension to in the range 1025-65535.
+      mopidy_multiroom_mpd_bind_address:
+        type: str
+        description: |
+          Address to bind the `mopidy-mpd` extension to
+
+          This is the default for the `mopidy_mpd_bind_address` variable used by the `mopidy` role,
+          i.e.:
+          - :: if `mopidy_trusted_network` and `mopidy_ipv6` are true
+          - 0.0.0.0 if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
+          - ::1 if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
+          - 127.0.0.1 if `mopidy_trusted_network` and `mopidy_ipv6` are false
+      mopidy_multiroom_mpd_port:
+        type: int
+        default: 6601
+        description: Port to bind the `mopidy-mpd` extension to in the range 1025-65535.
+      mopidy_multiroom_format:
+        type: str
+        choices:
+        - F64
+        - F32
+        - S32
+        - S24
+        - S24_3
+        - S16
+        default: S16
+        description: The audio sample rate to send to snapserver
+      mopidy_multiroom_rate:
+        type: int
+        default: 44100
+        description: The audio sample rate to send to snapserver
+      mopidy_multiroom_depth:
+        type: int
+        default: 16
+        description: Sets the sampling depth for the analogue audio for the Snapcast server.
+      mopidy_multiroom_channels:
+        type: int
+        default: 2
+        description: Sets the number of channels for the Snapcast server.
+      mopidy_multiroom_extensions:
+        type: dict
+        default: {}
+        # cannot define options because the keys are unknown
+        description: >-
+          A dictionary of dictionaries.
+
+
+          This allows for the configuration of arbitrary Mopidy extensions.
+
+
+          Each key of the top-level dictionary is the name of a section in the Mopidy
+          configuration file and each value contains a dictionary of configuration settings for
+          that section.
+          For example, this:
+
+          ```
+
+          iris:
+
+            country: UK
+
+            locale: en_GB
+
+            snapcast_enabled: false
+
+          ```
+
+          causes the following to be added to the configuration file
+
+          ```
+
+          [iris]
+
+          country = UK
+
+          locale = en_GB
+
+          snapcast_enabled = false
+
+
+          ```
+
+          No validation checking of the keys and values is performed.
+      mopidy_multiroom_fifo:
+        type: str
+        default: /tmp/mopidy-fifo
+        description: The path for the FIFO that will provde input to the Snapcast server.
+      mopidy_multiroom_snap_port_offset:
+        type: int
+        default: 0
+        description: >-
+          Aritmetic offset to the default ports used by Snapcast (1704, 1705, 1780) for this
+          instance.
+
+
+          Must be in the ranges -699 to -2 or 2 to 67355.
+          These are the values that will not cause any direct clash with this instance of the
+          Snapcast server only but they may clash with other instances or services.
+
+
+          No checking is done on the input value.
+      mopidy_multiroom_sink_debug:
+        type: bool
+        default: false
+        description: >-
+          Enable debugging of the Snapcast server.
+          May be overridden by snapsclient_logging.
+      mopidy_multiroom_sink_logging:
+        type: str
+        default: "{{ '*:debug' if mopidy_multiroom_sink_debug | bool else none }}"
+        description: >-
+          Set log levels for the Snapcast server.
+          Provides more fine-grained control of debugging than snapserver_debug
