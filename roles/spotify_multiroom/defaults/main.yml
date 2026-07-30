@@ -2,10 +2,7 @@
 spotify_multiroom_active: true
 spotify_multiroom_name: Multiroom
 # description is prefixed by "Raspotify", "FFMPEG" or "Snapcast" for the three services
-# Empirically, S16 works
-# ffmpeg -f alsa -i hw:Loopback,1,0 -f null -
-spotify_multiroom_format: S16
-# spotify_multiroom_volume_control: linear  # saw this recommended in docs somewhere: find reference
+spotify_multiroom_format: S16  # also used for FFPMEG
 spotify_multiroom_volume_control: cubic  # but even very quiet isn'!
 spotify_multiroom_initial_volume: 50  # leave it up to the client to handle volume
 spotify_multiroom_port:

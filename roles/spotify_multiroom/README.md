@@ -57,7 +57,7 @@ Sets: `spotify_location`
 Default: Multiroom
 
 #### spotify_multiroom_format = F64 | F32 | S32 | S24 | S24_3 | S16
-Spotify output format to FFMPEG.
+Spotify output format to FFMPEG and FFMPEG to the Snapcast Server
 
 Sets: `spotify_format`
 
