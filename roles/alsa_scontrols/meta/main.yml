@@ -1,0 +1,11 @@
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound alsa_scontrols role
+    description: >-
+      This role installs and configures (or removes) an instance of librespot
+      (https://github.com/librespot-org/librespot) as provided by the
+      Raspotify (https://dtcooper.github.io/raspotify/) package.
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:

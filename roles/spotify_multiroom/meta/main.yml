@@ -1,11 +1,17 @@
 ---
 argument_specs:
   main:
-    short_description: Main entrypoint for the Aardsound snapserver role
-    description: >-
-      This role installs and configures (or removes) an instance of librespot
-      (https://github.com/librespot-org/librespot) as provided by the
+    short_description: Main entrypoint for the Aardsound spotify_multioom role
+    description:
+    - This role installs and configures (or removes)
+    - >-
+      An instance of librespot(https://github.com/librespot-org/librespot) as provided by the
       Raspotify (https://dtcooper.github.io/raspotify/) package.
+    - An ALSA loopback device to connect librespot to FFMPEG
+    - >-
+      A systemd service running FFMPEG that bridges librespot to the Snapcast server and
+      provide a playback position to Spotify Connect
+    - An instance of the Snapcast server to feed the Spotify Output to remote Snapcast clients
     version_added: '0.2.0'
     author:
     - Steve Hayes
