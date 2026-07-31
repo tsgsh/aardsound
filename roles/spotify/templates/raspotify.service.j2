@@ -73,7 +73,7 @@ SystemCallFilter=@system-service
 SystemCallFilter=~@privileged @resources
 SystemCallErrorNumber=EPERM
 
-Environment=LIBRESPOT_NAME="{{ spotify_description }}"
+Environment=LIBRESPOT_NAME={{ spotify_description | quote }}
 Environment=LIBRESPOT_BACKEND="{{ spotify_backend }}"
 Environment=LIBRESPOT_CACHE=%C/%N
 Environment=LIBRESPOT_SYSTEM_CACHE=%S/%N

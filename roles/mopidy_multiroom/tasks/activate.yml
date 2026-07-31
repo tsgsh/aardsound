@@ -26,7 +26,8 @@
       shell: '/usr/sbin/nologin'
       expires: -1
       system: true
-      comment: "{{ snapserver_description }}"
+      # to_json == to_ascii
+      comment: "{{ snapserver_description | to_json | replace(':', '\u003a') }}"
 
 - name: "Service 0: FIFO"
   block:

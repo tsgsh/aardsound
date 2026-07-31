@@ -33,7 +33,8 @@
     shell: "/usr/sbin/nologin"
     expires: -1
     system: true
-    comment: "{{ mopidy_description }}"
+    # to_json == to_ascii
+    comment: "{{ mopidy_description | to_json | replace(':', '\u003a') }}"
 
 - name: Add the /etc/mopidy directory
   file:
