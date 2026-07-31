@@ -16,7 +16,6 @@ aardsound_pi_dual_hdmi: "{{ aardsound_pi.model[0] | int > 3 }}"
 aardsound_stream_count: "{{ aardsound_spotify | bool | int +
                             aardsound_mopidy | bool | int +
                             aardsound_bluetooth | bool | int +
-                            aardsound_spotify | bool | int *
                                 [snapclient_of] | default([]) | flatten | length }}"
 aardsound_output: "{{ aardsound_stream_count > 0 }}"
 aardsound_group: aardsound
