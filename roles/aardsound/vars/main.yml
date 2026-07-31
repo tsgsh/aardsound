@@ -19,7 +19,7 @@ aardsound_stream_count: "{{ aardsound_spotify | bool | int +
                                 [snapclient_of] | default([]) | flatten | length }}"
 aardsound_output: "{{ aardsound_stream_count > 0 }}"
 aardsound_group: aardsound
-aardsound_var_lib: /var/lib/aardsound
+# aardsound_var_lib: /var/lib/aardsound
 aardsound_bluetooth_packagees:
 - bluez-tools
 - bluez-alsa-utils
