@@ -508,7 +508,7 @@
     - name: Flush handlers for this invocation of the mopidy and snapserver roles
       meta: flush_handlers
 
-    - name: "{{ ('Activate' if aardsound_bluetooth | bool else 'Deactivate') + ' Spotify' }}"
+    - name: "{{ ('Activate' if aardsound_bluetooth | bool else 'Deactivate') + ' Bluetooth' }}"
       vars:
         bluetooth_active: "{{ aardsound_bluetooth | bool }}"
         bluetooth_service: "{{ aardsound_bluetooth_service }}"
@@ -521,7 +521,6 @@
         bluetooth_mixer_card: "{{ aardsound_mixer_card }}"
         bluetooth_mixer_device: "{{ aardsound_mixer_device }}"
         bluetooth_mixer_control: "{{ aardsound_mixer_control }}"
-        bluetooth_format: "{{ aardsound_format }}"
         bluetooth_extra_groups: "{{ [aardsound_group] }}"
       include_role:  # Ensure handlers are not pre-loaded
         name: bluetooth
