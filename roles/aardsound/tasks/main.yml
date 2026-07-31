@@ -228,15 +228,15 @@
       system: true
       state: present
 
-  - name: "{{ aardsound_var_lib }}"
-    tags:
-    - var-lib
-    file:
-      path: "{{ aardsound_var_lib }}"
-      owner: root
-      group: "{{ aardsound_group }}"
-      mode: '0750'
-      state: present
+  # - name: "{{ aardsound_var_lib }}"
+  #   tags:
+  #   - var-lib
+  #   file:
+  #     path: "{{ aardsound_var_lib }}"
+  #     owner: root
+  #     group: "{{ aardsound_group }}"
+  #     mode: '0750'
+  #     state: directory
 
 - name: ALSA device detection
   when: aardsound_output
