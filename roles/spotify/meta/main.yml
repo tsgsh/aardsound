@@ -176,9 +176,16 @@ argument_specs:
           Each entry is added to the systemd unit definition as an `After=` statement and must be a
           valid systemd service or the creation of the Spotify systemd unit will fail.
           Do not include the .service suffix.
-      spotify_verbose:
-        type: bool
-        default: false
+      spotify_verbosity:
+        type: int
+        choices: [0, 1, 2]
+        default: 0
         description: >-
-          Whether to enable verbose logging in librespot.
+          Level of logging logging in `librespot`
+
+
+          0 corresponds to the `--quiet` option, ` to the default behaviour and
+          2 to the `--verbose` option
+
+
           Logs are seent to the `systemd` journal.

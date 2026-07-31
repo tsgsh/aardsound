@@ -177,12 +177,14 @@ Do not include the `.service` suffix.
 
 Default: []
 
-#### spotify_verbose
-Whether to enable verbose logging in `librespot`
+#### spotify_verbosity = 0 | 1 | 2
+Level of logging logging in `librespot`
+
+0 corresponds to the `--quiet` option, ` to the default behaviour and 2 to the `--verbose` option
 
 Logs are seent to the `systemd` journal
 
-Default: `false`
+Default: 0
 
 
 ## Handlers

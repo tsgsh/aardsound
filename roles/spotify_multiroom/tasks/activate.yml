@@ -110,7 +110,7 @@
       spotify_initial_volume: "{{ spotify_multiroom_initial_volume }}"
       spotify_volume_control: "{{ spotify_multiroom_volume_control }}"
       spotify_format: "{{ spotify_multiroom_format }}"
-      spotify_verbose: "{{ spotify_multiroom_source_verbose }}"
+      spotify_verbosity: "{{ spotify_multiroom_source_verbosity }}"
       spotify_port: "{{ spotify_multiroom_port }}"
       spotify_interface: "{{ spotify_multiroom_interface }}"
       spotify_start_after_services: "{{ [spotify_multiroom_service2] }}"

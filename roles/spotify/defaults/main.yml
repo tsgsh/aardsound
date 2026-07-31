@@ -25,4 +25,4 @@ spotify_port:
 spotify_interface:
 spotify_extra_groups: []
 spotify_start_after_services: []  # do not include .service suffix
-spotify_verbose: false
+spotify_verbosity: 0

@@ -7,7 +7,7 @@ spotify_multiroom_volume_control: cubic  # but even very quiet isn'!
 spotify_multiroom_initial_volume: 50  # leave it up to the client to handle volume
 spotify_multiroom_port:
 spotify_multiroom_interface:
-spotify_multiroom_source_verbose: "{{ false }}"
+spotify_multiroom_source_verbosity: 0
 
 # FIFO definitions: assumes that /tmp is a RAM disk; setting up FIFOs on /var/run is painful
 spotify_multiroom_fifo: /tmp/spotify-fifo

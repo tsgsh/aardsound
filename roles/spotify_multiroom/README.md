@@ -93,13 +93,16 @@ Sets: `spotify_interface`
 
 Default: `none`  (`librespot` internal default is to bind to all interfaces)
 
-#### spotify_multiroom_source_verbose = *boolean*
-Whether to enable verbose logging in `librespot`
+#### spotify_multiroom_source_verbosity = 0 | 1 | 2
+Level of logging logging in `librespot`
+
+0 corresponds to the `--quiet` option, ` to the default behaviour and 2 to the `--verbose` option
+
 Logs are seent to the `systemd` journal.
 
-Sets: `spotify_verbose`
+Sets: `spotify_verbosity`
 
-Default: `false`
+Default: 0
 
 #### spotify_multiroom_fifo = *path*
 The path for the FIFO that will provde input to the Snapcast server.

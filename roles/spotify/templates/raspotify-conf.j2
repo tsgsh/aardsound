@@ -198,18 +198,26 @@ LIBRESPOT_NORMALISATION_KNEE="{{ spotify_normalisation_knee }}"
 # environment variable.
 #LIBRESPOT_PROXY=
 
+{# Moved LIBRESPOT_VERBOSE up by oneto be close to LIBRESPOT_QUIET
+Commented out LIBESPOT_QUIET and created anothe entry conditional on 
+spotify_verbosity < 1  #}
 # Only log warning and error messages.
+# LIBRESPOT_QUIET=
+{% if spotify_verbosity < 1 %}
 LIBRESPOT_QUIET=
+{% endif %}
+
+# Enable verbose output.
+#LIBRESPOT_VERBOSE=
+{% if spotify_verbosity > 1 %}
+LIBRESPOT_VERBOSE=
+{% endif %}
 
 # Directory where system files (credentials, volume) will be cached.
 #LIBRESPOT_SYSTEM_CACHE=
 
 # Username to use cached credentials for.
 #LIBRESPOT_USERNAME=
-
-# Enable verbose output.
-#LIBRESPOT_VERBOSE=
-LIBRESPOT_VERBOSE={{ 'on' if spotify_verbose | bool else 'off' }}
 
 # Volume control type cubic, fixed, linear, log. Defaults to log.
 #LIBRESPOT_VOLUME_CTRL=log
