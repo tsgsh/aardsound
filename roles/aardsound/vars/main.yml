@@ -106,3 +106,9 @@ aardsound_mopidy_multiroom_extensions_bis: "{{ aardsound_mopidy_multiroom_extens
 
 # Do we have a graphical installation (used to detrmine the default mopidy installation type)
 aardsound_graphical: "{{ aardsound_r_get_default.stdout == 'graphical.target' }}"
+aardsound_mopidy_site_packages: "{{ (aardsound_mopidy_venv if aardsound_mopidy_use_venv else
+                                     '/usr/local') +
+                                    '/lib/python' +
+                                    ansible_facts.python.version.major | string + '.' +
+                                    ansible_facts.python.version.minor | string +
+                                    '/site/packages/' }}" # note trailing /
