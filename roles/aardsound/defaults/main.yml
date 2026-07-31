@@ -11,8 +11,8 @@ aardsound_mopidy: false
 aardsound_bluetooth: false
 aardsound_spotify_multiroom: false
 aardsound_mopidy_multiroom: false
-aardsound_snapclient: false
 aardsound_bluetooth_multiroom: false
+aardsound_snapclient: false
 aardsound_allow_all_inventory: false
 aardsound_upgrade: false
 aardsound_reboot: false
@@ -24,16 +24,12 @@ aardsound_disable_onboard_bt: false
 # duplicates the logic in ../../mopidy_installer/default/main.yml and applies it to the includes for
 # mopidy and mopidy_mutliroom
 # PIP installs fail without enough RAM; an RPi 3A has 415MB and a desktop is quite heavy
+# need to have a default for aardsound_graphical to get through role validation because it's based
+# on a registered_variable
 aardsound_mopidy_use_venv: "{{ ansible_facts.memtotal_mb | int > 512 or
-                               not aardsound_graphical or
+                               not aardsound_graphical | default(true) or
                                mopidy_installer_extensions != [] }}"
 aardsound_mopidy_venv: /usr/local/mopidy/venv
-aardsound_mopidy_site_packages: "{{ (aardsound_mopidy_venv if aardsound_mopidy_use_venv else
-                                     '/usr/local') +
-                                    '/lib/python' +
-                                    ansible_facts.python.version.major | string + '.' +
-                                    ansible_facts.python.version.minor | string +
-                                    '/site/packages/' }}" # note trailing /
 
 # ALSA
 # aardsound_card and _device will be set by running aplay in a shell if not set as inventory or
@@ -48,6 +44,7 @@ aardsound_plugin: "{{ 'hw' if aardsound_dmixer else 'plughw' }}"
 aardsound_card: "{{ aardsound_r_aplay_cards.stdout | default(none) }}"
 aardsound_device: "{{ aardsound_r_aplay_devices.stdout | default(none) }}"
 aardsound_volume_control: cubic
+aardsound_initial_volume: 50
 aardsound_mixer: false
 aardsound_mixer_plugin: "{{ 'hw' if aardsound_dmixer | bool or not aardsound_mixer | bool else
                             'plughw' }}"
@@ -55,8 +52,12 @@ aardsound_mixer_card: "{{ aardsound_card | default((aardsound_output_device |
                                                     replace(',', ':') |
                                                     split(':'))[1]) }}"
 # Only used by Raspotify; not sure this is correct!
-aardsound_mixer_device: "{{ aardsound_device | default(aardsound_output_device |
-                                                       split(',') | last) }}"
+aardsound_mixer_device: "{{ aardsound_device |
+                            default(aardsound_output_device |
+                            split(',') |
+                            last) |
+                            int |
+                            default(none) }}"
 aardsound_mixer_control: "{{ aardsound_r_amixer.stdout | default(none) }}"
 # dmixer: plugin, device names changed from default (and are also used by other roles than dimixer)
 aardsound_dmixer: "{{ aardsound_stream_count > 1 }}"  # Install a dmixer ALSA plugin to multiplex
@@ -68,7 +69,6 @@ aardsound_nfs_media:
 aardsound_local_media: "{{ none if aardsound_nfs_media == none else '/mnt/mopidy' }}"
 
 # ALSA settings
-aardsound_initial_volume: 50
 aardsound_format: S16
 aardsound_rate: 44100
 aardsound_depth: 16
@@ -76,18 +76,18 @@ aardsound_channels: 2
 
 # Spotify ports (none to leave as a random port)
 aardsound_spotify_port:
-aardsound_spotify_interface:
+aardsound_spotify_address:
 aardsound_spotify_multiroom_port:
-aardsound_spotify_multiroom_interface:
+aardsound_spotify_multiroom_address:
 
 # Mopidy bind addresses and ports
-aardsound_mopidy_http_bind_address: 0.0.0.0
+aardsound_mopidy_http_address:
 aardsound_mopidy_http_port: 6680
-aardsound_mopidy_mpd_bind_address: 0.0.0.0
+aardsound_mopidy_mpd_address:
 aardsound_mopidy_mpd_port: 6600
-aardsound_mopidy_multiroom_http_bind_address: 0.0.0.0
+aardsound_mopidy_multiroom_http_address:
 aardsound_mopidy_multiroom_http_port: 6681
-aardsound_mopidy_multiroom_mpd_bind_address: 0.0.0.0
+aardsound_mopidy_multiroom_mpd_address:
 aardsound_mopidy_multiroom_mpd_port: 6601
 
 # Mopidy Extensions

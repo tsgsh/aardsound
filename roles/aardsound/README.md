@@ -33,7 +33,8 @@ The role performs the following "activities" &ndash; groups of Ansible tasks.
 8.  Install (or remove) some of the following services as declared by the host's Ansible Variables
     - Spotify [Connect] &ndash; single- and/or multi-room
     - Mopidy (with extensions) &ndash; single- and/or multi-room
-    - Snapcasst (for multi-room operation)
+    - Bluettooth A2DP single- or multi-room source
+    - Snapcast (for multi-room operation)
 
 Activities can be controlled by Ansible tags, see the [Aardsound README](../../README.md).
 
@@ -55,6 +56,13 @@ Sets: `mopidy_active`
 
 Default: `false`
 
+#### aardsound_bluetooth = *boolean*
+Run a multi-room Bluetooth speaker instance
+
+Sets: `bluetooth_active`
+
+Default: `false`
+
 #### aardsound_spotify_multiroom = *boolean*
 Run a multi-room Spotify instance
 
@@ -66,6 +74,13 @@ Default: `false`
 Run a multi-room Mopidy instance
 
 Sets: `mopidy_multiroom_active`
+
+Default: `false`
+
+#### aardsound_bluetooth_multiroom = *boolean*
+Run a multi-room Bluetooth speaker instance
+
+Sets: `bluetooth_multiroom_active`
 
 Default: `false`
 
@@ -81,7 +96,7 @@ Default: `false`
 The `aardsound` role will not operate against the whole `aardsound` group unless the variable
 `aardsound_allow_all_inventory` is `true`; if it is `false` (the default) then the playbook
 has to be called with a value of `--limit` (or `-l`) that constrains the number of hosts to
-a strict subset of the group.
+a subset of the group (which may be the entire group).
 This is intended to prevent the accidental deployment of an untested or invalid configuration to a
 whole housefull of Raspberry Pi audio systems.
 
@@ -95,8 +110,13 @@ Whether to perform an APT upgrade
 
 Default: `true`
 
+#### aardsound_aardsound_reboot = *boolean*
+Reboot if the APT update changed the installation?
+
+Default: `false`
+
 #### aardsound_aardsound_reboot_prompt = *boolean*
-Prompt before performing a reboot
+Prompt before performing a reboot?
 
 Default: `false`
 
@@ -117,14 +137,6 @@ Default: false
 #### aardsound_disable_onboard_bt = true | false
 Disable the onboard Bluetooth adapter in  `/boot/firmware/config.txt`
 
-This is useful if you have a USB Bluetooth adapter that you wish to use exclusively.
-The `blustoothctl` utility does not make a significant distinction between an onboard Bluetooth
-adapter and a USB one, and the order they appear in may depend on whether the latter was present at
-boot time or was hot-plugged.
-
-Without this option, you need to know the MAC address of the USB Bluetooth adapter in order to
-identify it.
-
 Default: false
 
 ## Initial Setup Variables for the Mopidy installation
@@ -132,18 +144,18 @@ Default: false
 #### aardsound_mopidy_use_venv
 Should Mopidy be installed in a Python virtual_environment?
 
-Sets: 
+Sets:
 - `mopidy_installer_use_venv`
 - `mopidy_use_venv`
 - `mopidy_multiroom_use_venv`
 
 Default: `true` unless `mopidy_installer_extensions` is an empty list, RAM is less than or equal to
-512MiB and the `systemd` default target is `'graphical'`.
+512MiB and the `systemd` default target is 'graphical'.
 
 #### aardsound_mopidy_venv
 The location for the Python virtual environment where Mopiy and its extensions will be installed.
 
-Sets: 
+Sets:
 - `mopidy_installer_venv`
 - `mopidy_venv`
 - `mopidy_multiroom_venv`
@@ -158,7 +170,7 @@ Default: `none` (no NFS media)
 #### aardsound_local_media
 The mount point to use for the external NFS meda
 
-Default: `none` if there is no NFS media, otherwise `'/mnt/mopidy'`
+Default: `none` if there is no NFS media, otherwise /mnt/mopidy
 
 ### General Aardsound Options
 These apply to multiple services, although not all of them are relevant to all of them.
@@ -205,9 +217,8 @@ Ignored if `aardsound_output_device` is specified
 Default: `'hw'` if `aardsound_dmixer` is `true` or `aardsound_mixer` is `false`; otherwise `'plughw'`
 
 #### aardsound_card = *string*|*integer*
-ALSA card name or index number as reported by `aplay -l`.  Default is the first
-card that is not HDMI nor Headphones nor Loopback if a daemon that
-uses audio output has been requested
+ALSA card name or index number as reported by `aplay -l`.
+Default is the first card that is not HDMI nor Headphones nor Loopback.
 
 If `aardsound_output_device` is specified, this is only used to set the default for
 `aardsound_mixer_card`.
@@ -223,28 +234,31 @@ If the selected or default ALSA card has more than one device then specify a num
 other than than the first device on the card as reported by `aplay -L`.
 
 If `aardsound_output_device` is specified, this is only used to set the default for
-`aardsound_mixer_device` (which is only used by Raspotify).
+`aardsound_mixer_device`, which, in turn. is only used by librespot (Spotify).
 
-Default: the first device on `aardsound_card`
-
-#### aardsound_initial_volume = *1-100*
-Set the initial playback volume.
-
-Sets:
-- `spotify_initial_volume`
-- `mopidy_initial_volume`
-
-Default: `50`
+Default: the first device on `aardsound_card` (usually 0).
 
 #### aardsound_volume_control = linear | log | cubic | fixed
-Specify the form of the volume control for Spotify and Mopidy, as supported by `librespot` and
-`mopidy-core`, respectively.
+Specify the form of the volume control for Spotify and Mopidy
 
 Sets:
 - `spotify_volume_control`
 - `mopidy_volume_control`
 
 Default: `'cubic'`
+
+#### aardsound_initial_volume = *1-100*
+Set the initial playback volume
+
+Sets:
+- `spotify_initial_volume`
+- `spotify_multiroom_initial_volume`
+- `mopidy_initial_volume`
+- `mopidy_multiroom_initial_volume`
+- `bluetooth_initial_volume`
+- `bluetooth_multiroom_initial_volume`
+
+Default: 50
 
 #### aardsound_mixer = *boolean*
 Route sound via ALSA mixer or are volume, balance, etc., controlled solely by the source
@@ -260,9 +274,11 @@ Default: `false`, untested with `true`
 #### aardsound_mixer_plugin = *string*
 The plugin to use for ALSA amixer.
 
+Ignored if `aardsound_mixer` is `false`
+
 Sets: `spotify_mixer_plugin`
 
-Default: `'hw'` if `aardsound_dmixer` is `true` or `aardsound_mixer` is `false`; otherwise `'plughw'`
+Default: hw if `aardsound_dmixer` is `true` or `aardsound_mixer` is `false`; otherwise plughw
 
 #### aardsound_mixer_card = *string*|*integer*
 The sound card to use for ALSA amixer.
@@ -277,7 +293,7 @@ explicilty specified, otherwise the card defined by `aardsound_output_device`.
 
 #### aardsound_mixer_device = *integer*
 The index of the mixer device on `aardsound_mixer_card`.
-Only used by Raspotify (and not part of the base librespot)
+Only used by librespot (Spotify)
 
 Untested, may be incorrect
 
@@ -287,7 +303,7 @@ Default: `aardsound_device` if this is explicitly specified, or `aardsound_outpu
 explicilty specified, otherwise the device defined by `aardsound_output_device`.
 
 #### aardsound_mixer_control = *string*
-Yhe name of an ALSA mixer control supported by `aardsound_mixer_card`.
+The name of an ALSA mixer control supported by `aardsound_mixer_card`.
 
 Default: the first control with either the 'volume' or the 'pvolume' capability as reported by
 running `amixer` without a command against the ALSA mixer card.
@@ -300,7 +316,6 @@ Sets:
 #### aardsound_dmixer = *boolean*
 Install a plugin and a PCM in `/etc/asound.conf` that uses the `dmix` plugin to allow multiple sources
 to share one output nicely.
-This is created with permissions 0666 and can be accessed by any user once created.
 
 Sets: `dmixer_active`
 
@@ -321,7 +336,7 @@ Sets: `dmixer_dmix_device`
 Default: `'aarddmix'`
 
 #### aardsound_format = F64 | F32 | S32 | S24 | S24_3 | S16
-Sets the format for Spotify, FFMPEG (used for multi-room Spotify) and Mopidy.
+Sets the format for Spotify, FFMPEG (used for multi-room Spotify) and multi-room Mopidy.
 
 ***Experimental***
 
@@ -363,7 +378,7 @@ Sets:
 Default: `16`, untested with anything else
 
 #### aardsound_channels = *integer*
-The number of audio channels, used by snapcast
+The number of audio channels.
 
 Sets:
 - `spotify_mutiroom_channels`
@@ -375,54 +390,40 @@ Sets:
 
 ### Player-specific variables
 
+#### aardsound_spotify_address = *comma-separated string of IP addresses*
+Which IP address the `librespot` daemon should bind to
+
+Sets: spotify_interface
+
+Default: spotify_role default
+
 #### aardsound_spotify_port = *1025-65535*
 Which port the `librespot` daemon should bind to
 
 Sets: spotify_port
 
-Default: `none` (random high port)
-
-#### aardsound_spotify_interface = *comma-separated string of IP addresses*
-Which IP address the `librespot` daemon should bind to
-
-Sets: spotify_interface
-
-Default: none ('::' if IPv6 is active, otherwise '0.0.0.0')
-
-#### aardsound_spotify_multiroom_port = *1025-65535*
-Which port the multi-room `librespot` daemon should bind to
-
-Sets: spotify_multiroom_port
-
-Default: `none` (random high port)
+Default: spotify_role_default (random high port)
 
 #### aardsound_multiroom_spotify_interface = *comma-separated string of IP addresses*
 Which IP address the multi-room `librespot` daemon should bind to
 
 Sets: spotify_multiroom_interface
 
-Default: none ('::' if IPv6 is active, otherwise '0.0.0.0')
+Default: spotify_multiroom_role default
 
-#### aardsound_mopidy_http_port = *1025-65535*
-Which port the HTTP server should bind to
+#### aardsound_spotify_multiroom_port = *1025-65535*
+Which port the multi-room `librespot` daemon should bind to
 
-Sets: mopidy_http_bind_port
+Sets: spotify_multiroom_port
 
-Default: 6680
+Default: spotify_multiroom_role default (random high port)
 
-#### aardsound_mopidy_mpd_bind_address = 127.0.0.1|::1|0.0.0.0|::
-Which address the MPD server should bind to
-
-Sets: mopidy_mpd_bind_address
-
-Default: 0.0.0.0
-
-#### aardsound_mopidy_http_bind_address = 127.0.0.1|::1|0.0.0.0|::
+#### aardsound_mopidy_http_address = 127.0.0.1|::1|0.0.0.0|::
 Which address the HTTP server should bind to
 
 Sets: mopidy_http_bind_address
 
-Default: 0.0.0.0
+Default: mopidy_role default
 
 #### aardsound_mopidy_http_port = *1025-65535*
 Which port the HTTP server should bind to
@@ -431,12 +432,12 @@ Sets: mopidy_http_bind_port
 
 Default: 6680
 
-#### aardsound_mopidy_mpd_bind_address = 127.0.0.1|::1|0.0.0.0|::
+#### aardsound_mopidy_mpd_address = 127.0.0.1|::1|0.0.0.0|::
 Which address the MPD server should bind to
 
 Sets: mopidy_mpd_bind_address
 
-Default: 0.0.0.0
+Default: mopidy_role default
 
 #### aardsound_mopidy_mpd_port = *1025-65535*
 Which port the MPD server should bind to
@@ -444,6 +445,34 @@ Which port the MPD server should bind to
 Sets: mopidy_mpd_bind_port
 
 Default: 6600
+
+#### aardsound_multiroom_mopidy_http_address = 127.0.0.1|::1|0.0.0.0|::
+Which address the multi-room HTTP server should bind to
+
+Sets: mopidy_multiroom_http_bind_address
+
+Default: mopidy_multiroom role default
+
+#### aardsound_multiroom_mopidy_http_port = *1025-65535*
+Which port the multi-room HTTP server should bind to
+
+Sets: mopidy_multiroom_http_bind_port
+
+Default: 6681
+
+#### aardsound_multiroom_mopidy_mpd_address = 127.0.0.1|::1|0.0.0.0|::
+Which address the multi-room MPD server should bind to
+
+Sets: mopidy_multiroom_mpd_bind_address
+
+Default: mopidy_multiroom role default
+
+#### aardsound_multiroom_mopidy_mpd_port = *1025-65535*
+Which port the multi-room MPD server should bind to
+
+Sets: mopidy_multiroom_mpd_bind_port
+
+Default: 6601
 
 #### aardsound_mopidy_extensions = *dictionary of dictionaries*
 This is a front-end to `mopdidy_extensions` that also ensures that the Mopidy extension is installed
@@ -469,7 +498,7 @@ The value for each key is itself a dictionary and each key/value pair in that de
     Packages are installed with `pip` unless `mopidy_installer_pip` is set to `false`, in which case
     they are installed with `apt`
   - `_sudoers` defines [sudoers] entries needed for that extension.
-    Each entry is added to the file `/etc/sudoers.d/50-mopidy` as 
+    Each entry is added to the file `/etc/sudoers.d/50-mopidy` as
     ```
     %mopidy ALL=NOPASSWD: {{ item }}
     ```
@@ -506,12 +535,12 @@ in the Ansible inventory.
 
 Default: {}
 
-As an example, to install the [Iris](https://mopidy.com/ext/iris/) extension, the following 
+As an example, to install the [Iris](https://mopidy.com/ext/iris/) extension, the following
 could be used:
 ```
 aardsound_mopidy_extensions:
   iris:
-    _sudoers: 
+    _sudoers:
     - "{{ _ }}mopidy_iris/system.sh"
     country: UK
     locale: en_GB
@@ -519,7 +548,7 @@ aardsound_mopidy_extensions:
 ```
 - `_packages` &ndash; omitted, installs the PyPi version of
   [`mopidy-iris`](https://pypi.org/project/Mopidy-Iris/)
-- `_sudoers` &ndash; `mopidy-iris` requires the `install.sh` to be run with `sudo`: 
+- `_sudoers` &ndash; `mopidy-iris` requires the `install.sh` to be run with `sudo`:
   see https://github.com/jaedb/Iris/wiki/Getting-started#installing
 - `country: UK` &ndash; the default country code for `mopidy-iris` is `NZ`
 - `locale: en_GB` &ndash; the default country code for `mopidy-iris` is `en_NZ`
@@ -547,44 +576,6 @@ However, this only installs the python code, it does not do the required compila
 So, until the current development branch is released to PyPi, **Mopidy-Iris** doesn't work, without
 a manual installation.
 
-#### aardsound_mopidy_multiroom_http_bind_address = 127.0.0.1|::1|0.0.0.0|::
-Which address the multi-room HTTP server should bind to
-
-Sets: mopidy_multiroom_http_bind_address
-
-Default: 0.0.0.0
-
-#### aardsound_mopidy_multiroom_http_port = *1025-65535*
-Which port the multi-room HTTP server should bind to
-
-Sets: mopidy_multiroom_http_port
-
-Default: 6681
-
-#### aardsound_mopidy_multiroom_mpd_bind_address = 127.0.0.1|::1|0.0.0.0|::
-Which address the multi-room MPD server should bind to
-
-Sets: mopidy_multiroom_mpd_bind_address
-
-Default: 0.0.0.0
-
-#### aardsound_mopidy_multiroom_mpd_port = *1025-65535*
-Which port the multi-room MPD server should bind to
-
-Sets: mopidy_multiroom_mpd_port
-
-Default: 6601
-
-#### aardsound_mopidy_multiroom_extensions = *dictionary of dictionaries*
-This is a front-end to
-[`mopdidy_multiroom_extensions`](../mopidy/README.md#mopidy_extensions--dictionary)
-that also ensures that the Mopidy extension is installed by `mopidy_installer`.
-It allows for different extensions to be used by single- and multi-room instances of Mopidy.
-
-Sets:
-- `mopidy_multiroom_extensions`
-
-Default: the same as `aardsound_mopidy_extensions`
 
 ## License
 

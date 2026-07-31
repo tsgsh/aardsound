@@ -1,0 +1,467 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the role
+    description:
+    - This role installs and configures (or removes)
+    - >-
+      An instance of Mopidy and associated extensions.
+    - An instance of the Snapcast server to feed the Mopidy output to remote Snapcast clients
+    - >-
+      This role controls the installation of software for creating a (multi-room) audio player on
+      one       or more Raspberry Pis and the configuration of that software.
+    - The role performs the following "activities" &ndash; groups of Ansible tasks.
+    - >-
+      1.  Confirm that the target hosts and their variables are valid
+      2.  Make cchanges to the Raspberry Pi boot configuration if required
+      3.  Patch using APT
+      4.  Install APT and/or PIP packages
+      5.  Determine the default ALSA output device, if not specified by the host's Ansible variables
+      6.  Set ALSA simple controls for the device, if required
+      7.  Create an ALSA direct mixer (`dmix`) device if there are multiple audio inputs sharing an
+          output device
+      8.  Install (or remove) some of the following services as declared by the host's Ansible
+          Variables
+          - Spotify [Connect] &ndash; single- and/or multi-room
+          - Mopidy (with extensions) &ndash; single- and/or multi-room
+          - Snapcast (for multi-room operation)
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      aardsound_location:
+        type: str
+        description: User-friendly string where the device is located, e.g., 'Kitchen'.
+      aardsound_multiroom_name:
+        type: str
+        default: Multiroom
+        description: User-friendly to identify the name of the Multiroom service.
+      aardsound_spotify:
+        type: bool
+        default: false
+        description: Run a single-room Spotify instance
+      aardsound_mopidy:
+        type: bool
+        default: false
+        description: Run a single-room Mopidy instance
+      aardsound_bluetooth:
+        type: bool
+        default: false
+        description: Run a single-room Bluetooth speaker instance
+      aardsound_spotify_multiroom:
+        type: bool
+        default: false
+        description: Run a multi-room Spotify instance
+      aardsound_mopidy_multiroom:
+        type: bool
+        default: false
+        description: Run a multi-room Spotify instance
+      aardsound_bluetooth_multiroom:
+        type: bool
+        default: false
+        description: Run a multi-room Bluetooth speaker instance
+      aardsound_snapclient:
+        type: bool
+        default: false
+        description: Run one or more Snapserver streaming client instances
+      aardsound_allow_all_inventory:
+        type: bool
+        default: false
+        description: >-
+          Is it permissible to run the playbook against all managed Ansible nodes in the `aardsound`
+          group of the Ansible inventory, or is it necessary to always limit the number of hosts
+          with the `ansible-playbook` `--limit` (or `-l) option?
+
+
+          This is intended to prevent the accidental deployment of an untested or invalid
+          configuration to a whole housefull of Raspberry Pi audio systems.
+      aardsound_upgrade:
+        type: bool
+        default: false
+        description: Whether to perform an APT upgrade
+      aardsound_reboot:
+        type: bool
+        default: false
+        description: Reboot if the APT update changed the installation?
+      aardsound_reboot_prompt:
+        type: bool
+        default: false
+        description: Prompt before performing a reboot?
+      aardsound_hdmi_force_hotplug:
+        type: bool
+        default: false
+        description: >-
+          Force HDMI hotplug in `/boot/firmware/config.txt`
+
+
+          This is important for ALSA card numbers if the Raspberry Pi sometimes (but not always)
+          has an HDMI connection because the ALSA device number will not be stable if this is not
+          set.
+
+
+          It's safe to leave it as `false` if your Raspberry Pi is always headless, or always has
+          the same number of monitors attached or if you do not refer to ALSA cards by their index
+          numbers.
+
+          Ignored if the target host is not a Raspbery Pi.
+      aardsound_disable_onboard_bt:
+        type: bool
+        default: false
+        description: |-
+          Disable the onboard Bluetooth adapter in  `/boot/firmware/config.txt`
+
+          Default: false
+
+          Ignored if the target host is not a Raspbery Pi.
+      aardsound_mopidy_use_venv:
+        type: bool
+        description: >-
+          Should Mopidy be installed in a Python virtual_environment?
+
+
+          Default: `true` unless `mopidy_installer_extensions` is an empty list, RAM is less than or
+          equal to 512MiB and the `systemd` default target is 'graphical'.
+      aardsound_mopidy_venv:
+        type: str
+        default: /usr/local/mopidy/venv
+        description: >-
+          The location for the Python virtual environment where Mopiy and its extensions will be
+          installed.
+      aardsound_output_device:
+        type: str
+        description: >-
+          An ALSA PCM device to use for the ultimate sound output.
+          If not specified, the device is based on the `aardsound_plugin`, `aardsound_card` and
+          `aardsound_device` values, i.e: *`plugin`*:*`card`*,*`device`*
+      aardsound_plugin:
+        type: str
+        description: |-
+          The ALSA PCM plugin to use for the device.
+
+          Default: hw if aardsound_dmixer is true else plughw
+
+
+          Ignored if `aardsound_output_device` is specified
+      aardsound_card:
+        type: str
+        description: >-
+          ALSA card name or index number as reported by `aplay -l`.
+          Default is the first card that is not HDMI nor Headphones nor Loopback.
+
+
+          If `aardsound_output_device` is specified, this is only used to set the default for
+          `aardsound_mixer_card`.
+      aardsound_device:
+        type: int
+        description: >-
+          If the selected or default ALSA card has more than one device then specify a number if a
+          device other than than the first device on the card as reported by `aplay -L`.
+
+          If `aardsound_output_device` is specified, this is only used to set the default for
+          `aardsound_mixer_device`, which, in turn. is only used by librespot (Spotify).
+
+          Default: the first device on `aardsound_card` (usually 0).
+      aardsound_volume_control:
+        type: str
+        choices:
+        - cubic
+        - fixed
+        - linear
+        - log
+        default: cubic
+        description: Specify the form of the volume control for Spotify and Mopidy
+      aardsound_initial_volume:
+        type: int
+        default: 50
+        description: Set the initial playback volume.
+      aardsound_mixer:
+        type: bool
+        default: false
+        description: >-
+          Route sound via ALSA mixer or are volume, balance, etc., controlled solely by the source
+          (softmixer).
+
+      aardsound_mixer_plugin:
+        type: str
+        description: >-
+          The plugin to use for ALSA amixer. Only used for Spotify.
+
+
+          Ignored if `aardsound_mixer` is `false`
+
+
+          Default: hw if `aardsound_dmixer` is `true` or `aardsound_mixer` is `false`;
+          otherwise plughw
+      aardsound_mixer_card:
+        type: str
+        description: >-
+          The sound card to use for ALSA amixer.
+
+          Ignored if `aardsound_mixer` is `false`
+
+
+          Default: `aardsound_card` if this is explicitly specified, or `aardsound_output_device`
+          is not explicilty specified, otherwise the card defined by `aardsound_output_device`.
+      aardsound_mixer_device:
+        type: int
+        description: >-
+          The index of the mixer device on `aardsound_mixer_card`.
+          Only used by librespot (Spotify)
+
+          Default: `aardsound_device` if this is explicitly specified, or `aardsound_output_device`
+          is not explicilty specified, otherwise the device defined by `aardsound_output_device`.
+
+      aardsound_mixer_control:
+        type: str
+        description: >-
+          The name of an ALSA mixer control supported by `aardsound_mixer_card`.
+
+          Default: the first control with either the 'volume' or the 'pvolume' capability as
+          reported by running `amixer` without a command against the ALSA mixer card.
+
+      aardsound_dmixer:
+        type: bool
+        description: >-
+          Install a plugin and a PCM in `/etc/asound.conf` that uses the `dmix` plugin to allow
+          multiple sources to share one output nicely.
+
+
+          Default: `true` if more than one audio source is defined on the host, otherwise `false`
+      aardsound_dmixer_plugin:
+        type: str
+        default: aardmixer
+        description: Name of the ALSA dmix plugin
+      aardsound_dmix_device:
+        type: str
+        default: aarddmix
+        description: Name of the ALSA dmix plugin
+      aardsound_nfs_media:
+        type: str
+        description: >-
+          Location of an external NFS volume that will contain the media to be accessed by
+          `mopidy_local`.
+      aardsound_local_media:
+        type: str
+        description: >-
+          The mount point to use for the external NFS meda
+
+          Default: `none` if there is no NFS media, otherwise /mnt/mopidy
+      aardsound_format:
+        type: str
+        choices:
+        - F64
+        - F32
+        - S32
+        - S24
+        - S24_3
+        - S16
+        default: S16
+        description: >-
+          Sets the format for Spotify, FFMPEG (used for multi-room Spotify) and multi-room Mopidy.
+      aardsound_rate:
+        type: int
+        default: 44100
+        description: Sample frequency in Hz.
+      aardsound_depth:
+        type: int
+        default: 16
+        description: Audio bit depth, used by Snapcast.
+      aardsound_channels:
+        type: int
+        default: 2
+        description: The number of audio channels.
+      aardsound_spotify_port:
+        type: int
+        description: >-
+          Which port the `librespot` daemon should bind to
+
+          Default: (random high port)
+      aardsound_spotify_address:
+        type: str
+        description: >-
+          Which IP address the `librespot` daemon should bind to
+
+
+          Default: '::' if IPv6 is active, otherwise '0.0.0.0'
+      aardsound_spotify_multiroom_port:
+        type: int
+        description: >-
+          Which port the multi-room `librespot` daemon should bind to
+
+          Default: (random high port)
+      aardsound_spotify_multiroom_address:
+        type: str
+        description: >-
+          Which IP address the multi-room `librespot` daemon should bind to
+
+
+          Default: '::' if IPv6 is active, otherwise '0.0.0.0'
+      aardsound_mopidy_http_address:
+        type: str
+        description: >-
+          Which address the HTTP server should bind to
+
+
+          Default: mopidy_role default
+      aardsound_mopidy_http_port:
+        type: int
+        default: 6680
+        description: >-
+          Which port the HTTP server should bind to
+
+
+          Default: mopidy_role default
+      aardsound_mopidy_mpd_address:
+        type: str
+        description: >-
+          Which address the MPD server should bind to
+
+          Default: mopidy_role default
+      aardsound_mopidy_mpd_port:
+        type: int
+        default: 6600
+        description: >-
+          Which port the HTTP server should bind to
+
+
+          Default: mopidy_role default
+      aardsound_mopidy_multiroom_http_address:
+        type: str
+        description: >-
+          Which address the multi-room HTTP server should bind to
+
+
+          Default: mopidy_multiroom role default
+      aardsound_mopidy_multiroom_http_port:
+        type: int
+        default: 6681
+        description: >-
+          Which address the multi-room HTTP server should bind to
+
+
+          Default: mopidy_multiroom role default
+      aardsound_mopidy_multiroom_mpd_address:
+        type: str
+        description: >-
+          Which port the multi-room HTTP server should bind to
+
+
+          Default: 6681
+      aardsound_mopidy_multiroom_mpd_port:
+        type: int
+        default: 6601
+        description: >-
+          Which address the multi-room MPD server should bind to
+
+
+          Default: mopidy_multiroom role default
+      aardsound_mopidy_extensions:
+        type: str
+        default: {}
+        description: >-
+          Which port the multi-room MPD server should bind to
+
+
+          Default: 6601
+      aardsound_mopidy_multiroom_extensions:
+        type: dict
+        # cannot define options because the keys are unknown
+        default: {}
+        description:
+        - >-
+            This is a front-end to `mopdidy_extensions` that also ensures that the Mopidy extension
+            is installed by `mopidy_installer`.
+        - >-
+            Each key of the top-level dictionary is the name of an extension and a section in the
+            Mopidy configuration file.
+            The value for each key is itself a dictionary and each key/value pair in that defines
+            either:
+        - >-
+            - an entry in that section of the Mopidy configuration file (*`key`*` = `*`value`*), or
+            - entries in a list variable to be passed to the `mopidy_installer` role; there are
+              three options
+              - `_packages` defines one or more entries to be added to `mopidy_installer_packages`;
+                if it is undefined then the default is the the name of the extension, prefixed with
+                `mopidy-`.
+                Note that the `mopidy-` prefix cannot be omitted for any packages listed, it's just
+                assumed for   the default case.
+
+                Packages are installed with `pip` unless `mopidy_installer_venv` is set to `false`,
+                in which case they are installed with `apt`
+              - `_sudoers` defines [sudoers] entries needed for that extension.
+                Each entry is added to the file `/etc/sudoers.d/50-mopidy` as
+
+                ```
+                %mopidy ALL=NOPASSWD: <item>
+                ```
+
+                where `<item>` is the list entry.
+              - `_install` defines shell commands that need to be done after the packages are
+                installed:
+                each entry is a dictionary with one key/value pair, where the key gives the name of
+                the user to run the command (e.g. `mopidy` or `root`) and the value is the command
+                to run.
+
+                For example:
+
+                ```
+                - mopidy: unprivileged-command
+                - root: privileged-command
+                ```
+
+                Commands are run as Bash shell commands (preceded by `set -o pipefail` for safety).
+                Ensure that privileged commands can be run without a password prompt if they are not
+                run by root: if they are run under the `mopidy` user, that can be achieved with a
+                `_sudoers` entry.
+        - >-
+            The `_packages` keys from each entry in the top level dictionary are consolidated into
+            a list that is used to set the `mopidy_installer_packages` variable.
+            The same is done for `_sudoers` and `_install` to set `mopidy_installer_sudoers` and
+            `mopidy_installer_install` respectively.
+        - >-
+            The top-level dictionary, with the `_packages`, `_sudoers` and `_install` keys removed
+            from each entry is used to set `mopidy_extensions`
+        - >-
+            As a convenience, the location where the Python Virtual Environment is installed is set
+            in the variable `_`; this means that information about the installation environment is
+            not needed in the Ansible inventory.
+            `&lbrace;&lbrace; _ &rbrace;&rbrace;`
+            can be used to replace the path of the virtual environment in the `_sudoers`
+            and/or `_install` keys: the string containing it must be encased in single or double
+            quotes.
+        - |-
+          `_` is not useful if `mopidy_installer_pip` is set to `false`.
+        - |-
+            Default: {}
+        - >-
+            As an example, to install the [Iris](https://mopidy.com/ext/iris/) extension, the
+            following could be used:
+        - |-
+            ```
+            aardsound_mopidy_extensions:
+              iris:
+                _sudoers:
+                - "&lbrace;&lbrace; _ &rbrace;&rbrace;mopidy_iris/system.sh"
+                country: UK
+                locale: en_GB
+                snapcast_enabled: false
+            ```
+        - >-
+            where:
+            - `_packages` &ndash; omitted, installs the PyPi version of
+              [`mopidy-iris`](https://pypi.org/project/Mopidy-Iris/)
+            - `_sudoers` &ndash; `mopidy-iris` requires the `install.sh` to be run with `sudo`:
+              see https://github.com/jaedb/Iris/wiki/Getting-started#installing
+            - `country: UK` &ndash; the default country code for `mopidy-iris` is `NZ`
+            - `locale: en_GB` &ndash; the default country code for `mopidy-iris` is `en_NZ`
+            - `snapcast_enabled: false` &ndash; the Snapcast support provided by Iris is not
+              required because it is provided by Aardsound
+        - |-
+            The resulting configuration file section is:
+            ```
+            [iris]
+            country = UK
+            local = en_GB
+            snapcast_enabled = false
+
+            ```

@@ -1,7 +1,9 @@
 ---
 # PIP installs fail without enough RAM; an RPi 3A has 415MB and a desktop is quite heavy
+# default on mopidy_installer_graphical is needed for role validation because it's based on a
+# registered variable
 mopidy_installer_use_venv: "{{ ansible_facts.memtotal_mb | int > 512 or
-                               not mopidy_installer_graphical or
+                               not mopidy_installer_graphical | default(true) or
                                mopidy_installer_extensions != [] }}"
 mopidy_installer_venv: /usr/local/mopidy/venv
 mopidy_installer_nfs:
