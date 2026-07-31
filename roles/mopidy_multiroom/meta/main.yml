@@ -92,7 +92,7 @@ argument_specs:
         - S24_3
         - S16
         default: S16
-        description: The audio sample rate to send to snapserver
+        description: The audio format to send to snapserver
       mopidy_multiroom_rate:
         type: int
         default: 44100
