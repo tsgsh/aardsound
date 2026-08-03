@@ -23,6 +23,7 @@ aardsound_group: aardsound
 aardsound_bluetooth_packagees:
 - bluez-tools
 - bluez-alsa-utils
+- python3-lxml
 aardsound_sink_device: "{{ ('plug:' + aardsound_dmixer_plugin) if aardsound_dmixer | bool else
                            aardsound_output_device }}"
 # These are set as variables to avoid port collisions
