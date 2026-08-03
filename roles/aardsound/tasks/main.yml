@@ -160,8 +160,8 @@
         name: mopidy_installer
 
     - name: Flush handlers for the mompidy_installer role
-      # we need the variable definitions to be active and we want the NFS mound online
-      # before we run the mopidy role 
+      # we need the variable definitions to be active and we want the NFS mount online
+      # before we run the mopidy role
       meta: flush_handlers
 
   - name: Install Bluetooth
