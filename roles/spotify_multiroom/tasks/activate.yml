@@ -51,8 +51,11 @@
       shell: '/usr/sbin/nologin'
       expires: -1
       system: true
-      # to_json == to_ascii
-      comment: "{{ snapserver_description | to_json | replace(':', '\u003a') }}"
+      # to_json == to_ascii plus quuotes
+      comment: "{{ snapserver_description |
+                   to_json |
+                   regex_replace('^\"?(.*)\"?$', '\\1') |
+                   replace(':', '\u003a') }}"
 
 - name: "Service 0: FIFO"
   # This creates the FIFO used by the snapserver sink at boot time before the sink is started
@@ -136,8 +139,11 @@
       shell: '/usr/sbin/nologin'
       expires: -1
       system: true
-      # to_json == to_ascii
-      comment: "{{ spotify_multiroom_bridge_description | to_json | replace(':', '\u003a') }}"
+      # to_json == to_ascii plus quotes
+      comment: "{{ spotify_multiroom_bridge_description |
+                   to_json |
+                   regex_replace('^\"?(.*)\"?$', '\\1') |
+                   replace(':', '\u003a') }}"
 
   - name: "{{ spotify_multiroom_script2_file }}"
     template:

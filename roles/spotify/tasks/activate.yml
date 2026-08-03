@@ -22,8 +22,11 @@
     shell: "/usr/sbin/nologin"
     expires: -1
     system: true
-    # to_json == to_ascii
-    comment: "{{ spotify_description | to_json | replace(':', '\u003a') }}"
+    # to_json == to_ascii plus quotes
+    comment: "{{ spotify_description |
+                 to_json |
+                 regex_replace('^\"?(.*)\"?$', '\\1') |
+                 replace(':', '\u003a') }}"
 
 - name: "{{ spotify_service_file }}"
   notify: Enable and (re)start librespot service

@@ -15,8 +15,11 @@
     shell: '/usr/sbin/nologin'
     expires: -1
     system: true
-    # to_json == to_ascii
-    comment: "{{ snapserver_description | to_json | replace(':', '\u003a') }}"
+    # to_json == to_ascii plus quotes
+    comment: "{{ snapserver_description |
+                 to_json |
+                 regex_replace('^\"?(.*)\"?$', '\\1') |
+                 replace(':', '\u003a') }}"
 
 - name: "Directory {{ snapserver_datadir }}"
   file:
