@@ -1,5 +1,5 @@
 [Unit]
-Description={{ bluetooth_description }}
+Description=Bluetooth Agent for {{ bluetooth_description }}
 Requires=bluetooth.service
 Wants=sound.target
 After=bluetooth.service
@@ -8,16 +8,18 @@ After={{ service }}.service
 {% endfor %}
 
 [Service]
-User={{ bluetooth_uname }}
+User={{ bluetooth_service1 }}
 Group={{ bluetooth_gname }}
 SupplementaryGroups={{ bluetooth_groups | join(' ') }}
-ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Alias {{ bluetooth_name }}
+{# This cannot be done using Bluez v5 only: need to use the deprecated hciconfig #}
+ExecStartPre=+/usr/bin/hciconfig hci{{ bluetooth_adapter_index }} class 0x20414
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Alias {{ bluetooth_description | quote }}
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Powered 1
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set DiscoverableTimeout 0
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set PairableTimeout 0
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Discoverable 1
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Pairable 1
-ExecStart=/usr/bin/bt-agent --capability=NoInputNoOutput --pin  {{ bluetooth_pin_file }} --daemon
+ExecStart=+/usr/bin/bt-agent --capability=NoInputNoOutput
 RestartSec=2
 Restart=always
 KillSignal=SIGUSR1

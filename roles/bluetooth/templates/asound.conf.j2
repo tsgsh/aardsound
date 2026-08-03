@@ -5,18 +5,19 @@ pcm.{{ bluetooth_alsa_plugin }} {
 
 pcm.{{ bluetooth_bluealsa_device }} {
     type bluealsa
+    service "org.bluealsa"
     device "{{ bluetooth_adapter_mac }}"
     interface "hci{{ bluetooth_adapter_index }}"
     profile "a2dp"
+    volume "{{ bluetooth_initial_volume }}"
     codec "{{ bluetooth_codec }}"
-    slave {
-        pcm "{{ bluetooth_output_device }}"
-        rate {{ bluetooth_rate }}
+    hint {
+        show on
+        description {{ bluetooth_description | quote }}
     }
 }
-{# May implement this later
 
 ctl.{{ bluetooth_bluealsa_device }} {
-    type hw
-    card {{ bluetooth_card }}
-} #}
+    type bluealsa
+    service "org.bluealsa"
+}

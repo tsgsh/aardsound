@@ -1,19 +1,15 @@
 ---
-bluetooth_name: "{{ inventory_hostname_short | capitalize +
-                    '' if bluetooth_location if bluetooth_location == none else
-                    ' (' + bluetooth_location + ')' }}"
-bluetooth_uname: "{{ bluetooth_service }}"
 bluetooth_gname: bluetooth
 bluetooth_groups: "{{ (['audio'] + [bluetooth_extra_groups]) | flatten | unique }}"
-bluetooth_service_file: "/etc/systemd/system/{{ bluetooth_service }}.service"
-bluetooth_service_template: bt-agent.service.j2
-bluetooth_pin_template: bt-agent.pins.j2
+bluetooth_agent_service_template: bt-agent.service.j2
+bluetooth_agent_service_file: "/etc/systemd/system/{{ bluetooth_service }}.service"
+bluetooth_conf_template: "bluetooth.conf.j2"
 bluetooth_conf_file: "/etc/bluetooth/main.conf"
-bluetooth_pin_file: "{{ bluetooth_var_lib + '/' + bluetooth_service + '.pins' }}"
-bluetooth_conf_template: "bluetooth-conf.j2"
-bluetooth_plugin_card: "{{ bluetooth_output_device | split(',') | first }}"
-bluetooth_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else '') +
-                         'Bluetooth agent audio source server' }}"
+bluetooth_alsa_service_template: bluealsa.service.j2
+bluetooth_alsa_service_file: "/etc/systemd/system/bluealsa.service"
+bluetooth_aplay_service_template: bluealsa-aplay.service.j2
+bluetooth_aplay_service_file: "/etc/systemd/system/bluealsa-aplay.service"
+bluetooth_class: '0x20414'  # N.B.  string!
 bluetooth_codecs:  # the following are listed as available a2dp-source codecs by blueaslsa --help
 - SBC
 - MP3
@@ -22,14 +18,22 @@ bluetooth_codecs:  # the following are listed as available a2dp-source codecs by
 - FastStream
 - LDAC
 - Opus
+bluetooth_loglevels:
+- error
+- warning
+- info
+- debug
+bluetooth_mac_index: "{{ lookup('ansible.utils.index_of',
+                                bluetooth_macs,
+                                'eq',
+                                bluetooth_adapter) }}"
 bluetooth_adapter_index: "{{ 0 if bluetooth_adapter == 'hci0' else
-                             bluetooth_adapter[3:] | int if bluetooth_adapter[:3] = 'hci' and
+                             bluetooth_adapter[3:] | int if bluetooth_adapter[:3] == 'hci' and
                                                             bluetooth_adapter[3:] | int > 0 else
-                             lookup('ansible.utils.index_of',
-                                    bluetooth_macs, 'eq', bluetooth_adapter) |
-                             replace([] | none) if bluetooth_adapter is ansible.utils.mac else
+                             bluetooth_mac_index if bluetooth_adapter is ansible.utils.mac and
+                                                    bluetooth_mac_index is integer else
                              none }}"
-bluetooth_adapter_mac: "{{ bluetooth_adapter if bluetooth_adapter | ansible.utils.mac else
+bluetooth_adapter_mac: "{{ bluetooth_adapter if bluetooth_adapter is ansible.utils.mac else
                            bluetooth_macs[bluetooth_adapter] if bluetooth_adapter is integer else
                            none }}"
 bluetooth_macs: "{{ bluetooth_r_list.stdout |
@@ -41,29 +45,70 @@ bluetooth_info: "{{ bluetooth_macs |
                         map('community.general.jc', 'bluetoothctl') |
                         flatten) |
                     community.general.dict }}"
-bluetooth_rfkill_json: "{{ bluetooth_r_rfkill.stdout | from_json }}"
-bluetooth_unblocked_adapters: "{{ bluetooth_rfkill_json.rfkilldevices |
-                                selectattr('type', 'eq', 'bluetooth') |
-                                selectattr('soft', 'eq', 'unblocked') |
-                                selectattr('hard', 'eq', 'unblocked') |
-                                map(attribute='device') |
-                                map('replace', 'hci', '') |
-                                map('int') |
+# The following needs an empty default for role validation to work
+bluetooth_rfkill_devices: "{{ (bluetooth_r_rfkill.stdout | from_json).rfkilldevices |
+                              selectattr('type', 'eq', 'bluetooth') |
+                              default({}) }}"
+bluetooth_unblocked_indices: "{{ bluetooth_rfkill_devices |
+                                 selectattr('soft', 'eq', 'unblocked') |
+                                 selectattr('hard', 'eq', 'unblocked') |
+                                 map(attribute='device') |
+                                 map('replace', 'hci', '') |
+                                 map('int') |
                                 sort(reverse=true) }}"
-bluetooth_softblocked_adapters: "{{ bluetooth_rfkill_json.rfkilldevices |
-                                    selectattr('type', 'eq', 'bluetooth') |
-                                    selectattr('soft', 'eq', 'blocked') |
-                                    selectattr('hard', 'eq', 'unblocked') |
-                                    map(attribute='device') |
-                                    map('replace', 'hci', '') |
-                                    map('int') |
-                                    sort(reverse=true) }}"
-bluetooth_hardblocked_adapters: "{{ bluetooth_rfkill_json.rfkilldevices |
-                                    selectattr('type', 'eq', 'bluetooth') |
-                                    selectattr('hard', 'eq', 'blocked') |
-                                    map(attribute='device') |
-                                    map('replace', 'hci', '') |
-                                    map('int') }}"
-bluetooth_rfkill_unblock_id: "{{ bluetooth_rfkill_json.rfkilldevices |
-                                 selectattr('device', 'eq', 'hci' + bluetooth_adapter_index) |
-                                 map(attribute='id') }}"
+bluetooth_softblocked_indices: "{{ bluetooth_rfkill_devices |
+                                   selectattr('soft', 'eq', 'blocked') |
+                                   selectattr('hard', 'eq', 'unblocked') |
+                                   map(attribute='device') |
+                                   map('replace', 'hci', '') |
+                                   map('int') |
+                                   sort(reverse=true) }}"
+bluetooth_hardblocked_indices: "{{ bluetooth_rfkill_devices |
+                                   selectattr('hard', 'eq', 'blocked') |
+                                   map(attribute='device') |
+                                   map('replace', 'hci', '') |
+                                   map('int') }}"
+bluetooth_rfkill_unblock_id: "{{ bluetooth_rfkill_devices |
+                                 selectattr('device', 'eq', 'hci' +
+                                                            bluetooth_adapter_index | string) |
+                                 map(attribute='id') |
+                                 first }}"
+
+# bluealsa systemd service
+bluetooth_profile_list: "{{ ['a2dp-sink'] + [bluetooth_extra_profiles] | flatten }}"
+bluetooth_bluealsa_args: >-
+  --loglevel={{ bluetooth_loglevel }}
+  {% for profile in bluetooth_profile_list %}
+  --profile={{ profile }}
+  {% endfor %}
+  --initial-volume={{ bluetooth_initial_volume }}
+  --mp3-algorithm=best
+  --mp3-vbr-quality=high
+  {% for option in bluetooth_bluealsa_options %}
+  {{ option }}
+  {% endfor %}
+bluetooth_alsa_mixer_device: "{{ [bluetooth_mixer_plugin, bluetooth_mixer_card] |
+                                 reject('eq', none) |
+                                 map('string') |
+                                 join(':') }}"
+bluetooth_bluealsa_aplay_args: >-
+  --pcm {{ bluetooth_card }}
+  --profile-a2dp
+  --single-audio
+  --loglevel {{ bluetooth_loglevel }}
+  {% if bluetooth_mixer %}
+  --mixer-device={{ bluetooth_alsa_mixer_device }}
+  --mixer-index={{ bluetooth_mixer_device }}
+  {% endif %}
+  {% if bluetooth_verbose %}
+  --verbose
+  {% endif %}
+  00:00:00:00:00:00
+# bluetooth_mixer_card: default
+# bluetooth_mixer_plugin: "{{ '' if bluetooth_mixer_card == 'default' else 0 }}"
+# bluetooth_mixer_device: 0
+# bluetooth_volume_control: "{{ 'auto' if bluetooth_mixer else 'software' }}"
+
+# /etc/asound.conf
+bluetooth_alsa_plugin: aardbluetooth
+bluetooth_bluealsa_device: aardbluealsa

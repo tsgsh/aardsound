@@ -8,20 +8,32 @@
     enabled: false
     state: stopped
 
-- name: "Remove {{ bluetooth_service_file }}"
+- name: "Remove {{ bluetooth_agent_service_file }}"
   notify: Reload systemd for bluetooth_active=false
   file:
-    path: "{{ bluetooth_service_file }}"
+    path: "{{ bluetooth_agent_service_file }}"
     state: absent
 
-- name: Remove the PIN file
+- name: "Remove {{ bluetooth_aplay_service_file }}"
+  notify: Reload systemd for bluetooth_active=false
   file:
-    path: "{{ bluetooth_pin_file }}"
+    path: "{{ bluetooth_aplay_service_file }}"
     state: absent
+
+- name: "Remove {{ bluetooth_alsa_service_file }}"
+  notify: Reload systemd for bluetooth_active=false
+  file:
+    path: "{{ bluetooth_alsa_service_file }}"
+    state: absent
+
+- name: Stat /etc/asound.conf
+  register: bluetooth_r_stat
+  stat:
+    path: /etc/asound.conf
 
 - name: Remove BlueALSA /etc/asound.conf entries
+  when: bluetooth_r_stat.stat.exists
   blockinfile:
     path: /etc/asound.conf
-    block: "{{ lookup('template', 'asound.conf.j2') }}"
     marker: "# {mark} ANSIBLE MANAGED BLOCK (aardsound_bluealsa)"
     state: absent

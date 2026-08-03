@@ -1,0 +1,17 @@
+[Unit]
+Description=BlueALSA A2DP sink playback service
+Documentation=man:bluealsa(8)
+Requisite=dbus.service
+After=bluetooth.service bluealsa.service
+Requires=bluetooth.service bluealsa.service
+
+[Service]
+Type=simple
+User={{ bluetooth_service2 }}
+Group=audio
+ExecStart=/usr/bin/bluealsa-aplay {{ bluetooth_bluealsa_aplay_args }}
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-iser.target

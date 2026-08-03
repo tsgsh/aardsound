@@ -12,23 +12,55 @@
   command:
     cmd: "{{ 'bluetoothctl show ' + item }}"
 
-- name: Confirm that there is a valid bluetooth adapter
-  assert:
-    that:
-    - bluetooth_adapters | length > 0
-    - bluetooth_adapter in bluetooth_adapters or
-    - bluetooth_adapter_index is integer and bluetooth_adapter_index < bluetooth_adapters | length
-    fail_msg: >-
-      {{ 'No valid bluetooth adapter found' if bluetooth_adapter == none else
-         bluetooth_adapter + ' is not a valid bluetooth adapter' }}
-    quiet: true
+- name: A adjust the D-BUS policy for org.bluealsa.sink and org.bluealsa.source
+  # per man (8) bluealsa, this is only needed with multipe bluetooth adapters, but why not
+  vars:
+    bluetooth_dbus_conf: /etc/dbus-1/system.d/bluealsa.conf
+  block:
+
+  - name: "Stat {{ bluetooth_dbus_conf }}"
+    register: bluetooth_r_stat_dbus
+    stat:
+      path: "{{ bluetooth_dbus_conf }}"
+
+  - name: "Create a new {{ bluetooth_dbus_conf }}"
+    when: not bluetooth_r_stat_dbus.stat.exists
+    copy:
+      src: /usr/share/dbus-1/system.d/bluealsa.conf
+      remote_src: true
+      dest: "{{ bluetooth_dbus_conf }}"
+      mode: '0644'
+
+  - name: Additional allow statements for org.bluealsa.{sink,source}
+    notify: Restart dbus service
+    loop:
+    - 'user="root"'
+    - 'group="audio"'
+    community.general.xml:
+      path: "{{ bluetooth_dbus_conf }}"
+      xpath: "{{ '/busconfig/policy[@' + item + ']' }}"
+      set_children:
+      - allow:
+          send_destination: org.bluealsa
+      - allow:
+          send_destination: org.bluealsa.sink
+      - allow:
+          send_destination: org.bluealsa.source
+      pretty_print: true
+
+- name: Get the blocking status of all wireless adapters
+  register: bluetooth_r_rfkill
+  changed_when: false
+  check_mode: false
+  command:
+    cmd: rfkill --json
 
 - name: Confirm that there is a valid bluetooth adapter
   assert:
     that:
-    - bluetooth_adapters | length > 0
-    - bluetooth_adapter in bluetooth_adapters or
-    - bluetooth_adapter_index is integer and bluetooth_adapter_index < bluetooth_adapters | length
+    - bluetooth_macs | length > 0
+    - bluetooth_adapter_mac in bluetooth_macs or
+      bluetooth_adapter_index is integer and bluetooth_adapter_index < bluetooth_macs | length
     fail_msg: >-
       {{ 'No valid bluetooth adapter found' if bluetooth_adapter == none else
          bluetooth_adapter + ' is not a valid bluetooth adapter' }}
@@ -36,28 +68,14 @@
 
 - name: Confirm that the adapter is not hard blocked
   assert:
-    that: bluetooth_adapter_index not in bluetooth_hardblocked_adapters
+    that: bluetooth_adapter_index not in bluetooth_hardblocked_indices
     fail_msg: >-
       Bluetooth adapter {{ bluetooth_adapter_mac }} (hci{{ bluetooth_adapter_index }} is
       hard-blocked
     quiet: true
 
-- name: Confirm that the data directory is defined
-  assert:
-    that: bluetooth_var_lib is defined
-    quiet: true
-
-- name: Stat the data directory exists
-  register: bluetooth_r_stat
-  stat:
-    path: "{{ bluetooth_var_lib }}"
-
-- name: Confirm that the data directory exists
-  assert:
-    that: bluetooth_r_stat.stat.exists
-    quiet: true
-
 - name: Unblock the Bluetooth adapter if it is soft-blocked
+  when: bluetooth_adapter_index in bluetooth_softblocked_indices
   changed_when: true
   command:
     cmd: "rfkill unblock {{ bluetooth_rfkill_unblock_id }}"
@@ -68,10 +86,9 @@
     state: present
     system: true
 
-- name: "User {{ bluetooth_uname }}"
-  failed_when: false  # RC=8 if this is done by the bluetooth installation
+- name: "User {{ bluetooth_service1 }}"
   user:
-    name: "{{ bluetooth_uname }}"
+    name: "{{ bluetooth_service1 }}"
     group: "{{ bluetooth_gname }}"
     groups: "{{ bluetooth_groups }}"
     create_home: true
@@ -79,7 +96,26 @@
     shell: "/usr/sbin/nologin"
     expires: -1
     system: true
-    comment: "{{ bluetooth_description }}"
+    # to_json == to_ascii plus quotes
+    comment: "{{ (bluetooth_description + ' bt-agent') |
+                 to_json |
+                 regex_replace('^\"?(.*)\"?$', '\\1') |
+                 replace(':', '\\u003a') }}"
+
+- name: "User {{ bluetooth_service2 }}"
+  user:
+    name: "{{ bluetooth_service2 }}"
+    group: "{{ bluetooth_gname }}"
+    groups: "{{ bluetooth_groups }}"
+    create_home: false
+    shell: '/usr/sbin/nologin'
+    expires: -1
+    system: true
+    # to_json == to_ascii plus quotes
+    comment: "{{ (bluetooth_description + ' blueasla-aplay') |
+                 to_json |
+                 regex_replace('^\"?(.*)\"?$', '\\1') |
+                 replace(':', '\\u003a') }}"
 
 - name: BlueALSA /etc/asound.conf entries
   blockinfile:
@@ -92,36 +128,30 @@
     group: root
     mode: '0755'
 
-- name: BlueALSA /etc/asound.conf entries
-  blockinfile:
-    path: /etc/asound.conf
-    block: "{{ lookup('template', 'asound.conf.j2') }}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK (aardsound_bluealsa)"
-    state: present
-    create: true
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: /etc/bluetoothd/main.conf
-  notify: Restart bluetoothd service
-  file:
-    src: main.conf
-    dest: /etc/bluetoothd/main.conf
+- name: "{{ bluetooth_conf_file }}"
+  notify: Restart bluetooth service
+  template:
+    src: "{{ bluetooth_conf_template }}"
+    dest: "{{ bluetooth_conf_file }}"
     mode: '0644'
 
-- name: "{{ bluetooth_pin_file }}"
-  notify: Enable and (re)start bt-agent service
+- name: "{{ bluetooth_alsa_service_file }}"
+  notify: Enable and (re)start bluealsa service
   template:
-    src: "{{ bluetooth_pin_template }}"
-    dest: "{{ bluetooth_pin_file }}"
-    owner: "{{ bluetooth_uname }}"
-    group: "{{ bluetooth_gname }}"
-    mode: '0400'
+    src: "{{ bluetooth_alsa_service_template }}"
+    dest: "{{ bluetooth_alsa_service_file }}"
+    mode: '0644'
 
-- name: "{{ bluetooth_service_file }}"
+- name: "{{ bluetooth_aplay_service_file }}"
+  notify: Enable and (re)start bluealsa-aplay service
+  template:
+    src: "{{ bluetooth_aplay_service_template }}"
+    dest: "{{ bluetooth_aplay_service_file }}"
+    mode: '0644'
+
+- name: "{{ bluetooth_agent_service_file }}"
   notify: Enable and (re)start bt-agent service
   template:
-    src: "{{ bluetooth_service_template }}"
-    dest: "{{ bluetooth_service_file }}"
+    src: "{{ bluetooth_agent_service_template }}"
+    dest: "{{ bluetooth_agent_service_file }}"
     mode: '0644'

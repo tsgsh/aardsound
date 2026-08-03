@@ -1,0 +1,158 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound bluetooth role
+    description: >
+      The bluetooth role creates a bluetooth listener that connects a device to an ALSA audio
+      output (also controlled by bluetooth)
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      bluetooth_active:
+        type: bool
+        description: >-
+          Should the `bt-agent` and `bluealsa-aplay` services be installed and configured or removed
+      bluetooth_location:
+        type: str
+        description: >
+          The place where the audio output can be heard, e.g. 'Kitchen'.
+
+
+          If not defined then just the capitalised hostname of the server is used as a name
+      bluetooth_description:
+        type: str
+        description: >
+          A description of the Bluetooth speaker used to advertise it to other devices.
+
+
+          The default is preceded by the value of bluetooth_location (if defined)
+        default: Bluetooth Speaker
+      bluetooth_service:
+        type: str
+        description: >
+          The name of the systemd service running the bt-agent.
+          Also sets the name of the user that owns the service.
+        default: bt-agent
+      bluetooth_adapter:
+        type: str
+        description: >
+          Select the the bluetooth adapter to use
+
+          Format is: mac_address | hci0 | hci1 | ...
+
+
+          The adapter will be unblocked using rfkill if it is soft-blocked
+
+
+          The default is the highest indexed non-blocked adapter followed by the highest-indexed
+          soft-blocked adapter
+      bluetooth_card:
+        type: str
+        default: 0
+        description: The ALSA PCM to which BlueALSA sends its audio streams
+      bluetooth_mixer:
+        type: bool
+        default: false
+        description: Use an ALSA hardware mixer?
+      bluetooth_mixer_control:
+        type: str
+        default: Master
+        description: >-
+          ALSA hardware mixer control as reported by the sound card.
+
+          Ignored if bluetooth_mixer = false.
+      bluetooth_mixer_plugin:
+        type: str
+        default: hw
+        description: >-
+          ALSA plugin to use for the mixer control
+          Ignored if bluetooth_mixer = false.
+
+          Default: hw if `bluetooth_mixer_card` == none else 0 }}"
+      bluetooth_mixer_card:
+        type: str
+        default: 0
+        description: >-
+          The sound card to use for the hardware mixer
+          Ignored if bluetooth_mixer = false.
+      bluetooth_mixer_device:
+        type: int
+        default: 0
+        description: >-
+          The device on the sound card to use for he hardware mixer
+          Ignored if bluetooth_mixer = false.
+      bluetooth_codec:
+        type: str
+        choices:
+        - SBC
+        - MP3
+        - aptX
+        - aptX-HD
+        - FastStream
+        - LDAC
+        - Opus
+        default: SBC
+        description: |
+          The case-sensitive name of the codec to use
+
+
+          The choices are the supported A2DP source codecs for BlueAlsa v4.3.1 in RasPiOS Trixie
+          (accordig to bluealsa --help)
+      bluetooth_volume_control:
+        type: str
+        choices:
+        - auto
+        - mixer
+        - none
+        - software
+        default: 50
+        description: >-
+          Bluetooth remote volume control
+
+          See `man bluealsa-aplay (1)`
+
+          Default: auto if `bluetooth_mixer` is `true`, otherwise software
+      bluetooth_initial_volume:
+        type: int
+        default: 50
+        description: BlueALSA daemon initial volume as a percentage from 0 to 100
+      bluetooth_extra_groups:
+        type: list
+        elements: str
+        default: []
+        description: >
+          A list of groups that the user running the bt-agent (as defined by bluetooth_service)
+          should belong to, in addition to bluetooth (the primary group) and audio
+      bluetooth_start_after_services:
+        type: list
+        elements: str
+        default: []
+        description: >
+          A list of systemd services that you want to start before the bt-agent service.
+          Added to the systemd unit definition as an After= statement for each entry.
+          Each entry must be a valid systemd service or the creation of the `bt-agent` systemd
+          unit will fail.
+          Do not include the .service suffix.
+      bluetooth_loglevel:
+        type: str
+        choices:
+        - error
+        - warning
+        - info
+        - debug
+        default: error
+        description: The logging level to set in Bluez-ALSA. Logs are sent to the systemd journal.
+      bluetooth_extra_profiles:
+        type: list
+        elements: str
+        default: []
+        choices:
+        - a2dp-source
+        - hfp-ofono
+        - hfp-ag
+        - hfp-hf
+        - hsp-ag
+        - hsp-hs
+        - midi
+        description: A list of Bluetooth profiles to enable, in addition to a2dp-sink

@@ -26,6 +26,8 @@ aardsound_bluetooth_packagees:
 - python3-lxml
 aardsound_sink_device: "{{ ('plug:' + aardsound_dmixer_plugin) if aardsound_dmixer | bool else
                            aardsound_output_device }}"
+aardsound_sink_card: "{{ (aardsound_dmixer_plugin) if aardsound_dmixer | bool else
+                           aardsound_card }}"
 # These are set as variables to avoid port collisions
 spotify_multiroom_snap_port_offset: 0         # noqa: var-naming[no-role-prefix]
 mopidy_multiroom_snap_port_offset: 10000      # noqa: var-naming[no-role-prefix]
@@ -43,7 +45,8 @@ aardsound_mopidy_multiroom_service0: mopidy-multiroom-fifo
 aardsound_mopidy_multiroom_service1: mopidy-multiroom-source
 aardsound_mopidy_multiroom_service2: mopidy-multiroom-scan
 aardsound_mopidy_multiroom_service3: mopidy-multiroom-sink
-aardsound_bluetooth_service: bt-agent
+aardsound_bluetooth_service1: bt-agent
+aardsound_bluetooth_service2: bluealsa-aplay
 aardsound_sample_format: "{{ aardsound_rate | string + ':' +
                              aardsound_depth | string + ':' +
                              aardsound_channels | string }}"

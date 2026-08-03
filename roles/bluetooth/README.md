@@ -29,8 +29,8 @@ to use the device as a loudspeaker.
 
 ### Details
 The Bluetooth service uses the following components:
-- The system-wide Bluetooth service (`bluetoothd`) &ndash; configuration changes are made to the
-  configuration file `/etc/bluetoothd/main.conf`
+- The system-wide Bluetooth service (`bluetooth`) &ndash; configuration changes are made to the
+  configuration file `/etc/bluetooth/main.conf`
 - The Bluez-ALSA Buletooth audio backend service (either `bluealsa` or `bluealsad`): no changes are
   made to the configuration
 - `bluealsa` ALSA plugins &ndash; these are added to `/etc/asound.conf`
@@ -41,6 +41,7 @@ The Bluetooth service uses the following components:
     - make the adapter discoverable
     - put the adapter in pairing mode
   - Runs the `bt-agent` service as daemon, optionally with a PIN file that allows devices to connect
+  - `udev` actions to change the discoerability and pairing of the adapter 
 
 
 ## Variables
@@ -52,27 +53,30 @@ Internal variables defined in `./vars/main.yml` have a higher variable precedenc
 inventory variables and should not be modified (e.g. by setting extra variables or role parameters).
 
 #### bluetooth_active = *boolean*
-Should the `bt-agent` service be installed and configured or removed
+Should the `bt-agent` and `bluealsa-aplay` services be installed and configured or removed
 
 Note that running the role with `bluetooth_active=false` does not remove modifications to
-`/etc/bluetoothd.conf` nor changes to the state or any Bluetooth adapters.
+`/etc/bluetooth/main.conf` nor changes to the state or any Bluetooth adapters.
 
 Default: `true`
+
+#### bluetooth_location = *string*
+The place where the audio output can be heard, e.g. 'Kitchen'
+
+If not defined then just the capitalised hostname of the server is used as a name.
+
+Default: `none`
+
+#### bluetooth_description = *string*
+A description of the Bluetooth speaker used to advertise it to other devices
+
+Default: 'Bluetooth Speaker', preceded by the value of **bluetooth_location** (if defined)
 
 #### bluetooth_service = *string*
 The name of the `systemd` service running the `bt-agent`.
 Also sets the name of the user that owns the service.
 
 Default: bt-agent
-
-#### bluetooth_location = *string*
-The place where the audio output can be heard, e.g. 'Kitchen'
-
-Used to set the friendly name of the adapter to the capitalised hostname of the server followed by
-the location in parentheses.
-If not defined then just the capitalised hostname of the server is used as a name.
-
-Default: `none`
 
 #### bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
 
@@ -90,6 +94,36 @@ The rationale for this is as follows: firstly, if you have soft-blocked adapters
 resepected; secondly if you have installed an external bluetooth adapter, then you probably want
 to use it; and thirdly, depending upon the Pi model and your usage of Aardsound, WiFi and Bluetooth
 traffic may cause dropouts with each other due to sharing the same hardware
+
+#### bluetooth_card = *string*
+The ALSA PCM to which **Bluez-ALSA** sends its audio streams
+
+Default: 0
+
+#### bluetooth_mixer = true | false
+Use an ALSA hardware mixer?
+
+Default: 0
+
+#### bluetooth_mixer_control = *string*
+ALSA hardware mixer control as reported by the sound card.
+
+Default: Master; ignored if `bluetooth_mixer` is  `false`.
+
+#### bluetooth_mixer_plugin = *string*
+ALSA plugin to use for the mixer control
+
+Default: hw; ignored if `bluetooth_mixer` = `false`
+
+#### bluetooth_mixer_card = *string* | *integer* 
+The sound card to use for the hardware mixer
+
+Default: 0; ignored if `bluetooth_mixer` = `false`
+
+#### bluetooth_mixer_device = *integer*
+The device on the sound card to use for he hardware mixer
+
+Default: 0; ignored if `bluetooth_mixer` = `false`
 
 #### bluetooth_codec = SBC | MP3 | aptX | aptX-HD | FastStream | LDAC | Opus
 
@@ -110,42 +144,54 @@ not supported by the client)
   ["Developer Settings"](https://www.android.com/intl/en_uk/articles/enable-android-developer-settings/)
   to get access to some codecs such as LDAC .
 
-#### bluetooth_output_device = *string*
-The ALSA PCM to which `bluetooth` sends its audio streams
+#### bluetooth_volume_control = auto | mixer | none | software
+Bluetooth remote volume control
 
-Default: default
+See `man bluealsa-aplay (1)`
 
-<!-- #### bluetooth_volume_control = cubic | fixed | linear | log
-Bluetooth volume control scale type
-
-Default: cubic
+Default: auto if `bluetooth_mixer` is `true`, otherwise software
 
 #### bluetooth_initial_volume = 0-100
-`bt-agent` initial volume as a percentage from 0 to 100
+**Bluealsa** daemon initial volume as a percentage from 0 to 100
 
 Default: 50
- -->
+
 #### bluetooth_extra_groups = *list*
 A list of groups that the user running the `bt-agent` (as defined by 
-[`bluetooth_service`](#bluetooth_service--string)) should belong to, in addition to `bluetooth` (the primary
-group) and `audio`
+[`bluetooth_service`](#bluetooth_service--string)) should belong to, in addition to `bluetooth` (the
+primary group) and `audio`
 
 Default: []
 
 #### bluetooth_start_after_services = *list*
 A list of systemd services that you want to start before the `bt-agent` service.
 Added to the `systemd` unit definition as an `After=` statement for each entry.
-Each entry must be a valid `systemd` service of the creation of the `bt-agent` systemd unit will fail.
+Each entry must be a valid `systemd` service or the creation of the `bt-agent` systemd unit will fail.
 Do not include the `.service` suffix.
 
-Default: `[]`
+Default: []
 
-<!-- #### bluetooth_verbose
-Whether to enable verbose logging in `librespot`
-Logs are seent to the `systemd` journal.
+#### bluetooth_loglevel = error | warning | info | debug
+The logging level to set in **Bluez-ALSA**
 
-Default: `false`
- -->
+Logs are sent to the `systemd` journal
+
+Default: error
+
+#### bluetooth_extra_profiles = *list*
+A list of Bluealsa profiles to enable, in addition to **a2dp-sink** 
+
+From:
+- a2dp-source
+- hfp-ofono
+- hfp-ag
+- hfp-hf
+- hsp-ag
+- hsp-hs
+- midi
+
+Default: []
+
 
 ## Handlers
 
@@ -159,7 +205,8 @@ including this role again and re-writing variables (such as service names) befor
 play, when handlers are normally flushed.
 
 ### Handlers in this role:
-- Restart bluetoothd service
+- Restart dbus service
+- Restart bluetooth service
 - Enable and (re)start bt-agent service
 - Reload systemd
 

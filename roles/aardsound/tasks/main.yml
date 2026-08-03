@@ -348,6 +348,7 @@
   when: aardsound_output
   tags:
   - asound
+  - dmixer
   block:
 
   - name: Create or remove dmix plugin device in /etc/asound.conf for multiple stream support
@@ -519,9 +520,10 @@
     - name: "{{ ('Activate' if aardsound_bluetooth | bool else 'Deactivate') + ' Bluetooth' }}"
       vars:
         bluetooth_active: "{{ aardsound_bluetooth | bool }}"
-        bluetooth_service: "{{ aardsound_bluetooth_service }}"
+        bluetooth_service1: "{{ aardsound_bluetooth_service1 }}"
+        bluetooth_service2: "{{ aardsound_bluetooth_service2 }}"
         bluetooth_location: "{{ aardsound_location }}"
-        bluetooth_output_device: "{{ aardsound_sink_device }}"
+        bluetooth_card: "{{ aardsound_sink_card }}"
         bluetooth_initial_volume: "{{ aardsound_initial_volume }}"
         bluetooth_volume_control: "{{ aardsound_volume_control }}"
         bluetooth_mixer: "{{ aardsound_mixer }}"
