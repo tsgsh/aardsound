@@ -210,7 +210,6 @@ argument_specs:
 
           Default: `aardsound_device` if this is explicitly specified, or `aardsound_output_device`
           is not explicilty specified, otherwise the device defined by `aardsound_output_device`.
-
       aardsound_mixer_control:
         type: str
         description: >-
@@ -218,7 +217,6 @@ argument_specs:
 
           Default: the first control with either the 'volume' or the 'pvolume' capability as
           reported by running `amixer` without a command against the ALSA mixer card.
-
       aardsound_dmixer:
         type: bool
         description: >-

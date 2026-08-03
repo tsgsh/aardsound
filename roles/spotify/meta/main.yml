@@ -36,7 +36,6 @@ argument_specs:
         type: bool
         default: false
         description: Use an ALSA hardware mixer?
-
       spotify_mixer_control:
         type: str
         default: Master
