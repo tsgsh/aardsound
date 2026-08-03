@@ -77,12 +77,20 @@ Default: 50
 #### mopidy_multiroom_media_library = *path*
 The media library for `mopidy-local`
 
-If this is not `/var/lib/mopidy/media` then the specified directory is symbolically linked to there
-with  `systemd` mount unit.
+If this is not `/var/lib/mopidy/media` then the specified directory is bind mounted to there using a
+`systemd` mount unit.
 
 Sets: `mopidy_media_library`
 
 Default: /var/lib/mopidy/media
+
+#### mopdiy_multiroom+mount_after = *list of strings*
+A list of `systemd` mount units that are needed before the `systemd` unit that performs the bind
+mount can run: each entry is used to create an `After=` entry in the latter.
+
+Sets: `mopidy_mount_after`
+
+Default: []
 
 #### mopidy_multiroom_http_bind_address =  *IP address*
 

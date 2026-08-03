@@ -50,6 +50,11 @@ An entry will be created in `/etc/fstab` to mount this volume if required
 
 Default: `none`
 
+#### mopidy_installer_nfs_type = *string*
+Type for the NFS mount
+
+Default: nfs
+
 #### mopidy_installer_nfs_options = *string*
 Options for the NFS mount
 
@@ -61,6 +66,12 @@ The location for the Mopidy Local music library
 The NFS mount point if `mopidy_installer_nfs is not `none`
 
 Default: `/mnt/mopidy` if `mopidy_installer_nfs` is defined, otherwise `none`
+
+#### mopidy_installer_nfs_mount_unit = *string*
+The name of the `systemd` unit that performs the NFS mount for the `mopidy-local` library
+
+Default: The value of `mopidy_installer_library` with the leading `/` removed and remaining
+`\` characters replaced by `-`.
 
 #### mopidy_installer_extensions = *list*
 A list of Mopidy extensions to be installed

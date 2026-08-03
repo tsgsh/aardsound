@@ -1,4 +1,6 @@
 ---
-- name: Reload systemd
+- name: Mount Mopidy NFS library
   systemd:
+    name: "{{ mopidy_installer_nfs_mount_unit + '.mount' }}"
+    state: started
     daemon_reload: true

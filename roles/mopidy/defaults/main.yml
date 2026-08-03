@@ -21,6 +21,7 @@ mopidy_volume_ctrl: cubic
 mopidy_initial_volume: 50
 mopidy_verbosity: 0
 mopidy_media_library: /var/lib/mopidy/media
+mopidy_mount_after: []
 mopidy_local_scan: true
 mopidy_local_scan_limit: 0
 mopidy_local_scan_time: 04:00

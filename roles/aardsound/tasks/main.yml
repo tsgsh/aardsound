@@ -146,17 +146,23 @@
     - install-mopidy
     - mopidy
     - mopidy-multiroom
+    vars:
+      mopidy_installer_nfs: "{{ aardsound_nfs_media }}"
+      mopidy_installer_library: "{{ aardsound_local_media }}"
+      mopidy_installer_nfs_mount_unit: "{{ aardsound_mopidy_nfs_mount_unit }}"
+      mopidy_installer_extensions: "{{ aardsound_mopidy_installer_extensions }}"
+      mopidy_installer_sudoers: "{{ aardsound_mopidy_installer_sudoers }}"
+      mopidy_installer_install: "{{ aardsound_mopidy_installer_install }}"
     block:
 
     - name: Mopidy installer
-      vars:
-        mopidy_installer_nfs: "{{ aardsound_nfs_media }}"
-        mopidy_installer_library: "{{ aardsound_local_media }}"
-        mopidy_installer_extensions: "{{ aardsound_mopidy_installer_extensions }}"
-        mopidy_installer_sudoers: "{{ aardsound_mopidy_installer_sudoers }}"
-        mopidy_installer_install: "{{ aardsound_mopidy_installer_install }}"
       import_role:
         name: mopidy_installer
+
+    - name: Flush handlers for the mompidy_installer role
+      # we need the variable definitions to be active and we want the NFS mound online
+      # before we run the mopidy role 
+      meta: flush_handlers
 
   - name: Install Bluetooth
     when: aardsound_bluetooth | bool or
@@ -441,6 +447,7 @@
         mopidy_service: "{{ aardsound_mopidy_service }}"
         mopidy_location: "{{ aardsound_location }}"
         mopidy_media_library: "{{ aardsound_local_media }}"
+        mopidy_mount_after: "{{ aardsound_mopidy_mount_after }}"
         mopidy_output_device: "{{ aardsound_sink_device }}"
         # mopidy_initial_volume: "{{ aardsound_initial_volume }}"  # mopidy doesn't support
         mopidy_volume_control: "{{ aardsound_volume_control }}"
@@ -479,6 +486,7 @@
         mopidy_multiroom_service3: "{{ aardsound_mopidy_multiroom_service3 }}"
         mopidy_multiroom_name: "{{ aardsound_multiroom_name }}"
         mopidy_multiroom_media_library: "{{ aardsound_local_media }}"
+        mopidy_multiroom_mount_after: "{{ aardsound_mopidy_mount_after }}"
         mopidy_multiroom_use_venv: "{{ aardsound_mopidy_use_venv }}"
         mopidy_multiroom_venv: "{{ aardsound_mopidy_venv }}"
         mopidy_multiroom_http_bind_address: "{{ aardsound_mopidy_multiroom_http_address }}"

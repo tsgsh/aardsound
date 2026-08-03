@@ -138,10 +138,16 @@ Default: 0
 #### mopidy_media_library = *path*
 The media library for `mopidy-local`
 
-If this is not `/var/lib/mopidy/media` then the specified directory is symbolically linked to there
-with a `systemd` mount unit.
+If this is not `/var/lib/mopidy/media` then the specified directory is bind mounted to there using a
+`systemd` mount unit.
 
 Default: /var/lib/mopidy/media
+
+#### mopdiy_mount_after = *list of strings*
+A list of `systemd` mount units that are needed before the `systemd` unit that performs the bind
+mount can run: each entry is used to create an `After=` entry in the latter.
+
+Default: []
 
 #### mopidy_local_scan = *boolean*
 Should a `systemd` "oneshot" service to run `mopidy local scan` be defined?

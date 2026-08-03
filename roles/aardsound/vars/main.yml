@@ -113,3 +113,7 @@ aardsound_mopidy_site_packages: "{{ (aardsound_mopidy_venv if aardsound_mopidy_u
                                     ansible_facts.python.version.major | string + '.' +
                                     ansible_facts.python.version.minor | string +
                                     '/site/packages/' }}" # note trailing /
+# this replicates the default in mopidy-installer
+aardsound_mopidy_nfs_mount_unit: "{{ aardsound_local_media[1:] | replace('/', '-') }}"
+aardsound_mopidy_mount_after: "{{ [] if aardsound_nfs_media == none else
+                                  [aardsound_mopidy_nfs_mount_unit] }}"

@@ -9,6 +9,7 @@ mopidy_multiroom_channels: 2
 mopidy_multiroom_volume_control: cubic
 mopidy_multiroom_initial_volume: 50
 mopidy_multiroom_media_library: /var/lib/mopidy/media
+mopidy_multiroom_mount_after: []
 # the address defaults rely on the fact that we import the mopidy role
 mopidy_multiroom_http_bind_address: "{{ mopidy_bind_address }}"
 mopidy_multiroom_http_port: 6681  # one more than the default

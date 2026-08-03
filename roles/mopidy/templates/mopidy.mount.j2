@@ -3,6 +3,9 @@
 [Unit]
 Description=Bind mount of {{ mopidy_media_library }} at {{ mopidy_mount_point }} for {{ mopidy_description }}
 After=network.target
+{% for mount in mopidy_mount_after %}
+After={{ mount }}.mount
+{% endfor %}
 
 [Mount]
 What={{ mopidy_media_library }}

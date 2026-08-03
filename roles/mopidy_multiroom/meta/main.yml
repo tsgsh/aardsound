@@ -50,8 +50,15 @@ argument_specs:
         default: /var/lib/mopidy/media
         description: >-
           The media library for `mopidy-local`.
-          If this is not `/var/lib/mopidy/media` then the specified directory is symbolically linked
-          to there with a `systemd` mount unit.
+          If this is not `/var/lib/mopidy/media` then the specified directory is bind mounted to
+          there using a `systemd` mount unit.
+      mopidy_multiroom_mount_after:
+        type: list
+        elements: str
+        default: []
+        description: >-
+          A list of `systemd` mount units that are needed before the `systemd` unit that performs
+          the bind mount can run: each entry is used to create an `After=` entry in the latter.
       mopidy_multiroom_http_bind_address:
         type: str
         description: |

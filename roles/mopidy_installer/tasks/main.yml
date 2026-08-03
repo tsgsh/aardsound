@@ -21,14 +21,12 @@
       state: directory
       mode: '0644'
 
-  - name: Create the NFS mount
-    notify: Reload systemd
-    ansible.posix.mount:
-      src: "{{ mopidy_installer_nfs }}"
-      path: "{{ mopidy_installer_library }}"
-      fstype: nfs
-      opts: "{{ mopidy_installer_nfs_options }}"
-      state: mounted
+  - name: "{{ mopidy_installer_nfs_mount_file }}"
+    notify: Mount Mopidy NFS library
+    template:
+      src: nfs.mount.j2
+      dest: "{{ mopidy_installer_nfs_mount_file }}"
+      mode: '0644'
 
 - name: APT installation
   tags:

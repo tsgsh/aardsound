@@ -39,4 +39,7 @@ mopidy_installer_venv_install_packages: []
 mopidy_installer_pip: "{{ mopidy_installer_apt_packages +
                           mopidy_installer_extensions +
                           mopidy_installer_venv_install_packages }}"
+mopidy_installer_nfs_mount_file: "{{ '/etc/systemd/system/' +
+                                     mopidy_installer_nfs_mount_unit +
+                                     '.mount' }}"
 mopidy_installer_graphical: "{{ mopidy_installer_r_get_default.stdout == 'graphical.target' }}"

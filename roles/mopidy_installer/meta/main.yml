@@ -25,17 +25,6 @@ argument_specs:
         type: str
         default: /usr/local/mopidy/venv
         description: The path to the virtual environment
-      mopidy_installer_nfs:
-        type: str
-        default: none
-        description: |
-          An NFS volume containing music files for the bundled `mopidy-local` extension
-
-          An entry will be created in `/etc/fstab` to mount this volume if required
-      mopidy_installer_nfs_options:
-        type: str
-        default: bg,ro
-        description: Options for the NFS mount
       mopidy_installer_library:
         type: str
         required: true
@@ -45,6 +34,29 @@ argument_specs:
           The NFS mount point if mopidy_installer_nfs is not none
 
           Default: `/mnt/mopidy` if mopidy_installer_nfs is defined, otherwise none
+      mopidy_installer_nfs:
+        type: str
+        default: none
+        description: |
+          An NFS volume containing music files for the bundled `mopidy-local` extension
+
+          An entry will be created in `/etc/fstab` to mount this volume if required
+      mopidy_installer_nfs_type:
+        type: str
+        default: nfs
+        description: Type for the NFS mount.
+      mopidy_installer_nfs_options:
+        type: str
+        default: bg,ro
+        description: Options for the NFS mount.
+      mopidy_installer_nfs_mount_unit:
+        type: str
+        default: mnt-mopidy
+        description: >-
+          The name of the `systemd` unit that performs the NFS mount for the `mopidy-local` library.
+
+          Default: The value of `mopidy_installer_library` with the leading `/` removed and
+          remaining `\` characters replaced by `-`.
       mopidy_installer_extensions:
         type: list
         elements: str
