@@ -1,4 +1,9 @@
 ---
+- name: Confirm that the calculated period size is an integer
+  assert:
+    that: dmixer_rate * dmixer_period_time % 1000000 == 0
+    quiet: true
+
 - name: Stat /etc/asound.conf
   register: dmixer_r_stat
   stat:
