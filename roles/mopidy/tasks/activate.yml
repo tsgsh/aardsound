@@ -80,6 +80,7 @@
 
 - name: "{{ mopidy_mount_file }}"
   notify: Enable and (re)start mopidy service
+  when: mopidy_mount_point != mopidy_media_library
   template:
     src: "{{ mopidy_mount_template }}"
     dest: "{{ mopidy_mount_file }}"
