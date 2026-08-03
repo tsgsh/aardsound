@@ -2,5 +2,5 @@
 # vars file for aardsound_dmixer
 dmixer_conf_file: /etc/asound.conf
 dmixer_template_file: asound.conf.j2
-dmixer_period_size: "{{ dmixer_rate * dmixer_period_time / 1000000 }}"
-dmixer_buffer_size: "{{ dmixer_period_size * dmixer_periods }}"
+dmixer_period_size: "{{ (dmixer_rate * dmixer_period_time / 1000000) | int }}"
+dmixer_buffer_size: "{{ (dmixer_period_size * dmixer_periods) | int }}"
