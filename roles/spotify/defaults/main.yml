@@ -5,7 +5,7 @@ spotify_location:
 spotify_output_device: default
 spotify_mixer: false
 spotify_mixer_control: Master
-spotify_mixer_plugin: hw
+spotify_mixer_plugin: "{{ none if spotify_mixer_card == 'default' else 'hw' }}"
 spotify_mixer_card: 0
 spotify_mixer_device: 0
 spotify_volume_control: cubic

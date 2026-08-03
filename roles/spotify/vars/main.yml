@@ -25,9 +25,10 @@ spotify_backend: alsa
 # #LIBRESPOT_ALSA_MIXER_INDEX=0
 # set spotify_alsa_mixer_device to spotify_output_device before the ',device' string
 # unless spotify_mixer_card is defined in which case use that with spotify_mixer_plugin
-spotify_plugin_card: "{{ spotify_output_device | split(',') | first }}"
-spotify_alsa_mixer_device: "{{ spotify_plugin_card if spotify_mixer_card == none else
-                               (spotify_mixer_plugin + ':' + spotify_mixer_card | string) }}"
+spotify_alsa_mixer_device: "{{ ([spotify_mixer_plugin, spotify_mixer_card] |
+                                reject('eq', none) |
+                                map('string') |
+                                join(':')) }}"
 spotify_alsa_mixer_index: "{{ spotify_mixer_device if spotify_mixer_card != none else
                               0 if ',' not in spotify_output_device else
                               spotify_output_device | split(',') | last | int }}"

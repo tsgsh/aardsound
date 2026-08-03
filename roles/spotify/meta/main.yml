@@ -41,14 +41,16 @@ argument_specs:
         default: Master
         description: >-
           ALSA hardware mixer control as reported by the sound card.
-          Ignored if spotify_mixer = false.
 
+          Ignored if spotify_mixer = false.
       spotify_mixer_plugin:
         type: str
-        default: "{{ 'hw' if spotify_mixer_card == none else 0 }}"
+        default: hw
         description: >-
           ALSA plugin to use for the mixer control
           Ignored if spotify_mixer = false.
+
+          Default: hw if `spotify_mixer_card` == none else 0 }}"
       spotify_mixer_card:
         type: str
         default: 0
