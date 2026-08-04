@@ -2,7 +2,7 @@
 bluetooth_active: true
 bluetooth_location:
 bluetooth_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else '') +
-                           'Bluetooth speaker' }}"
+                           'Bluetooth speakers' }}"
 bluetooth_service: bt-agent
 bluetooth_adapter: "{{ bluetooth_macs[bluetooth_unblocked_indices |
                                       first] if bluetooth_unblocked_indices | length > 0 else
@@ -17,7 +17,7 @@ bluetooth_mixer_plugin: "{{ none if bluetooth_mixer_card == 'default' else 'hw' 
 bluetooth_mixer_card: default
 bluetooth_mixer_device: 0
 bluetooth_verbose: false
-bluetooth_volume_control: "{{ 'auto' if bluetooth_mixer else 'software' }}"
+bluetooth_volume: "{{ 'auto' if bluetooth_mixer else 'software' }}"
 # Set /etc/asound.conf
 # bluetooth_rate: 44100
 bluetooth_codec: SBC

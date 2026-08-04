@@ -525,7 +525,6 @@
         bluetooth_location: "{{ aardsound_location }}"
         bluetooth_card: "{{ aardsound_sink_card }}"
         bluetooth_initial_volume: "{{ aardsound_initial_volume }}"
-        bluetooth_volume_control: "{{ aardsound_volume_control }}"
         bluetooth_mixer: "{{ aardsound_mixer }}"
         bluetooth_mixer_plugin: "{{ aardsound_mixer_plugin }}"
         bluetooth_mixer_card: "{{ aardsound_mixer_card }}"

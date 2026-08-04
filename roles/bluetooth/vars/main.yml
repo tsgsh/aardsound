@@ -107,7 +107,7 @@ bluetooth_bluealsa_aplay_args: >-
 # bluetooth_mixer_card: default
 # bluetooth_mixer_plugin: "{{ '' if bluetooth_mixer_card == 'default' else 0 }}"
 # bluetooth_mixer_device: 0
-# bluetooth_volume_control: "{{ 'auto' if bluetooth_mixer else 'software' }}"
+# bluetooth_volume: "{{ 'auto' if bluetooth_mixer else 'software' }}"
 
 # /etc/asound.conf
 bluetooth_alsa_plugin: aardbluetooth

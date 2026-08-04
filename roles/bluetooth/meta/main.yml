@@ -23,7 +23,7 @@ argument_specs:
       bluetooth_description:
         type: str
         description: >
-          A description of the Bluetooth speaker used to advertise it to other devices.
+          A description of the Bluetooth speaker(s) used to advertise them to other devices.
 
 
           The default is preceded by the value of bluetooth_location (if defined)
@@ -99,7 +99,7 @@ argument_specs:
 
           The choices are the supported A2DP source codecs for BlueAlsa v4.3.1 in RasPiOS Trixie
           (accordig to bluealsa --help)
-      bluetooth_volume_control:
+      bluetooth_volume:
         type: str
         choices:
         - auto

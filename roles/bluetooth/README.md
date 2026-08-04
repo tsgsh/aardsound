@@ -144,7 +144,7 @@ not supported by the client)
   ["Developer Settings"](https://www.android.com/intl/en_uk/articles/enable-android-developer-settings/)
   to get access to some codecs such as LDAC .
 
-#### bluetooth_volume_control = auto | mixer | none | software
+#### bluetooth_volume = auto | mixer | none | software
 Bluetooth remote volume control
 
 See `man bluealsa-aplay (1)`
