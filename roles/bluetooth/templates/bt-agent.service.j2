@@ -8,7 +8,7 @@ After={{ service }}.service
 {% endfor %}
 
 [Service]
-User={{ bluetooth_service1 }}
+User={{ bluetooth_agent_service }}
 Group={{ bluetooth_gname }}
 SupplementaryGroups={{ bluetooth_groups | join(' ') }}
 {# This cannot be done using Bluez v5 only: need to use the deprecated hciconfig #}

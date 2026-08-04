@@ -7,7 +7,7 @@ Requires=bluetooth.service bluealsa.service
 
 [Service]
 Type=simple
-User={{ bluetooth_service2 }}
+User={{ bluetooth_aplay_service }}
 Group=audio
 ExecStart=/usr/bin/bluealsa-aplay {{ bluetooth_bluealsa_aplay_args }}
 Restart=on-failure

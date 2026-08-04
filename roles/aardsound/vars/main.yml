@@ -47,6 +47,8 @@ aardsound_mopidy_multiroom_service2: mopidy-multiroom-scan
 aardsound_mopidy_multiroom_service3: mopidy-multiroom-sink
 aardsound_bluetooth_service1: bt-agent
 aardsound_bluetooth_service2: bluealsa-aplay
+aardsound_multiroom_bluetooth_service1: bt-multiroom-agent
+aardsound_multiroom_bluetooth_service2: bluealsa-multiroom-aplay
 aardsound_sample_format: "{{ aardsound_rate | string + ':' +
                              aardsound_depth | string + ':' +
                              aardsound_channels | string }}"

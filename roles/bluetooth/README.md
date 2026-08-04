@@ -72,11 +72,17 @@ A description of the Bluetooth speaker used to advertise it to other devices
 
 Default: 'Bluetooth Speaker', preceded by the value of **bluetooth_location** (if defined)
 
-#### bluetooth_service = *string*
-The name of the `systemd` service running the `bt-agent`.
+#### bluetooth_agent_service = *string*
+The name of the `systemd` service running `bt-agent`.
 Also sets the name of the user that owns the service.
 
 Default: bt-agent
+
+#### bluetooth_aplay_service = *string*
+The name of the `systemd` service running `bluealsa-aplay`.
+Also sets the name of the user that owns the service.
+
+Default: bluealsa-aplay
 
 #### bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
 
@@ -157,9 +163,10 @@ Default: auto if `bluetooth_mixer` is `true`, otherwise software
 Default: 50
 
 #### bluetooth_extra_groups = *list*
-A list of groups that the user running the `bt-agent` (as defined by 
-[`bluetooth_service`](#bluetooth_service--string)) should belong to, in addition to `bluetooth` (the
-primary group) and `audio`
+A list of groups that the users running `bt-agent` and `bluealsa-aplay` (as defined by 
+[`bluetooth_agent_service`](#bluetooth_agent_service--string) and
+[`bluetooth_aplay_service`](#bluetooth_aplay_service--string))
+should belong to, in addition to `bluetooth` (the primary group) and `audio`
 
 Default: []
 

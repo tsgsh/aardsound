@@ -8,7 +8,7 @@
     name: bluetooth
     state: restarted
 
-- name: Enable and (re)start bluealsa service
+- name: (Re)start bluealsa service
   systemd:
     name: bluealsa.service
     enabled: true

@@ -1,10 +1,19 @@
 ---
-- name: "Stop and disable systemd service {{ bluetooth_service }}"
+- name: "Stop and disable systemd service {{ bluetooth_agent_service }}"
   register: bluetooth_r_stop
   # Allow for the service not existing
   failed_when: bluetooth_r_stop.state is defined and bluetooth_r_stop.state != 'stopped'
   systemd:
-    name: "{{ bluetooth_service }}.service"
+    name: "{{ bluetooth_agent_service }}.service"
+    enabled: false
+    state: stopped
+
+- name: "Stop and disable systemd service {{ bluetooth_aplay_service }}"
+  register: bluetooth_r_stop
+  # Allow for the service not existing
+  failed_when: bluetooth_r_stop.state is defined and bluetooth_r_stop.state != 'stopped'
+  systemd:
+    name: "{{ bluetooth_aplay_service }}.service"
     enabled: false
     state: stopped
 
@@ -20,8 +29,8 @@
     path: "{{ bluetooth_aplay_service_file }}"
     state: absent
 
-- name: "Remove {{ bluetooth_alsa_service_file }}"
-  notify: Reload systemd for bluetooth_active=false
+- name: "Remove {{ bluetooth_alsa_service_file }}"  # /lib/systemd/system version remains
+  notify: (Re)start bluealsa service
   file:
     path: "{{ bluetooth_alsa_service_file }}"
     state: absent

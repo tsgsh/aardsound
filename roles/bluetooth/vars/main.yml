@@ -2,13 +2,13 @@
 bluetooth_gname: bluetooth
 bluetooth_groups: "{{ (['audio'] + [bluetooth_extra_groups]) | flatten | unique }}"
 bluetooth_agent_service_template: bt-agent.service.j2
-bluetooth_agent_service_file: "/etc/systemd/system/{{ bluetooth_service }}.service"
+bluetooth_agent_service_file: "/etc/systemd/system/{{ bluetooth_agent_service }}.service"
 bluetooth_conf_template: "bluetooth.conf.j2"
 bluetooth_conf_file: "/etc/bluetooth/main.conf"
 bluetooth_alsa_service_template: bluealsa.service.j2
 bluetooth_alsa_service_file: "/etc/systemd/system/bluealsa.service"
 bluetooth_aplay_service_template: bluealsa-aplay.service.j2
-bluetooth_aplay_service_file: "/etc/systemd/system/bluealsa-aplay.service"
+bluetooth_aplay_service_file: "/etc/systemd/system/{{ bluetooth_aplay_service }}.service"
 bluetooth_class: '0x20414'  # N.B.  string!
 bluetooth_codecs:  # the following are listed as available a2dp-source codecs by blueaslsa --help
 - SBC

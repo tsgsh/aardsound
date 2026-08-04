@@ -3,7 +3,8 @@ bluetooth_active: true
 bluetooth_location:
 bluetooth_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else '') +
                            'Bluetooth speakers' }}"
-bluetooth_service: bt-agent
+bluetooth_agent_service: bt-agent
+bluetooth_aplay_service: bluealsa-aplay
 bluetooth_adapter: "{{ bluetooth_macs[bluetooth_unblocked_indices |
                                       first] if bluetooth_unblocked_indices | length > 0 else
                        bluetooth_macs[bluetooth_softblocked_indices |

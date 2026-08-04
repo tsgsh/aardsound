@@ -28,12 +28,18 @@ argument_specs:
 
           The default is preceded by the value of bluetooth_location (if defined)
         default: Bluetooth Speaker
-      bluetooth_service:
+      bluetooth_agent_service:
         type: str
         description: >
-          The name of the systemd service running the bt-agent.
+          The name of the systemd service running `bt-agent`.
           Also sets the name of the user that owns the service.
         default: bt-agent
+      bluetooth_aplay_service:
+        type: str
+        description: >
+          The name of the systemd service running `bluealsa-aplay`.
+          Also sets the name of the user that owns the service.
+        default: bluealsa-aplay
       bluetooth_adapter:
         type: str
         description: >
@@ -122,8 +128,9 @@ argument_specs:
         elements: str
         default: []
         description: >
-          A list of groups that the user running the bt-agent (as defined by bluetooth_service)
-          should belong to, in addition to bluetooth (the primary group) and audio
+          A list of groups that the user running bt-agent and bluealsa-aplay (as defined by
+          bluetooth_agent_service and bluetooth_aplay_service) should belong to, in addition to
+          bluetooth (the primary group) and audio.
       bluetooth_start_after_services:
         type: list
         elements: str

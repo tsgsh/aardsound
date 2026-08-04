@@ -86,13 +86,13 @@
     state: present
     system: true
 
-- name: "User {{ bluetooth_service1 }}"
+- name: "User {{ bluetooth_agent_service }}"
   user:
-    name: "{{ bluetooth_service1 }}"
+    name: "{{ bluetooth_agent_service }}"
     group: "{{ bluetooth_gname }}"
     groups: "{{ bluetooth_groups }}"
     create_home: true
-    home: "/var/cache/{{ bluetooth_service }}"
+    home: "/var/cache/{{ bluetooth_agent_service }}"
     shell: "/usr/sbin/nologin"
     expires: -1
     system: true
@@ -102,9 +102,9 @@
                  regex_replace('^\"?(.*)\"?$', '\\1') |
                  replace(':', '\\u003a') }}"
 
-- name: "User {{ bluetooth_service2 }}"
+- name: "User {{ bluetooth_aplay_service }}"
   user:
-    name: "{{ bluetooth_service2 }}"
+    name: "{{ bluetooth_aplay_service }}"
     group: "{{ bluetooth_gname }}"
     groups: "{{ bluetooth_groups }}"
     create_home: false
@@ -136,7 +136,7 @@
     mode: '0644'
 
 - name: "{{ bluetooth_alsa_service_file }}"
-  notify: Enable and (re)start bluealsa service
+  notify: (Re)start bluealsa service
   template:
     src: "{{ bluetooth_alsa_service_template }}"
     dest: "{{ bluetooth_alsa_service_file }}"

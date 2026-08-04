@@ -1,14 +1,17 @@
 ---
 # Use includes to avoid a lot of skipped tasks
 # Also, this seems to make the handlers for systemd services work (?!)
-- name: "Configure, enable and start {{ bluetooth_service }}"
+- name: >-
+    Configure, enable and start systemd services
+    {{ bluetooth_agent_service + ' and ' + bluetooth_aplay_service }}
   when: bluetooth_active
   tags:
   - activate
   include_tasks:
     file: activate.yml
 
-- name: "Remove systemd service {{ bluetooth_service }}"
+- name: >-
+    Remove systemd services {{ bluetooth_agent_service + ' and ' + bluetooth_aplay_service }}
   when: not bluetooth_active
   tags:
   - deactivate
