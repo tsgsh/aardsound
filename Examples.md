@@ -1,5 +1,15 @@
 # Example Configurations
 
+These examples focus on Spotify and Mopidy and build up from the most straightforward
+configuration to a moderately complex one with both services on multiple Raspberry Pis in both
+single- and multi-room versions.
+
+Bluetooth works in a similar way but it involves four `systemd` services, rather than one* to send
+audio to ALSA.  Bluetooth Audio is explained in the [Bluetooth](#bluetooth) section below.
+
+&ast; `raspotify` includes an additional "crash reporter" service that is not described in this
+README because it doesn't have a functional role in the audio process.
+
 ## Introduction &ndash; Single Source with different HiFi Devices
 
 ```
@@ -683,6 +693,100 @@ Remember that in all of these cases, it is straightforward to add more hosts to 
 add additional groups with different variables if you want differing configurations on different
 Raspberry Pis.
 
+## Bluetooth
+
+**Bluetooth** could be added to (or substituted for **Spotify** or **Mopidy**) any of the above
+configurations.
+
+However **Bluetooth** is a more complex audio source than the others in terms of its configuration.
+Rather than a single `systemd` service that provides the source, **Bluetooth** requires four, two
+of which are existing services requiring (limited) customisation and two of which are specific to **Aardsound**
+- The `bluetooth` (or `bluetoothd`) service &ndash; this is the main Bluetooth daemon that
+  integrates with the `d-bus` inter-process communication (IPC) service; it needs minor changes
+  to the global Bluetooth configuration
+- The `bluealsa` service which runs the Bluetooth Audio ALSA Backend
+  (**[BlueALSA](https://github.com/Arkq/bluez-alsa)**) &ndash; this needs modification to its start
+  up to support **Aardsound**
+- A service running `bt-agent` &ndash; that sets the class and description of the bluetooth adapter
+  (i.e., as seen by Bluetooth clients) and makes it pairable and discoverable
+- A service running `bluealsa-aplay` &ndash; that takes the audio from the connected device and
+  routes it to the correct ALSA PCM for output
+
+To recap on *Figure 4* and *Figure 5* above, **Bluetooth** can be dropped in instead of or as well
+as **Spotify** and/or **Mopidy**.
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Raspberry Pi ("Wallace")            ┃
+┃ ┌───────────┐                       ┃
+┃ │  spotify  │                       ┃
+┃ │    or     │   ┌─────────────────┐ ┃
+┃ │  mopidy   ├───┤ hw:IQaudIODAC,0 │ ┃
+┃ │    or     │   └─────────────────┘ ┃
+┃ │ bluetooth │                       ┃
+┃ └───────────┘                       ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+*Figure 16*
+
+or
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Raspberry Pi ("Wallace")                                     ┃
+┃ ┌───────────┐                                                ┃
+┃ │  spotify  ├───┐                                            ┃
+┃ └───────────┘   │                                            ┃
+┃ ┌───────────┐   │   ┌────────────────┐   ┌─────────────────┐ ┃
+┃ │  mopidy   ├───┼───┤ plug:aardmixer ├───┤ hw:IQaudIODAC,0 │ ┃
+┃ └───────────┘   │   └────────────────┘   └─────────────────┘ ┃
+┃ ┌───────────┐   │                                            ┃
+┃ │ bluetooth ├───┘                                            ┃
+┃ └───────────┘                                                ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+*Figure 17*
+
+However, in both cases, the box represeting `bluetooth` is actualy
+```
+                      ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+                      ┃ Raspberry Pi ("Wallace")                                      ┃
+┌──────────────────┐  ┃ ┌──────────┐  ┌───────────┐  ┌──────────┐  ┌────────────────┐ ┃
+│ bluetooth client ├──╂─┤ bt-agent ├──┤ bluetooth ├──┤ bluealsa ├──┤ bluealsa-aplay │ ┃
+└──────────────────┘  ┃ └──────────┘  └───────────┘  └──────────┘  └────────────────┘ ┃
+                      ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+where `bluealsa-aplay` is the service that connects to the selected ALSA PCM.
+As was the case with the different audio outputs (*Figures 1-3*), though, this complexity
+does not matter: only `blueasla-aplay` communicates with non**Bluetooth** componets of
+**Aardsound**.
+Theerfore, we can show a bluetooth-enabled version of *Figure 15*:
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Raspberry Pi ("Wallace")               ┃
+┃ ┌─────────┐         ┌────────────────┐ ┃
+┃ │ spotify ├──────┐  │ hw:IQaudioDC,0 │ ┃
+┃ └─────────┘      │  └───────┬────────┘ ┃     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ┌────────┐       │  ┌───────┴────────┐ ┃     ┃ Raspberry Pi ("Gromit")               ┃
+┃ │ mopidy ├───────┴──┤ plug:aardmixer │ ┃     ┃ ┌─────────────────┐                   ┃
+┃ └────────┘          └─────────┬──────┘ ┃     ┃ │ bluetooth-aplay │                   ┃
+┃              ┌────────────────┤        ┃     ┃ └─────────────┬───┘                   ┃
+┃       ┌──────┴─────┐    ┌─────┴──────┐ ┃     ┃ ┌─────────┐   │    ┌────────────────┐ ┃
+┃       │ snapclient ├─┐  │ snapclient │ ┃     ┃ │ spotify ├───┴─┬──┤ plug:aardmixer │ ┃
+┃       └────────────┘ │  └─────┬──────┘ ┃     ┃ └─────────┘     │  └────────┬───────┘ ┃
+┃ ┌────────┐ ┌──────┐  │  ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │           │         ┃
+┃ │ mopidy ├─┤ FIFO ├─────┤ snapserver ├─╂─────╂─│ snapclient ├──┤           │         ┃
+┃ └────────┘ └──────┘  │  └────────────┘ ┃     ┃ └────────────┘  │           │         ┃
+┃                      └────────┐        ┃     ┃                 │           │         ┃
+┃ ┌─────────┐    ┌──────┐ ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │  ┌────────┴───────┐ ┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─│ snapclient ├──┤  │ hw:IQaudioDC,0 │ ┃
+┃ └────┬────┘    └──┬───┘ └────────────┘ ┃     ┃ └────────────┘  │  └────────────────┘ ┃
+┃ ┌────┴─────┐ ┌────┴───┐                ┃     ┃ ┌────────┐      │                     ┃
+┃ │ Loopback ├─┤ FFMPEG │                ┃     ┃ │ mopidy ├──────┘                     ┃
+┃ └──────────┘ └────────┘                ┃     ┃ └────────┘                            ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+*Figure 18*
+
+
 ## My Setup
 The audio equipment I use is by no-means "audiophile", but the IQaudIO DACs and their Raspberry
 Pi-branded replacements provide excellent sound quality.  The DAC+ is capable of 24-bit 192kHz
@@ -694,8 +798,9 @@ the garden, some more expensive exterior passive speakers.
 My setup corresponds to Figure 14, so that I don't have to take a room offline to reconfigure
 multi-room audio but I use a Debian virual machine as the **Snapcast** server instead of a
 Raspberry Pi.
-There are are four Raspberry Pi's connected to the **Snapcast** server, all supporting single-
-and multi-room **Spotify** and **Mopidy**.
+There are are four Raspberry Pi's connected to the **Snapcast** servers, all supporting single-
+and multi-room **Spotify** and **Mopidy**, and, for three of them, **Bluetooth** as well.
+
 I also have a test setup that can be configured to match any of the diagrams above.
 
 My **Ansible** inventory is more complex than the examples shown above.
