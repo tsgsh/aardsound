@@ -2,15 +2,26 @@
 - name: Determine all of the bluetooth adapters
   register: bluetooth_r_list
   changed_when: false
+  check_mode: false
+  # bluetoothctl list can be parsed using jc
   command:
     cmd: bluetoothctl list
 
-- name: Get information on each of the adapters
-  register: bluetooth_r_show
-  loop: "{{ bluetooth_macs }}"
+- name: Get a list of MAC addresses ordered by HCI device index
+  # harder than you'd expect!
+  # bluetoothctl doesn't provide any mapping of MAC to HCI device index
+  # hciconfig does but is deprecated
+  # bt-adapter --info does but it doesn't have a jc parser, and needs a loop: see ../vars/main.yml
+  register: bluetooth_r_info
   changed_when: false
+  check_mode: false
+  loop: "{{ bluetooth_r_list.stdout |
+            community.general.jc('bluetoothctl') }}"  # we use the index not the value
+  loop_control:
+    index_var: i
+    label: "hci{{ i }}"
   command:
-    cmd: "{{ 'bluetoothctl show ' + item }}"
+    cmd: "bt-adapter --info --adapter hci{{ i }}"
 
 - name: A adjust the D-BUS policy for org.bluealsa.sink and org.bluealsa.source
   # per man (8) bluealsa, this is only needed with multipe bluetooth adapters, but why not

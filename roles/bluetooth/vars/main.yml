@@ -36,15 +36,14 @@ bluetooth_adapter_index: "{{ 0 if bluetooth_adapter == 'hci0' else
 bluetooth_adapter_mac: "{{ bluetooth_adapter if bluetooth_adapter is ansible.utils.mac else
                            bluetooth_macs[bluetooth_adapter] if bluetooth_adapter is integer else
                            none }}"
-bluetooth_macs: "{{ bluetooth_r_list.stdout |
-                    community.general.jc('bluetoothctl') |
-                    map(attribute='address') }}"
-bluetooth_info: "{{ bluetooth_macs |
-                    zip(bluetooth_r_show.results |
-                        map(attribute='stdout') |
-                        map('community.general.jc', 'bluetoothctl') |
-                        flatten) |
-                    community.general.dict }}"
+bluetooth_macs: "{{ bluetooth_r_info.results |
+                    map(attribute='stdout_lines') |
+                    map('reject', 'match', '^\\[hci\\d\\]$') |
+                    map('map', 'regex_replace', '^  (.*)', '\\1') |
+                    map('join', '\n') |
+                    flatten |
+                    map('from_yaml') |
+                    map(attribute='Address') }}"
 # The following needs an empty default for role validation to work
 bluetooth_rfkill_devices: "{{ (bluetooth_r_rfkill.stdout | from_json).rfkilldevices |
                               selectattr('type', 'eq', 'bluetooth') |
