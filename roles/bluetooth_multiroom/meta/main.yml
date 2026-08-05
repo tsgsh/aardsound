@@ -1,0 +1,131 @@
+---
+argument_specs:
+  main:
+    short_description: Main entrypoint for the Aardsound bluetooth_multioom role
+    description:
+    - This role installs and configures (or removes)
+    - An instance of bt-agent to service connections from Bluetooth devices
+    - An instance of blueasla-aplay to route audio output to the ALSA loopback device
+    - An ALSA loopback device to connect bluealsa-aplay to the Snapcast server
+    - An instance of the Snapcast server to feed the Bluetooth Output to remote Snapcast clients
+    version_added: '0.2.0'
+    author:
+    - Steve Hayes
+    options:
+      bluetooth_multiroom_active:
+        type: bool
+        default: true
+        description: Should the Bluetooth multi-room services be installed and configured or removed
+      bluetooth_multiroom_name:
+        type: str
+        default: Multiroom Bluetooth speakers
+        description: The name of the BlueALSA service to be advertised via ZeroConf
+      bluetooth_multiroom_format:
+        type: str
+        choices:
+        - F64
+        - F32
+        - S32
+        - S24
+        - S24_3
+        - S16
+        default: S16
+        description: Audo format used by the Snapcast server
+      bluetooth_multiroom_volume:
+        type: str
+        choices:
+        - cubic
+        - fixed
+        - linear
+        - log
+        default: cubic
+        description: >-
+          Bluetooth remote volume control
+
+          See `man bluealsa-aplay (1)`
+
+          Default: auto if `bluetooth_mixer` is `true`, otherwise software
+
+      bluetooth_multiroom_initial_volume:
+        type: int
+        default: 50
+        description: Bluetooth initial volume as a percentage from 0 to 100.
+      bluetooth_multiroom_port:
+        type: int
+        description: >-
+          The port the librespot daemon binds to and advertises over ZeroConf
+          (librespot binds to a random high port by default)
+      bluetooth_multiroom_interface:
+        type: list
+        elements: str
+        description: >-
+            Interface IP address or a list of IP addresses or a comma-separated string of IP
+            addresses to which the librespot daemon will bind and advertise over ZeroConf.
+
+
+            Example: "192.168.0.10,10.0.0.10".
+      bluetooth_multiroom_source_verbose:
+        type: bool
+        default: 0
+        description: Should verbose logging be set for the BlueALSA daemon?
+      bluetooth_multiroom_aloop_card:
+        type: str
+        default: Loopback
+        description: >-
+          The name of the ALSA card that is to be used for the loopback device between Bluetooth and
+          the Snapcast server.
+
+
+          If the card does not exist it will be created with enough substreams to support the value
+          specified in `bluetooth_multiroom_aloop_substream`.
+      bluetooth_multiroom_aloop_substream:
+        type: int
+        default: 0
+        description: >-
+          The subetream of the loopback ALSA card that is to be used
+
+
+          If the card specified in `bluetooth_multiroom_aloop_card` exists but has insufficient
+          substreams, am error will occur.
+      bluetooth_multiroom_fifo:
+        type: str
+        default: /tmp/bluetooth-fifo
+        description: The path for the FIFO that will provde input to the Snapcast server.
+      bluetooth_multiroom_rate:
+        type: int
+        default: 44100
+        description: The audio sample rate to send to snapserver
+      bluetooth_multiroom_depth:
+        type: int
+        default: 16
+        description: Sets the sampling depth for the analogue audio for the Snapcast server.
+      bluetooth_multiroom_channels:
+        type: int
+        default: 2
+        description: Sets the number of channels for the Snapcast server.
+      bluetooth_multiroom_snap_port_offset:
+        type: int
+        default: 0
+        description: >-
+          Aritmetic offset to the default ports used by Snapcast (1704, 1705, 1780) for this
+          instance.
+
+
+          Must be in the ranges -699 to -2 or 2 to 67355.
+          These are the values that will not cause any direct clash with this instance of the
+          Snapcast server only but they may clash with other instances or services.
+
+
+          No checking is done on the input value.
+      bluetooth_multiroom_sink_debug:
+        type: bool
+        default: false
+        description: >-
+          Enable debugging of the Snapcast server.
+          May be overridden by snapsclient_logging.
+      bluetooth_multiroom_sink_logging:
+        type: str
+        default: "{{ '*:debug' if bluetooth_multiroom_sink_debug | bool else none }}"
+        description: >-
+          Set log levels for the Snapcast server.
+          Provides more fine-grained control of debugging than snapserver_debug
