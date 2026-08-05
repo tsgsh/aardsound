@@ -21,15 +21,18 @@ mopidy_scan_timer_template: "{{ mopidy_package + '-scan' }}.timer.j2"
 mopidy_mount_name: "{{ mopidy_mount_point[1:] | replace('-', '\\x2d') | replace('/', '-') }}"
 mopidy_mount_file: "/etc/systemd/system/{{ mopidy_mount_name }}.mount"
 mopidy_mount_template: '{{ mopidy_package }}.mount.j2'
-# can't scan with mopidyctl because it hard codes the values of DAEMON_USER and CONFIG_FILES to
-# refer to mopidy and /etc/mopidy/mopidy.conf etc.
-mopidy_description: "{{ ((mopidy_location + ' ') if mopidy_location != none else '') +
-                        mopidy_service | capitalize +
-                        '' if mopidy_service == mopidy_package else (' (' + mopidy_package + ')') +
+mopidy_description1: "{{ mopidy_package }}"
+mopidy_description2: "{{ mopidy_service | capitalise + ' (' + mopidy_package + ')' }}"
+mopidy_description: "{{ ((mopidy_location + ' ') if mopidy_location != none else
+                         '') +
+                        (mopidy_description1 if mopidy_service == mopidy_package else
+                         mopidy_description2) +
                         ' service' }}"
 mopidy_command: >-
   {{ mopidy_install_dir }}/bin/{{ mopidy_package }}
   --config /usr/share/{{ mopidy_package }}/conf.d:{{ mopidy_conf_file }}
+# can't scan with mopidyctl because it hard codes the values of DAEMON_USER and CONFIG_FILES to
+# refer to mopidy and /etc/mopidy/mopidy.conf etc.
 mopidy_scan_command: >-
   {{ mopidy_command }}
   {{ ('--limit ' + mopidy_local_scan_limit | int) if mopidy_local_scan_limit | int > 0 else '' }}
