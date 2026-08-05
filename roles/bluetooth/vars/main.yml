@@ -94,9 +94,9 @@ bluetooth_alsa_mixer_device: "{{ [bluetooth_mixer_plugin, bluetooth_mixer_card] 
                                  map('string') |
                                  join(':') }}"
 bluetooth_agent_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
-                                  '') + ' bt-agent service' }}"
+                                  '') + 'bt-agent service' }}"
 bluetooth_aplay_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
-                                  '') + ' BlueALSA A2DP sink playback service' }}"
+                                  '') + 'BlueALSA A2DP sink playback service' }}"
 
 bluetooth_bluealsa_aplay_args: >-
   --pcm {{ bluetooth_output_device }}
