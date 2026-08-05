@@ -1,0 +1,27 @@
+---
+bluetooth_multiroom_active: true
+bluetooth_multiroom_name: Multiroom Bluetooth speakers
+bluetooth_multiroom_agent_service: bt-multiroom-agent
+bluetooth_multiroom_aplay_service: bluealsa-multiroom-aplay
+bluetooth_multiroom_adapter: "{{ bluetooth_macs[bluetooth_unblocked_indices |
+                                      first] if bluetooth_unblocked_indices | length > 0 else
+                       bluetooth_macs[bluetooth_softblocked_indices |
+                                      first] if bluetooth_softblocked_indices | length > 0 else
+                       none }}"
+bluetooth_multiroom_source_verbose: false
+
+# Loopback definition
+bluetooth_multiroom_aloop_card: Loopback
+bluetooth_multiroom_aloop_subdevice: 0
+
+# FIFO definitions: assumes that /tmp is a RAM disk; setting up FIFOs on /var/run is painful
+bluetooth_multiroom_fifo: /tmp/bluetooth-fifo
+
+# snapserver options
+bluetooth_multiroom_rate: 44100
+bluetooth_multiroom_depth: 16
+bluetooth_multiroom_channels: 2
+bluetooth_multiroom_snap_port_offset: 0
+bluetooth_multiroom_sink_debug: false
+bluetooth_multiroom_sink_logging: "{{ '*:debug' if bluetooth_multiroom_sink_debug | bool else
+                                      none }}"

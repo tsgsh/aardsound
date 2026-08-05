@@ -1,0 +1,229 @@
+---
+- name: Determine whether snd-aloop is loaded
+  register: bluetooth_multiroom_r_lsmod
+  changed_when: false
+  check_mode: false
+  command:
+    cmd: lsmod
+
+- name: Confirm that the expected loopback card exists
+  when: bluetooth_multiroom_aloop_loaded
+  block:
+
+  - name: Determine whether the loopback card exists and has the required subdevice
+    register: bluetooth_multiroom_r_loopback
+    changed_when: false
+    check_mode: false
+    failed_when: false  # in case there is no soundcard
+    vars:
+      pipe:
+      - aplay -l
+      - >-
+          grep -EA{{ bluetooth_multiroom_aloop_subdevice + 2 }}
+          '^card [0-9]+: {{ bluetooth_multiroom_aloop_card }} \[Loopback\]'
+    shell:
+      cmd: |
+        set -o pipefail
+        {{ pipe | join('|') }}
+      executable: /bin/bash
+
+  - name: Confirm that the loopback card has sufficient subdevices
+    when: not bluetooth_multiroom_aloop_new_card
+    assert:
+      that: bluetooth_multiroom_aloop_enough_subds
+      fail_msg: >
+        Loopback device '{{ bluetooth_multiroom_aloop_card }}' needs at least
+        {{ bluetooth_multiroom_aloop_subdevice + 1 }} subdevices
+      quiet: true
+
+- name: Create a new loopback device
+  when: bluetooth_multiroom_new_card
+  block:
+
+  - name: Determine the next card number for the ALSA loopback device
+    register: bluetooth_multiroom_r_aplay
+    changed_when: false
+    check_mode: false
+    failed_when: false  # in case there is no soundcard
+    vars:
+      pipe:
+      - aplay -l
+      - grep ^card
+      - cut -d ':' -f1
+      - cut -b6-
+      - tail -n1
+    shell:
+      cmd: |
+        set -o pipefail
+        {{ pipe | join('|') }}
+      executable: /bin/bash
+
+  - name: Set up the snd-asound loopback device
+    community.general.modprobe:
+      name: snd-aloop
+      params: "{{ bluetooth_multiroom_aloop_parameters }}"
+      state: present
+      persistent: present
+
+- name: Snapserver user and groups
+  # Create these early because they are needed to define the FIFO before running snapserver
+  # snapserver is imported so we can use its variables
+  vars:
+    snapserver_service: "{{ bluetooth_multiroom_service3 }}"
+    snapserver_description: "{{ bluetooth_multiroom_snapserver_description }}"
+    snapserver_extra_groups: "{{ [bluetooth_multiroom_gname] }}"
+  block:
+
+  - name: "Group(s) {{ bluetooth_multiroom_define_groups | join(',') }}"
+    loop: "{{ bluetooth_multiroom_define_groups }}"
+    group:
+      name: "{{ item }}"
+      state: present
+      system: true
+
+  - name: "User {{ snapserver_uname }}"
+    # parameters must match those that are used in the imported snapserver role
+    user:
+      name: "{{ snapserver_uname }}"
+      group: "{{ snapserver_gname }}"
+      groups: "{{ snapserver_groups }}"
+      home: "{{ snapserver_datadir }}"
+      create_home: false  # added below
+      shell: '/usr/sbin/nologin'
+      expires: -1
+      system: true
+      # to_json == to_ascii plus quuotes
+      comment: "{{ snapserver_description |
+                   to_json |
+                   regex_replace('^\"?(.*)\"?$', '\\1') |
+                   replace(':', '\u003a') }}"
+
+- name: "Service 0: FIFO"
+  # This creates the FIFO used by the snapserver sink at boot time before the sink is started
+  block:
+
+  - name: "{{ bluetooth_multiroom_service0_file }}"
+    notify: Enable Bluetooth Multiroom FIFO service
+    template:
+      src: "{{ bluetooth_multiroom_service0_template }}"
+      dest: "{{ bluetooth_multiroom_service0_file }}"
+      mode: '0644'
+
+  - name: Check whether the FIFO exists
+    register: bluetooth_multiroom_r_fifo
+    stat:
+      path: "{{ bluetooth_multiroom_fifo }}"
+
+  - name: "FIFO {{ bluetooth_multiroom_fifo }}"
+    block:
+
+    - name: "FIFO {{ bluetooth_multiroom_fifo }}"
+      when: not bluetooth_multiroom_fifo_exists
+      changed_when: true
+      command:
+        cmd: "mkfifo --mode 0660 --context {{ bluetooth_multiroom_fifo }}"
+
+    - name: Change ownership of the FIFO  # can't use the file module to create but we can for this
+      file:
+        path: "{{ bluetooth_multiroom_fifo }}"
+        owner: "{{ bluetooth_multiroom_service3 }}"
+        group: "{{ snapserver_gname }}"
+        mode: '0660'
+
+    rescue:
+
+    - name: "Error creating/modifying the FIFO {{ bluetooth_multiroom_fifo }}"
+      pause:
+        prompt: >-
+          Pausing foor 1 minute, press Ctrl-C to interrupt the countdown
+          then press C to continue or A to abort
+        minutes: 1
+
+- name: "Service 1 & 2: bt-agent and blueasla-aplay"
+  block:
+
+  - name: Activate Bluetooth Multiroom source
+    # most Bluetooth defaults are the same as for the standard bluetooth instance
+    vars:
+      bluetooth_active: true
+      bluetooth_agent_service: "{{ bluetooth_multiroom_service1 }}"
+      bluetooth_aplay_service: "{{ bluetooth_multiroom_service2 }}"
+      bluetooth_location: "{{ bluetooth_multiroom_name }}"
+      bluetooth_output_device: "{{ bluetooth_multiroom_aloop_sink }}"
+      bluetooth_mixer: false
+      bluetooth_initial_volume: "{{ bluetooth_multiroom_initial_volume }}"
+      bluetooth_volume: "{{ bluetooth_multiroom_volume }}"
+      bluetooth_verbose: "{{ bluetooth_multiroom_source_verbose }}"
+      bluetooth_port: "{{ bluetooth_multiroom_port }}"
+      bluetooth_interface: "{{ bluetooth_multiroom_interface }}"
+      bluetooth_start_after_services: "{{ [bluetooth_multiroom_service2] }}"
+    import_role:
+      name: bluetooth
+
+- name: "Service 2: FFMPEG bridge"
+  block:
+
+  - name: "Group {{ bluetooth_multiroom_gname }}"
+    group:
+      name: "{{ bluetooth_multiroom_gname }}"
+      state: present
+      system: true
+
+  - name: "User {{ bluetooth_multiroom_service2 }}"
+    user:
+      name: "{{ bluetooth_multiroom_service2 }}"
+      group: "{{ bluetooth_multiroom_gname }}"
+      groups: audio
+      create_home: false
+      shell: '/usr/sbin/nologin'
+      expires: -1
+      system: true
+      # to_json == to_ascii plus quotes
+      comment: "{{ bluetooth_multiroom_bridge_description |
+                   to_json |
+                   regex_replace('^\"?(.*)\"?$', '\\1') |
+                   replace(':', '\u003a') }}"
+
+  - name: "{{ bluetooth_multiroom_script2_file }}"
+    template:
+      src: "{{ bluetooth_multiroom_script2_template }}"
+      dest: "{{ bluetooth_multiroom_script2_file }}"
+      mode: '0755'
+
+  - name: "{{ bluetooth_multiroom_service2_file }}"
+    notify:
+    - Reload systemd
+    - Enable and (re)start Bluetooth Multiroom bridge service
+    template:
+      src: "{{ bluetooth_multiroom_service2_template }}"
+      dest: "{{ bluetooth_multiroom_service2_file }}"
+      mode: '0644'
+
+  - name: "Set up {{ bluetooth_multiroom_environment2_file }}"
+    notify: Enable and (re)start Bluetooth Multiroom bridge service
+    template:
+      src: "{{ bluetooth_multiroom_environment2_template }}"
+      dest: "{{ bluetooth_multiroom_environment2_file }}"
+      owner: root
+      group: root
+      mode: '0644'
+      backup: true
+
+- name: "Service 3: snapserver sink"
+  block:
+
+  - name: Activate Bluetooth Multiroom sink
+    vars:
+      snapserver_active: true
+      snapserver_service: "{{ bluetooth_multiroom_service3 }}"
+      snapserver_description: "{{ bluetooth_multiroom_snapserver_description }}"
+      snapserver_port_offset: "{{ bluetooth_multiroom_snap_port_offset }}"
+      snapserver_fifo: "{{ bluetooth_multiroom_sink_fifo }}"
+      snapserver_fifo_service: "{{ bluetooth_multiroom_service0 }}"
+      snapserver_rate: "{{ bluetooth_multiroom_rate }}"
+      snapserver_depth: "{{ bluetooth_multiroom_depth }}"
+      snapserver_channels: "{{ bluetooth_multiroom_channels }}"
+      snapserver_logging: "{{ bluetooth_multiroom_sink_logging }}"
+      snapserver_extra_groups: "{{ [bluetooth_multiroom_gname] }}"
+    import_role:
+      name: snapserver

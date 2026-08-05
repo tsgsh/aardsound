@@ -63,14 +63,11 @@ Default: `true`
 #### bluetooth_location = *string*
 The place where the audio output can be heard, e.g. 'Kitchen'
 
-If not defined then just the capitalised hostname of the server is used as a name.
+If not defined then the capitalised hostname of the server is used as a default
+
+The location is suffixed with "Bluetooth speakers" to advertise it to other devices
 
 Default: `none`
-
-#### bluetooth_description = *string*
-A description of the Bluetooth speaker used to advertise it to other devices
-
-Default: 'Bluetooth Speaker', preceded by the value of **bluetooth_location** (if defined)
 
 #### bluetooth_agent_service = *string*
 The name of the `systemd` service running `bt-agent`.
@@ -101,7 +98,7 @@ resepected; secondly if you have installed an external bluetooth adapter, then y
 to use it; and thirdly, depending upon the Pi model and your usage of Aardsound, WiFi and Bluetooth
 traffic may cause dropouts with each other due to sharing the same hardware
 
-#### bluetooth_card = *string*
+#### bluetooth_output_device = *string*
 The ALSA PCM to which **Bluez-ALSA** sends its audio streams
 
 Default: 0
@@ -149,6 +146,11 @@ not supported by the client)
 - On an Android device, it may be necessary to enable 
   ["Developer Settings"](https://www.android.com/intl/en_uk/articles/enable-android-developer-settings/)
   to get access to some codecs such as LDAC .
+
+#### bluetooth_verbose = true | false
+Should verbose logging be set for the BlueALSA daemon?
+
+Default: false
 
 #### bluetooth_volume = auto | mixer | none | software
 Bluetooth remote volume control

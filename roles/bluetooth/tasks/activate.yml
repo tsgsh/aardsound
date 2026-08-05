@@ -108,7 +108,7 @@
     expires: -1
     system: true
     # to_json == to_ascii plus quotes
-    comment: "{{ (bluetooth_description + ' bt-agent') |
+    comment: "{{ (bluetooth_name + ' bt-agent') |
                  to_json |
                  regex_replace('^\"?(.*)\"?$', '\\1') |
                  replace(':', '\\u003a') }}"
@@ -123,7 +123,7 @@
     expires: -1
     system: true
     # to_json == to_ascii plus quotes
-    comment: "{{ (bluetooth_description + ' blueasla-aplay') |
+    comment: "{{ (bluetooth_name + ' blueasla-aplay') |
                  to_json |
                  regex_replace('^\"?(.*)\"?$', '\\1') |
                  replace(':', '\\u003a') }}"

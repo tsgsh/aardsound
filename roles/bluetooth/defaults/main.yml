@@ -1,8 +1,7 @@
 ---
 bluetooth_active: true
 bluetooth_location:
-bluetooth_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else '') +
-                           'Bluetooth speakers' }}"
+bluetooth_output_device: default
 bluetooth_agent_service: bt-agent
 bluetooth_aplay_service: bluealsa-aplay
 bluetooth_adapter: "{{ bluetooth_macs[bluetooth_unblocked_indices |
@@ -11,7 +10,6 @@ bluetooth_adapter: "{{ bluetooth_macs[bluetooth_unblocked_indices |
                                       first] if bluetooth_softblocked_indices | length > 0 else
                        none }}"
 bluetooth_loglevel: error
-bluetooth_card: 0
 bluetooth_mixer: false
 bluetooth_mixer_control: Master
 bluetooth_mixer_plugin: "{{ none if bluetooth_mixer_card == 'default' else 'hw' }}"

@@ -1,12 +1,15 @@
 ---
+bluetooth_name: "{{ (bluetooth_location if bluetooth_location != none else
+                     inventory_hostname_short | capitalize) +
+                    ' Bluetooth speakers' }}"
 bluetooth_gname: bluetooth
 bluetooth_groups: "{{ (['audio'] + [bluetooth_extra_groups]) | flatten | unique }}"
 bluetooth_agent_service_template: bt-agent.service.j2
 bluetooth_agent_service_file: "/etc/systemd/system/{{ bluetooth_agent_service }}.service"
-bluetooth_conf_template: "bluetooth.conf.j2"
-bluetooth_conf_file: "/etc/bluetooth/main.conf"
+bluetooth_conf_template: bluetooth.conf.j2
+bluetooth_conf_file: /etc/bluetooth/main.conf
 bluetooth_alsa_service_template: bluealsa.service.j2
-bluetooth_alsa_service_file: "/etc/systemd/system/bluealsa.service"
+bluetooth_alsa_service_file: /etc/systemd/system/bluealsa.service
 bluetooth_aplay_service_template: bluealsa-aplay.service.j2
 bluetooth_aplay_service_file: "/etc/systemd/system/{{ bluetooth_aplay_service }}.service"
 bluetooth_class: '0x20414'  # N.B.  string!
@@ -90,8 +93,13 @@ bluetooth_alsa_mixer_device: "{{ [bluetooth_mixer_plugin, bluetooth_mixer_card] 
                                  reject('eq', none) |
                                  map('string') |
                                  join(':') }}"
+bluetooth_agent_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
+                                  '') + ' bt-agent service' }}"
+bluetooth_aplay_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
+                                  '') + ' BlueALSA A2DP sink playback service' }}"
+
 bluetooth_bluealsa_aplay_args: >-
-  --pcm {{ bluetooth_card }}
+  --pcm {{ bluetooth_output_device }}
   --profile-a2dp
   --single-audio
   --loglevel {{ bluetooth_loglevel }}
@@ -103,10 +111,6 @@ bluetooth_bluealsa_aplay_args: >-
   --verbose
   {% endif %}
   00:00:00:00:00:00
-# bluetooth_mixer_card: default
-# bluetooth_mixer_plugin: "{{ '' if bluetooth_mixer_card == 'default' else 0 }}"
-# bluetooth_mixer_device: 0
-# bluetooth_volume: "{{ 'auto' if bluetooth_mixer else 'software' }}"
 
 # /etc/asound.conf
 bluetooth_alsa_plugin: aardbluetooth

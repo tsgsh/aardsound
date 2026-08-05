@@ -1,28 +1,69 @@
 ---
-- name: Determine the card number for the ALSA loopback device
-  register: spotify_multiroom_r_cards
+- name: Determine whether snd-aloop is loaded
+  register: spotify_multiroom_r_lsmod
   changed_when: false
   check_mode: false
-  failed_when: false  # in case there is no soundcard
-  vars:
-    pipe:
-    - aplay -l
-    - grep ^card
-    - cut -d ':' -f1
-    - cut -b6-
-    - tail -n1
-  shell:
-    cmd: |
-      set -o pipefail
-      {{ pipe | join('|') }}
-    executable: /bin/bash
+  command:
+    cmd: lsmod
 
-- name: Set up the snd-asound loopback device
-  community.general.modprobe:
-    name: snd-aloop
-    params: "{{ spotify_multiroom_aloop_parameters | join(' ') }}"
-    state: present
-    persistent: present
+- name: Confirm that the expected loopback card exists
+  when: spotify_multiroom_aloop_loaded
+  block:
+
+  - name: Determine whether the loopback card exists and has the required subdevice
+    register: spotify_multiroom_r_loopback
+    changed_when: false
+    check_mode: false
+    failed_when: false  # in case there is no soundcard
+    vars:
+      pipe:
+      - aplay -l
+      - >-
+          grep -EA{{ spotify_multiroom_aloop_subdevice + 2 }}
+          '^card [0-9]+: {{ spotify_multiroom_aloop_card }} \[Loopback\]'
+    shell:
+      cmd: |
+        set -o pipefail
+        {{ pipe | join('|') }}
+      executable: /bin/bash
+
+  - name: Confirm that the loopback card has sufficient subdevices
+    when: not spotify_multiroom_aloop_new_card
+    assert:
+      that: spotify_multiroom_aloop_enough_subds
+      fail_msg: >
+        Loopback device '{{ spotify_multiroom_aloop_card }}' needs at least
+        {{ spotify_multiroom_aloop_subdevice + 1 }} subdevices
+      quiet: true
+
+- name: Create a new loopback device
+  when: spotify_multiroom_new_card
+  block:
+
+  - name: Determine the next card number for the ALSA loopback device
+    register: spotify_multiroom_r_aplay
+    changed_when: false
+    check_mode: false
+    failed_when: false  # in case there is no soundcard
+    vars:
+      pipe:
+      - aplay -l
+      - grep ^card
+      - cut -d ':' -f1
+      - cut -b6-
+      - tail -n1
+    shell:
+      cmd: |
+        set -o pipefail
+        {{ pipe | join('|') }}
+      executable: /bin/bash
+
+  - name: Set up the snd-asound loopback device
+    community.general.modprobe:
+      name: snd-aloop
+      params: "{{ spotify_multiroom_aloop_parameters }}"
+      state: present
+      persistent: present
 
 - name: Snapserver user and groups
   # Create these early because they are needed to define the FIFO before running snapserver
@@ -109,7 +150,7 @@
       spotify_location: "{{ spotify_multiroom_name }}"
       spotify_description: "{{ spotify_multiroom_spotify_description }}"
       spotify_backend: alsa
-      spotify_output_device: hw:Loopback,0,0
+      spotify_output_device: "{{ spotify_multiroom_aloop_sink }}"
       spotify_mixer: false  # mixing is the responsibility of the client
       spotify_initial_volume: "{{ spotify_multiroom_initial_volume }}"
       spotify_volume_control: "{{ spotify_multiroom_volume_control }}"

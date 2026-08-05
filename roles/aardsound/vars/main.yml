@@ -58,6 +58,11 @@ aardsound_reboot_handlers: "{{ ['Reboot prompt', 'Reboot'] if aardsound_reboot_p
                               ['Reboot needed'] }}"
 aardsound_reboot_needed: false  # can be overridden by handlers with set_fact
 
+# Loopback subdevices
+aardsound_aloop_card: Loopback
+aardsound_spotify_multiroom_aloop_subdevice: 0
+aardsound_bluetooth_multiroom_aloop_subdevice: 1
+
 # Mopidy extension variables
 aardsound_mopidy_pseudo_keys:
 - _packages

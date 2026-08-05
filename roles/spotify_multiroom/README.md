@@ -104,6 +104,22 @@ Sets: `spotify_verbosity`
 
 Default: 0
 
+#### spotify_multiroom_aloop_card = *string*
+The name of the ALSA card that is to be used for the loopback device between Spotify and FFMPEG
+
+If the card does not exist it will be created with enough substreams to support the value specified
+in `spotify_multiroom_aloop_substream`
+
+Default: Loopback
+
+#### spotify_multiroom_aloop_substream = *int*
+The subetream of the loopback ALSA card that is to be used
+
+If the card specified in `spotify_multiroom_aloop_card` exists but has insufficient substreams,
+am error will occur
+
+Default: 0
+
 #### spotify_multiroom_fifo = *path*
 The path for the FIFO that will provde input to the Snapcast server.
 Does not require "multiroom" in the name because it is only used for multi-room Spotify.

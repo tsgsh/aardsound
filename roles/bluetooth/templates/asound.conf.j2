@@ -13,7 +13,7 @@ pcm.{{ bluetooth_bluealsa_device }} {
     codec "{{ bluetooth_codec }}"
     hint {
         show on
-        description {{ bluetooth_description | quote }}
+        description {{ bluetooth_name | quote }}
     }
 }
 

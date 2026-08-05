@@ -20,11 +20,31 @@ spotify_multiroom_description: 'service for Spotify Multiroom'
 spotify_multiroom_spotify_description: "{{ 'librespot ' + spotify_multiroom_description }}"
 spotify_multiroom_bridge_description: "{{ 'FFMPEG bridge ' + spotify_multiroom_description }}"
 spotify_multiroom_snapserver_description: "{{ 'Snapserver ' + spotify_multiroom_description }}"
-# source_fifo or sink_fifo should only be changed for degugging with, e.g. pv
-# If different they are NOT created automatically and there is no FIFO service
-spotify_multiroom_source_fifo: "{{ spotify_multiroom_fifo }}"
-spotify_multiroom_sink_fifo: "{{ spotify_multiroom_fifo }}"
-spotify_multiroom_bridge_input: hw:Loopback,1,0
+# Variables to determine whether to add an ALSA loopback device
+spotify_multiroom_aloop_loaded: "{{ 'snd-aloop' in spotify_multiroom_r_lsmod |
+                                    jc('lsmod') |
+                                    map(attribute='module') }}"
+spotify_multiroom_aloop_new_card: "{{ not spotify_multiroom_aloop_loaded or
+                                      spotify_multiroom_r_aplay.stdout_lines == [] }}"
+spotify_multiroom_aloop_enough_subds: "{{ spotify_multiroom_r_aplay.stdout_lines |
+                                          last |
+                                          trim |
+                                          split(':') |
+                                          first |
+                                          split |
+                                          last == '#' + spotify_multiroom_aloop_subdevice |
+                                                        string }}"
+spotify_multiroom_aloop_sink:
+  "hw:{{ spotify_multiroom_aloop_card + ',0,' + spotify_multiroom_aloop_subdevice }}"
+spotify_multiroom_aloop_source:
+  "hw:{{ spotify_multiroom_aloop_card + ',1,' + spotify_multiroom_aloop_subdevice }}"
+# for creating a card
+spotify_multiroom_aloop_parameters: |
+  index={{ spotify_multiroom_aloop_new_card }}
+  id={{ spotify_multiroom_aloop_card }}
+  pcm_substreams={{ spotify_multiroom_aloop_subdevice + 1 }}
+# bridge variables
+spotify_multiroom_bridge_input: "{{ spotify_multiroom_aloop_source }}"
 spotify_multiroom_bridge_output: pipe:1
 spotify_multiroom_bridge_format_in: alsa
 spotify_multiroom_bridge_format_out: "{{ spotify_multiroom_format | lower + 'le' }}"
@@ -61,9 +81,9 @@ spotify_multiroom_bridge_options: "{{ (spotify_multiroom_bridge_loglevel_option_
                                        spotify_multiroom_bridge_resample_option_list +
                                        spotify_multiroom_bridge_output_option_list) |
                                       join(' ') }}"
-spotify_multiroom_aloop_card: "{{ spotify_multiroom_r_cards.stdout | default(-1) | int + 1 }}"
-spotify_multiroom_aloop_parameters:
-- "index={{ spotify_multiroom_aloop_card }}"
-- pcm_substreams=1
+# source_fifo or sink_fifo should only be changed for degugging with, e.g. pv
+# If different they are NOT created automatically and there is no FIFO service
+spotify_multiroom_source_fifo: "{{ spotify_multiroom_fifo }}"
+spotify_multiroom_sink_fifo: "{{ spotify_multiroom_fifo }}"
 spotify_multiroom_fifo_exists: "{{ spotify_multiroom_r_fifo.stat.exists }}"
 spotify_multiroom_define_groups: "{{ ([snapserver_gname] + [snapserver_extra_groups]) | flatten }}"

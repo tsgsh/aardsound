@@ -1,0 +1,15 @@
+---
+# source and sink services are restarted by handlers in ../../bluetooth and ../../snapserver
+# order is important!
+- name: Enable Bluetooth Multiroom FIFO service
+  failed_when: false  # this has a tendency to fail when re-run; a reboot may be needed
+  register: bluetooth_multiroom_r_systemd
+  systemd:
+    name: "{{ bluetooth_multiroom_service0 }}"
+    enabled: true
+    daemon_reload: true
+
+- name: Reload systemd
+  listen: Reload systemd for bluetooth_multiroom_active=false
+  systemd:
+    daemon_reload: true

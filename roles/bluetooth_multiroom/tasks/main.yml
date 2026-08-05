@@ -1,0 +1,15 @@
+---
+# Use includes to avoid a lot of skipped tasks
+- name: Configure, enable and start Spotify Multiroom services
+  when: bluetooth_multiroom_active
+  tags:
+  - activate
+  include_tasks:
+    file: activate.yml
+
+- name: Remove the systemd services
+  when: not bluetooth_multiroom_active
+  tags:
+  - deactivate
+  include_tasks:
+    file: deactivate.yml
