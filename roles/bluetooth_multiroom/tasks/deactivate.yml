@@ -7,7 +7,7 @@
       bluetooth_active: false
       bluetooth_service: "{{ bluetooth_multiroom_service1 }}"
     import_role:
-      name: spotify
+      name: bluetooth
 
 - name: "Service 2: FFMPEG bridge"
   block:
