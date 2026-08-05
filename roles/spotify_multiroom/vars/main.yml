@@ -41,9 +41,7 @@ spotify_multiroom_aloop_source:
 # for creating a card
 spotify_multiroom_aloop_parameters: |
   index={{ spotify_multiroom_aloop_new_card }}
-  {% if spotify_multiroom_aloop_card_int %}
   id={{ spotify_multiroom_aloop_card }}
-  {% endif %}
   pcm_substreams={{ spotify_multiroom_aloop_subdevice + 1 }}
 # bridge variables
 spotify_multiroom_bridge_input: "{{ spotify_multiroom_aloop_source }}"
