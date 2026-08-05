@@ -421,14 +421,14 @@
         spotify_multiroom_service2: "{{ aardsound_spotify_multiroom_service2 }}"
         spotify_multiroom_service3: "{{ aardsound_spotify_multiroom_service3 }}"
         spotify_multiroom_name: "{{ aardsound_multiroom_name }}"
-        spotify_multiroom_format: "{{ aardsound_format }}"  # Leave at default S16!
-        spotify_multiroom_rate: "{{ aardsound_rate }}"      # Leave at default 44100!
+        spotify_multiroom_format: "{{ aardsound_format }}"
+        spotify_multiroom_rate: "{{ aardsound_rate }}"
         spotify_multiroom_depth: "{{ aardsound_depth }}"
         spotify_multiroom_channels: "{{ aardsound_channels }}"
         spotify_multiroom_port: "{{ aardsound_spotify_multiroom_port }}"
         spotify_multiroom_interface: "{{ aardsound_spotify_multiroom_address }}"
         # spotify_multiroom_snap_port_offset is set in ../vars/main.yml
-      include_role:
+      include_role:  # Ensure handlers are not pre-loaded
         name: spotify_multiroom
         apply:
           tags:
@@ -500,7 +500,7 @@
         mopidy_multiroom_depth: "{{ aardsound_depth }}"
         mopidy_multiroom_channels: "{{ aardsound_channels }}"
         # mopidy_multiroom_snap_port_offset is set in ../vars/main.yml
-      include_role:
+      include_role:  # Ensure handlers are not pre-loaded
         name: mopidy_multiroom
         apply:
           tags:
@@ -540,33 +540,35 @@
     - name: Flush handlers for this invocation of the bluetooth role
       meta: flush_handlers
 
-  # - name: Bluetooth Multiroom
-  #   tags:
-  #   - bluetooth-multiroom
-  #   block:
+  - name: Bluetooth Multiroom
+    tags:
+    - bluetooth-multiroom
+    block:
 
-  #   - name: "{{ ('Activate' if aardsound_bluetooth_multiroom | bool else
-  #                'Deactivate') + ' Spotify Multiroom' }}"
-  #     vars:
-  #       bluetooth_multiroom_active: "{{ aardsound_bluetooth_multiroom | bool }}"
-  #       bluetooth_multiroom_service0: "{{ aardsound_bluetooth_multiroom_service0 }}"
-  #       bluetooth_multiroom_service1: "{{ aardsound_bluetooth_multiroom_service1 }}"
-  #       bluetooth_multiroom_service2: "{{ aardsound_bluetooth_multiroom_service2 }}"
-  #       bluetooth_multiroom_service3: "{{ aardsound_bluetooth_multiroom_service3 }}"
-  #       bluetooth_multiroom_name: "{{ aardsound_multiroom_name }}"
-  #       bluetooth_multiroom_format: "{{ aardsound_format }}"
-  #       bluetooth_multiroom_rate: "{{ aardsound_rate }}"
-  #       bluetooth_multiroom_depth: "{{ aardsound_depth }}"
-  #       bluetooth_multiroom_channels: "{{ aardsound_channels }}"
-  #       # bluetooth_multiroom_snap_port_offset is set in ../vars/main.yml
-  #     include_role:
-  #       name: bluetooth_multiroom
-  #       apply:
-  #         tags:
-  #         - bluetooth-multiroom
+    - name: "{{ ('Activate' if aardsound_bluetooth_multiroom | bool else
+                 'Deactivate') + ' Spotify Multiroom' }}"
+      vars:
+        bluetooth_multiroom_active: "{{ aardsound_bluetooth_multiroom | bool }}"
+        bluetooth_multiroom_service0: "{{ aardsound_bluetooth_multiroom_service0 }}"
+        bluetooth_multiroom_service1: "{{ aardsound_bluetooth_multiroom_service1 }}"
+        bluetooth_multiroom_service2: "{{ aardsound_bluetooth_multiroom_service2 }}"
+        bluetooth_multiroom_service3: "{{ aardsound_bluetooth_multiroom_service3 }}"
+        bluetooth_multiroom_name: "{{ aardsound_multiroom_name }}"
+        bluetooth_multiroom_format: "{{ aardsound_format }}"  # Leave at default S16!
+        bluetooth_multiroom_rate: "{{ aardsound_rate }}"      # Leave at default 44100!
+        bluetooth_multiroom_depth: "{{ aardsound_depth }}"
+        bluetooth_multiroom_channels: "{{ aardsound_channels }}"
+        bluetooth_multiroom_port: "{{ aardsound_bluetooth_multiroom_port }}"
+        bluetooth_multiroom_interface: "{{ aardsound_spotify_multiroom_address }}"
+        # bluetooth_multiroom_snap_port_offset is set in ../vars/main.yml
+      include_role:  # Ensure handlers are not pre-loaded
+        name: bluetooth_multiroom
+        apply:
+          tags:
+          - bluetooth-multiroom
 
-  #   - name: Flush handlers for this invocation of the bluetooth and snapserver roles
-  #     meta: flush_handlers
+    - name: Flush handlers for this invocation of the bluetooth and snapserver roles
+      meta: flush_handlers
 
   - name: "{{ ('Activate' if aardsound_snapclient | bool else
                'Deactivate') + ' Snapclient' }}"
