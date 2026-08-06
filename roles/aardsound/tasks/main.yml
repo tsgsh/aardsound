@@ -557,7 +557,7 @@
     block:
 
     - name: "{{ ('Activate' if aardsound_bluetooth_multiroom | bool else
-                 'Deactivate') + ' Spotify Multiroom' }}"
+                 'Deactivate') + ' Bluetooth Multiroom' }}"
       vars:
         bluetooth_multiroom_active: "{{ aardsound_bluetooth_multiroom | bool }}"
         bluetooth_multiroom_service0: "{{ aardsound_bluetooth_multiroom_service0 }}"
