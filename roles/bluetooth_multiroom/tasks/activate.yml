@@ -190,15 +190,6 @@
       dest: "{{ bluetooth_multiroom_script2_file }}"
       mode: '0755'
 
-  - name: "{{ bluetooth_multiroom_service2_file }}"
-    notify:
-    - Reload systemd
-    - Enable and (re)start Bluetooth Multiroom bridge service
-    template:
-      src: "{{ bluetooth_multiroom_service2_template }}"
-      dest: "{{ bluetooth_multiroom_service2_file }}"
-      mode: '0644'
-
   - name: "Set up {{ bluetooth_multiroom_environment2_file }}"
     notify: Enable and (re)start Bluetooth Multiroom bridge service
     template:
