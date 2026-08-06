@@ -29,11 +29,7 @@
     path: "{{ bluetooth_aplay_service_file }}"
     state: absent
 
-- name: "Remove {{ bluetooth_alsa_service_file }}"  # /lib/systemd/system version remains
-  notify: (Re)start bluealsa service
-  file:
-    path: "{{ bluetooth_alsa_service_file }}"
-    state: absent
+# don't remove /etc/systemd/system/bluealsa.service: shared between bluetooth and bluetooth_multiroom
 
 - name: Stat /etc/asound.conf
   register: bluetooth_r_stat
