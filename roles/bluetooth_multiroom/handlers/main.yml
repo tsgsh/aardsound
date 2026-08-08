@@ -1,0 +1,5 @@
+---
+- name: Reload systemd
+  listen: Reload systemd for bluetooth_multiroom_active=false
+  systemd:
+    daemon_reload: true

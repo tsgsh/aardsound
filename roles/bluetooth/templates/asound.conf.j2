@@ -1,9 +1,4 @@
-pcm.{{ bluetooth_alsa_plugin }} {
-    type plug
-    slave.pcm "{{ bluetooth_bluealsa_device }}"
-}
-
-pcm.{{ bluetooth_bluealsa_device }} {
+pcm.{{ bluetooth_bluealsa_pcm }} {
     type bluealsa
     service "org.bluealsa"
     device "{{ bluetooth_adapter_mac }}"
@@ -12,12 +7,11 @@ pcm.{{ bluetooth_bluealsa_device }} {
     volume "{{ bluetooth_initial_volume }}"
     codec "{{ bluetooth_codec }}"
     hint {
-        show on
-        description {{ bluetooth_description | quote }}
+        description {{ bluetooth_name | quote }}
     }
 }
 
-ctl.{{ bluetooth_bluealsa_device }} {
+ctl.{{ bluetooth_bluealsa_pcm }} {
     type bluealsa
     service "org.bluealsa"
 }

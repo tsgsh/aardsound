@@ -99,14 +99,18 @@ Explicitly set the port used for the Snapcast streaming service
 
 Default: 1704 plus the value of `snapserver_port_offset`
 
+#### snapserver_source = FIFO | ALSA
+The type of source used for the input to the Snapcast server
+
+Default: FIFO
+
 #### snapserver_fifo = *path*
-The name of the FIFO used to feed input to the Snapcast server.
+The name of the FIFO used to feed input to the Snapcast server if `snapserver_source` is 'fifo'
 
 Note that on RasPiOS Trixie, `/tmp` is a RAM-based `tmpfs` file system (unless modified).
 It is not, therefore, optimal to place the FIFO in the `/run/<`*`uid`*`>` directory (where *`uid`*, is
 the UID of the user defined by `snapserver_service` as noted above); this would also be a `tmpfs`
 filesystem.
-
 Placing the FIFO in `/run` could potentially lead to memory starvation, because `/tmp` can
 consume up to half of the available RAM, and `/run` usage would be in addition to that.
 
@@ -118,7 +122,27 @@ The name of a `systemd` "oneshot" service that will create the FIFO at boot time
 **Note**: This service is not created by this role but the Snapcast server role that it does create
 will have a "Wants" dependency on the FIFO service.
 
-Default: `none` (no server to be created)
+Ignored if `snapcast_source` is not 'FIFO'
+
+Default: `none` (no service to be referenced in the `systemd` unoit file)
+
+#### snapserver_alsa_pcm = *string*
+The name of the the ALSA PCM used to feed input to the Snapcast server
+
+The PCM is not checked for validity
+
+Required if `snapserver_source` is 'ALSA', ignored otherwise
+
+Default: `none`
+
+#### snapserver_alsa_stream = *string*
+A name for the ALSA stream URI that feeds input to the Snapcast server.
+
+The PCM is not checked for validity
+
+Required if `snapserver_source` is 'ALSA', ignored otherwise
+
+Default: `none`
 
 #### snapserver_debug = *boolean*
 Enable debugging of the Snapcast server.

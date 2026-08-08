@@ -1,5 +1,5 @@
 [Unit]
-Description=Bluetooth Agent for {{ bluetooth_description }}
+Description={{ bluetooth_agent_description }}
 Requires=bluetooth.service
 Wants=sound.target
 After=bluetooth.service
@@ -13,7 +13,7 @@ Group={{ bluetooth_gname }}
 SupplementaryGroups={{ bluetooth_groups | join(' ') }}
 {# This cannot be done using Bluez v5 only: need to use the deprecated hciconfig #}
 ExecStartPre=+/usr/bin/hciconfig hci{{ bluetooth_adapter_index }} class 0x20414
-ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Alias {{ bluetooth_description | quote }}
+ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Alias {{ bluetooth_name | quote }}
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set Powered 1
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set DiscoverableTimeout 0
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_adapter_mac }}' --set PairableTimeout 0

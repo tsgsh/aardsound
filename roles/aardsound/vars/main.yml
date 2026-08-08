@@ -47,8 +47,10 @@ aardsound_mopidy_multiroom_service2: mopidy-multiroom-scan
 aardsound_mopidy_multiroom_service3: mopidy-multiroom-sink
 aardsound_bluetooth_service1: bt-agent
 aardsound_bluetooth_service2: bluealsa-aplay
-aardsound_multiroom_bluetooth_service1: bt-multiroom-agent
-aardsound_multiroom_bluetooth_service2: bluealsa-multiroom-aplay
+aardsound_bluetooth_multiroom_service0: bluetooth-multiroom-fifo
+aardsound_bluetooth_multiroom_service1: bluetooth-multiroom-agent
+aardsound_bluetooth_multiroom_service2: bluetooth-multiroom-aplay
+aardsound_bluetooth_multiroom_service3: bluetooth-multiroom-sink
 aardsound_sample_format: "{{ aardsound_rate | string + ':' +
                              aardsound_depth | string + ':' +
                              aardsound_channels | string }}"
@@ -57,6 +59,12 @@ aardsound_reboot_handlers: "{{ ['Reboot prompt', 'Reboot'] if aardsound_reboot_p
                               ['Reboot needed', 'Reboot'] if aardsound_reboot else
                               ['Reboot needed'] }}"
 aardsound_reboot_needed: false  # can be overridden by handlers with set_fact
+
+# Loopback subdevices
+aardsound_aloop_card: Loopback
+aardsound_aloop_subdevices: 2
+aardsound_spotify_multiroom_aloop_subdevice: 0
+aardsound_bluetooth_multiroom_aloop_subdevice: 1
 
 # Mopidy extension variables
 aardsound_mopidy_pseudo_keys:
@@ -122,3 +130,7 @@ aardsound_mopidy_site_packages: "{{ (aardsound_mopidy_venv if aardsound_mopidy_u
 aardsound_mopidy_nfs_mount_unit: "{{ aardsound_local_media[1:] | replace('/', '-') }}"
 aardsound_mopidy_mount_after: "{{ [] if aardsound_nfs_media == none else
                                   [aardsound_mopidy_nfs_mount_unit] }}"
+
+# Bluetooth ALSA plugins and PCMs
+aardsound_bluetooth_bluealsa_pcm: aardbluealsa
+aardsound_bluetooth_multiroom_bluealsa_pcm: aardbluealsa-multi

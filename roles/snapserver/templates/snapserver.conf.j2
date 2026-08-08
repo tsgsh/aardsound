@@ -140,8 +140,12 @@ port = {{ snapserver_stream_port }}
 # alsa: alsa://?name=<name>&device=<alsa device>[&send_silence=false][&idle_threshold=100]
 # meta: meta:///<name of source#1>/<name of source#2>/.../<name of source#N>?name=<name>
 #source = tcp://127.0.0.1?name=mopidy_tcp
+{% if snapserver_source | upper == 'FIFO' %}
 {# this relies on a leading slash for the name of the fifo #}
 source = pipe://{{ snapserver_fifo }}?name={{ snapserver_service }}
+{% elif snapserver_source | upper == 'ALSA' %}
+source = alsa:///?name={{ snapserver_alsa_stream }}&device={{ snapserver_alsa_pcm }}
+{% endif %}
 
 # Default sample format
 #sampleformat = 48000:16:2

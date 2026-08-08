@@ -1,0 +1,21 @@
+---
+- name: "Services 1 & 2: bt-agent and BlueAlsa source"
+  block:
+
+  - name: Deactivate Bluetooth Multiroom source
+    vars:
+      bluetooth_active: false
+      bluetooth_agent_service: "{{ bluetooth_multiroom_service1 }}"
+      bluetooth_aplay_service: "{{ bluetooth_multiroom_service2 }}"
+    import_role:
+      name: bluetooth
+
+- name: "Service 3: snapserver sink"
+  block:
+
+  - name: Deactivate Bluetooth Multiroom sink
+    vars:
+      snapserver_active: false
+      snapserver_service: "{{ bluetooth_multiroom_service3 }}"
+    import_role:
+      name: snapserver

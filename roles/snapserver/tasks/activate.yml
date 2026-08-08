@@ -1,4 +1,13 @@
 ---
+- name: Confirm that the ALSA device is defined
+  when: snapserver_source | upper == 'ALSA'
+  assert:
+    that:
+    - snapserver_alsa_pcm != none
+    - snapserver_alsa_stream != none
+    fail_msg: snapserver_alsa_pcm and snapserver_alsa_stream must be defined when snapserver_source is 'ALSA'
+    quiet: true
+
 - name: "Group {{ snapserver_gname }}"
   group:
     name: "{{ snapserver_gname }}"

@@ -1,0 +1,34 @@
+---
+# definition of service names
+bluetooth_multiroom_service0: bluetooth-multiroom-fifo
+bluetooth_multiroom_service1: bluetooth-multiroom-agent
+bluetooth_multiroom_service2: bluetooth-multiroom-aplay
+bluetooth_multiroom_service3: bluetooth-multiroom-sink
+# uname and gname, service_template and service_file are specific to service2
+bluetooth_multiroom_gname: bluetooth
+# service files those for service1 and service3 are created by ../../bluetooth and ../../snapserver
+bluetooth_multiroom_name: "{{ bluetooth_multiroom_name + ' Bluetooth speakers' }}"
+bluetooth_multiroom_snapserver_description: "{{ 'Snapserver service for ' +
+                                                bluetooth_multiroom_name }}"
+# Variables to determine whether to add an ALSA loopback device
+bluetooth_multiroom_aloop_loaded: "{{ 'snd_aloop' in bluetooth_multiroom_r_lsmod.stdout |
+                                                     community.general.jc('lsmod') |
+                                                     map(attribute='module') }}"
+bluetooth_multiroom_aloop_new_card: "{{ not bluetooth_multiroom_aloop_loaded or
+                                        bluetooth_multiroom_r_loopback.stdout_lines == [] }}"
+bluetooth_multiroom_aloop_enough_subds: "{{ bluetooth_multiroom_r_loopback.stdout_lines |
+                                            last |
+                                            trim |
+                                            split(':') |
+                                            first |
+                                            split |
+                                            last == '#' + bluetooth_multiroom_aloop_subdevice |
+                                                          string }}"
+bluetooth_multiroom_aloop_sink:
+  "hw:{{ bluetooth_multiroom_aloop_card + ',0,' + bluetooth_multiroom_aloop_subdevice | string }}"
+bluetooth_multiroom_aloop_source:
+  "hw:{{ bluetooth_multiroom_aloop_card + ',1,' + bluetooth_multiroom_aloop_subdevice | string }}"
+# for creating a card
+bluetooth_multiroom_aloop_parameters: |
+  id={{ bluetooth_multiroom_aloop_card }}
+  pcm_substreams={{ bluetooth_multiroom_aloop_subdevice + 1 }}

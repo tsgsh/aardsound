@@ -75,6 +75,25 @@ argument_specs:
 
 
           Logs are seent to the `systemd` journal.
+      spotify_multiroom_aloop_card:
+        type: str
+        default: Loopback
+        description: >-
+          The name of the ALSA card that is to be used for the loopback device between Spotify and
+          FFMPEG.
+
+
+          If the card does not exist it will be created with enough substreams to support the value
+          specified in `spotify_multiroom_aloop_substream`.
+      spotify_multiroom_aloop_substream:
+        type: int
+        default: 0
+        description: >-
+          The subetream of the loopback ALSA card that is to be used
+
+
+          If the card specified in `spotify_multiroom_aloop_card` exists but has insufficient
+          substreams, am error will occur.
       spotify_multiroom_fifo:
         type: str
         default: /tmp/spotify-fifo

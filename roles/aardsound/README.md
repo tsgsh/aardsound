@@ -207,6 +207,7 @@ Sets:
 - If `dmix` is not in use:
   - `spotify_output_device`
   - `mopidy_output_device`
+  - `bluetooth_output_device`
   - `snapclient_output_device`
 
 #### aardsound_plugin = plughw | hw | dmix | dsnoop
