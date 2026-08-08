@@ -20,8 +20,7 @@ The paths of these are related as follows:
 The use of `include_role` is important for the sequencing of handler definitions: see the
 [**Handlers**](#Handlers) section below.
  
-This role installs and configures (or removes) five `systemd` services:
-- A "oneshot" to create a FIFO to be used by the Snapcast server service
+This role installs and configures (or removes) three `systemd` services:
 - A Bluetooth agent (using the `bluetooth` role)
 - A BlueALSA aplay service (using the `bluetooth` role)
 - A Snapcast server (using the `snapserver` role)
@@ -47,12 +46,18 @@ Sets: `bluetooth_location`
 
 Default: Multiroom
 
+#### bluetooth_multiroom_bluealsa_pcm = *string*
+The name of the ALSA PCM of type bluealsa that defines the ALSA parameters associated with the
+multi-room Bluetooth adapater
+
+Default: bluealsa-multi
+
 #### bluetooth_multiroom_volume = auto | mixer | none | software
 Bluetooth remote volume control
 
 Sets: `bluetooth_volume`
 
-Default: cubic
+Default: auto
 
 #### bluetooth_multiroom_initial_volume = 0-100
 Sets: `bluetooth_initial_volume`
@@ -60,22 +65,6 @@ Sets: `bluetooth_initial_volume`
 Bluetooth initial volume as a percentage from 0 to 100
 
 Default: 50
-
-#### bluetooth_multiroom_port = 1025-65535
-The port the `librespot` daemon binds to and advertises over ZeroConf.
-
-Sets: `bluetooth_port`
-
-Default: `none` (`librespot` internal default is to bind to a random high port)
-
-#### bluetooth_multiroom_interface = *ipaddress* | &lsqb;*ipaddress*,&hellip;&rsqb; | *ipaddress*,*ipaddress*&hellip;
-Interface IP addresses or a list of IP addresses or a comma-separated string of IP addresses to
-which the `librespot` daemon will bind and advertise over ZeroConf.
-Example: "192.168.0.10,10.0.0.10".
-
-Sets: `bluetooth_interface`
-
-Default: `none`  (`librespot` internal default is to bind to all interfaces)
 
 #### bluetooth_multiroom_source_verbose = true | false
 Should verbose logging be set for the BlueALSA daemon?
@@ -100,12 +89,6 @@ If the card specified in `bluetooth_multiroom_aloop_card` exists but has insuffi
 am error will occur
 
 Default: 0
-
-#### bluetooth_multiroom_fifo = *path*
-The path for the FIFO that will provde input to the Snapcast server.
-Does not require "multiroom" in the name because it is only used for multi-room Bluetooth.
-
-Default: /tmp/bluetooth-fifo
 
 #### bluetooth_multiroom_rate = *integer*
 The audio sample rate to send to snapserver
@@ -226,7 +209,6 @@ including this role again (or including either of its imported roles) and thus r
 (such as service names) before the end of the play, when handlers are normally flushed.
 
 ### Handlers in this role:
-- Enable Bluetooth Multiroom FIFO servvice
 - Reload systemd
 
 

@@ -15,55 +15,36 @@ argument_specs:
       bluetooth_multiroom_active:
         type: bool
         default: true
-        description: Should the Bluetooth multi-room services be installed and configured or removed
+        description: Should the Bluetooth multi-room services be installed and configured or removed.
       bluetooth_multiroom_name:
         type: str
         default: Multiroom Bluetooth speakers
-        description: The name of the BlueALSA service to be advertised via ZeroConf
-      bluetooth_multiroom_format:
+        description: The name of the BlueALSA service to be advertised via ZeroConf.
+      bluetooth_bluealsa_pcm:
         type: str
-        choices:
-        - F64
-        - F32
-        - S32
-        - S24
-        - S24_3
-        - S16
-        default: S16
-        description: Audo format used by the Snapcast server
+        default: bluealsa-multi
+        description: >-
+          The name of the ALSA PCM of type bluealsa that defines the ALSA parameters associated with
+          the multi-room Bluetooth adapater.
       bluetooth_multiroom_volume:
         type: str
         choices:
-        - cubic
-        - fixed
-        - linear
-        - log
-        default: cubic
+        - auto
+        - mixer
+        - none
+        - software
+        default: auto
         description: >-
           Bluetooth remote volume control
 
           See `man bluealsa-aplay (1)`
 
-          Default: auto if `bluetooth_mixer` is `true`, otherwise software
+          Default: auto
 
       bluetooth_multiroom_initial_volume:
         type: int
         default: 50
         description: Bluetooth initial volume as a percentage from 0 to 100.
-      bluetooth_multiroom_port:
-        type: int
-        description: >-
-          The port the librespot daemon binds to and advertises over ZeroConf
-          (librespot binds to a random high port by default)
-      bluetooth_multiroom_interface:
-        type: list
-        elements: str
-        description: >-
-            Interface IP address or a list of IP addresses or a comma-separated string of IP
-            addresses to which the librespot daemon will bind and advertise over ZeroConf.
-
-
-            Example: "192.168.0.10,10.0.0.10".
       bluetooth_multiroom_source_verbose:
         type: bool
         default: 0
@@ -87,10 +68,6 @@ argument_specs:
 
           If the card specified in `bluetooth_multiroom_aloop_card` exists but has insufficient
           substreams, am error will occur.
-      bluetooth_multiroom_fifo:
-        type: str
-        default: /tmp/bluetooth-fifo
-        description: The path for the FIFO that will provde input to the Snapcast server.
       bluetooth_multiroom_rate:
         type: int
         default: 44100

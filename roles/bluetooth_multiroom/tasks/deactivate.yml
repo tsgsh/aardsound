@@ -19,29 +19,3 @@
       snapserver_service: "{{ bluetooth_multiroom_service3 }}"
     import_role:
       name: snapserver
-
-- name: "Service 0: FIFO"  # do this last because snapserver may try to recreate it
-  block:
-
-  - name: "Stop and disable systemd service {{ bluetooth_multiroom_service0 }}"
-    notify: Reload systemd for bluetooth_multiroom_active=false
-    register: bluetooth_multiroom_r_stop
-    # Allow for the service not existing
-    failed_when:
-    - bluetooth_multiroom_r_stop.state is defined
-    - bluetooth_multiroom_r_stop.state != 'stopped'
-    systemd:
-      name: bluetooth_multiroom_service0
-      enabled: false
-      state: stopped
-
-  - name: "Remove {{ bluetooth_multiroom_service0_file }}"
-    notify: Reload systemd for bluetooth_multiroom_active=false
-    file:
-      name: "{{ bluetooth_multiroom_service0_file }}"
-      state: absent
-
-  - name: Remove the Bluetooth Multiroom FIFO
-    file:
-      path: "{{ bluetooth_multiroom_fifo }}"
-      state: absent
