@@ -138,7 +138,7 @@ Now we have:
 ┃ ┌─────────┐                                                ┃
 ┃ │ spotify ├───┐                                            ┃
 ┃ └─────────┘   │   ┌────────────────┐   ┌─────────────────┐ ┃
-┃               ├───│ plug:aardmixer ├───┤ hw:IQaudIODAC,0 │ ┃
+┃               ├───┤ plug:aardmixer ├───┤ hw:IQaudIODAC,0 │ ┃
 ┃ ┌─────────┐   │   └────────────────┘   └─────────────────┘ ┃
 ┃ │ mopidy  ├───┘                                            ┃
 ┃ └─────────┘                                                ┃
@@ -176,13 +176,13 @@ So we can use Aardsound to set up:
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")           ┃     ┃ Raspberry Pi ("Gromit")           ┃
 ┃ ┌────────┐ ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ ┌────────────────┐ ┃
-┃ │ mopidy ├─┤ FIFO ├─┤ snapserver ├─╂──┬──╂─│ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+┃ │ mopidy ├─┤ FIFO ├─┤ snapserver ├─╂──┬──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
 ┃ └────────┘ └──────┘ └────────────┘ ┃  │  ┃ └────────────┘ └────────────────┘ ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
                                         │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
                                         │  ┃ Raspberry Pi ("Feathers")         ┃
                                         │  ┃ ┌────────────┐ ┌────────────────┐ ┃
-                                        └──╂─│ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+                                        └──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
                                            ┃ └────────────┘ └────────────────┘ ┃
                                            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
@@ -258,7 +258,7 @@ the same setup with just two Raspberry Pis by making one a client of itself.
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")           ┃     ┃ Raspberry Pi ("Gromit")           ┃
 ┃ ┌────────┐ ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ ┌────────────────┐ ┃
-┃ │ mopidy ├─┤ FIFO ├─┤ snapserver ├─╂─────╂─│ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+┃ │ mopidy ├─┤ FIFO ├─┤ snapserver ├─╂─────╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
 ┃ └────────┘ └──────┘ └─────┬──────┘ ┃     ┃ └────────────┘ └────────────────┘ ┃
 ┃       ┌───────────────────┘        ┃     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ┃ ┌─────┴──────┐  ┌────────────────┐ ┃
@@ -305,13 +305,13 @@ The **Spotify** versions of the two diagrams above, look like this:
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")               ┃     ┃ Raspberry Pi ("Gromit")           ┃
 ┃ ┌─────────┐    ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ ┌────────────────┐ ┃
-┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂──┬──╂─│ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂──┬──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
 ┃ └────┬────┘    └──┬───┘ └────────────┘ ┃  │  ┃ └────────────┘ └────────────────┘ ┃
 ┃ ┌────┴──────┐ ┌───┴────┐               ┃  │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ┃ │ snd-aloop ├─┤ FFMPEG │               ┃  │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ └───────────┘ └────────┘               ┃  │  ┃ Raspberry Pi ("Feathers")         ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │  ┃ ┌────────────┐ ┌────────────────┐ ┃
-                                            └──╂─│ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+                                            └──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
                                                ┃ └────────────┘ └────────────────┘ ┃
                                                ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
@@ -349,13 +349,13 @@ Unsurprisingly, the version where Wallace is a server and client looks like this
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")               ┃     ┃ Raspberry Pi ("Gromit")           ┃
 ┃ ┌─────────┐    ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ ┌────────────────┐ ┃
-┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂──┬──╂─│ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂──┬──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
 ┃ └────┬────┘    └──┬───┘ └─────┬──────┘ ┃  │  ┃ └────────────┘ └────────────────┘ ┃
 ┃ ┌────┴──────┐ ┌───┴────┐      │        ┃  │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ┃ │ snd-aloop ├─┤ FFMPEG │      │        ┃  │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ └───────────┘ └────────┘      │        ┃  │  ┃ Raspberry Pi ("Feathers")         ┃
 ┃       ┌───────────────────────┘        ┃  │  ┃ ┌────────────┐ ┌────────────────┐ ┃
-┃ ┌─────┴──────┐      ┌────────────────┐ ┃  └──╂─│ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+┃ ┌─────┴──────┐      ┌────────────────┐ ┃  └──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
 ┃ │ snapclient ├──────┤ hw:IQaudioDC,0 │ ┃     ┃ └────────────┘ └────────────────┘ ┃
 ┃ └────────────┘      └────────────────┘ ┃     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
@@ -392,7 +392,7 @@ We need to reintroduce `dmix` for this to work
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┃ │ mopidy ├─┤ plug:aardmixer │         ┃
 ┃ Raspberry Pi ("Wallace")           ┃     ┃ └────────┘ └───┬─┬──────────┘         ┃
 ┃ ┌────────┐ ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ │ │ ┌────────────────┐ ┃
-┃ │ mopidy ├─┤ FIFO ├─┤ snapserver ├─╂──┬──╂─│ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
+┃ │ mopidy ├─┤ FIFO ├─┤ snapserver ├─╂──┬──╂─┤ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
 ┃ └────────┘ └──────┘ └────────────┘ ┃  │  ┃ └────────────┘     └────────────────┘ ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
                                         │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -401,7 +401,7 @@ We need to reintroduce `dmix` for this to work
                                         │  ┃ │ mopidy ├─┤ plug:aardmixer │         ┃
                                         │  ┃ └────────┘ └───┬─┬──────────┘         ┃
                                         │  ┃ ┌────────────┐ │ │ ┌────────────────┐ ┃
-                                        └──╂─│ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
+                                        └──╂─┤ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
                                            ┃ └────────────┘     └────────────────┘ ┃
                                            ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
@@ -493,7 +493,7 @@ multi‑room pipeline:
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┃ │ spotify ├─┤ plug:aardmixer │        ┃
 ┃ Raspberry Pi ("Wallace")               ┃     ┃ └─────────┘ └──┬─┬───────────┘        ┃
 ┃ ┌─────────┐    ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ │ │ ┌────────────────┐ ┃
-┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂──┬──╂─│ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂──┬──╂─┤ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
 ┃ └────┬────┘    └──┬───┘ └────────────┘ ┃  │  ┃ └────────────┘     └────────────────┘ ┃
 ┃ ┌────┴──────┐ ┌───┴────┐               ┃  │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ┃ │ snd-aloop ├─┤ FFMPEG │               ┃  │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -502,7 +502,7 @@ multi‑room pipeline:
                                             │  ┃ │ spotify ├─┤ plug:aardmixer │        ┃
                                             │  ┃ └─────────┘ └──┬─┬───────────┘        ┃
                                             │  ┃ ┌────────────┐ │ │ ┌────────────────┐ ┃
-                                            └──╂─│ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
+                                            └──╂─┤ snapclient ├─┘ └─┤ hw:IQaudioDC,0 │ ┃
                                                ┃ └────────────┘     └────────────────┘ ┃
                                                ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
@@ -538,7 +538,7 @@ The same applies to the alternative setup without Feathers.
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")               ┃     ┃ Raspberry Pi ("Gromit")              ┃
 ┃ ┌─────────┐    ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ ┌────────────────┐    ┃
-┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─│ snapclient ├─┤ plug:aardmixer │    ┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─┤ snapclient ├─┤ plug:aardmixer │    ┃
 ┃ └────┬────┘    └──┬───┘ └─────┬──────┘ ┃     ┃ └────────────┘ └────┬──────┬────┘    ┃
 ┃ ┌────┴──────┐ ┌───┴────┐      │        ┃     ┃      ┌──────────────┘      │         ┃
 ┃ │ snd-aloop ├─┤ FFMPEG │      │        ┃     ┃ ┌────┴────┐       ┌────────┴───────┐ ┃
@@ -592,13 +592,13 @@ only one of the clients is shown in detail)
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┃ │ spotify ├─────┬──┤ plug:aardmixer │ ┃┃
 ┃ Raspberry Pi ("Wallace")               ┃     ┃ └─────────┘     │  └────────┬───────┘ ┃┃
 ┃ ┌─────────┐    ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐  │           │         ┃┃
-┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─│ snapclient ├──┤           │         ┃┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─┤ snapclient ├──┤           │         ┃┃
 ┃ └────┬────┘    └──┬───┘ └────────────┘ ┃     ┃ └────────────┘  │           │         ┃┃
 ┃ ┌────┴──────┐ ┌───┴────┐               ┃     ┃ ┌────────┐      │  ┌────────┴───────┐ ┃┃
 ┃ │ snd-aloop ├─┤ FFMPEG │               ┃     ┃ │ mopidy ├──────┤  │ hw:IQaudioDC,0 │ ┃┃
 ┃ └───────────┘ └────────┘               ┃     ┃ └────────┘      │  └────────────────┘ ┃┃
 ┃ ┌────────┐     ┌──────┐ ┌────────────┐ ┃     ┃ ┌────────────┐  │                     ┃┃
-┃ │ mopidy ├─────┤ FIFO ├─┤ snapserver ├─╂─────╂─│ snapclient ├──┘                     ┃┛
+┃ │ mopidy ├─────┤ FIFO ├─┤ snapserver ├─╂─────╂─┤ snapclient ├──┘                     ┃┛
 ┃ └────────┘     └──────┘ └────────────┘ ┃     ┃ └────────────┘                        ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
@@ -652,11 +652,11 @@ save a Raspberry Pi.
 ┃       │ snapclient ├─┐  │ snapclient │ ┃     ┃ │ spotify ├─────┬──┤ plug:aardmixer │ ┃
 ┃       └────────────┘ │  └─────┬──────┘ ┃     ┃ └─────────┘     │  └────────┬───────┘ ┃
 ┃ ┌────────┐ ┌──────┐  │  ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │           │         ┃
-┃ │ mopidy ├─┤ FIFO ├─────┤ snapserver ├─╂─────╂─│ snapclient ├──┤           │         ┃
+┃ │ mopidy ├─┤ FIFO ├─────┤ snapserver ├─╂─────╂─┤ snapclient ├──┤           │         ┃
 ┃ └────────┘ └──────┘  │  └────────────┘ ┃     ┃ └────────────┘  │           │         ┃
 ┃                      └────────┐        ┃     ┃                 │           │         ┃
 ┃ ┌─────────┐    ┌──────┐ ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │  ┌────────┴───────┐ ┃
-┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─│ snapclient ├──┤  │ hw:IQaudioDC,0 │ ┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─┤ snapclient ├──┤  │ hw:IQaudioDC,0 │ ┃
 ┃ └────┬────┘    └──┬───┘ └────────────┘ ┃     ┃ └────────────┘  │  └────────────────┘ ┃
 ┃ ┌────┴─────┐ ┌────┴───┐                ┃     ┃ ┌────────┐      │                     ┃
 ┃ │ Loopback ├─┤ FFMPEG │                ┃     ┃ │ mopidy ├──────┘                     ┃
@@ -745,7 +745,7 @@ or
 ```
 *Figure 17*
 
-However, in both cases, the box represeting `bluetooth` is actualy
+However, in both cases, the box representing `bluetooth` is actualy:
 ```
                       ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
                       ┃ Raspberry Pi ("Wallace")                                      ┃
@@ -755,29 +755,35 @@ However, in both cases, the box represeting `bluetooth` is actualy
                       ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
 where `bluealsa-aplay` is the service that connects to the selected ALSA PCM.
-As was the case with the different audio outputs (*Figures 1-3*), though, this complexity
-does not matter: only `blueasla-aplay` communicates with non**Bluetooth** componets of
-**Aardsound**.
-Theerfore, we can show a bluetooth-enabled version of *Figure 15*:
+As stated above, The `bluetooth` and `bluealsa` services are part of the standard Bluetooth
+deployment on Linux; the `bt-agent` and `bluealsa-aplay` services are created by the `bluetooth`
+role in **Aardsound**.
+In realily the relationships between those four services are more complicated than a simple linear
+pipeline, but that is not significant for the configuration of **Aardsound**, because it is only
+`blueasla-aplay` that communicates with non-**Bluetooth** components of **Aardsound**,
+we can show a bluetooth-enabled version of *Figure 15* as follows:
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")               ┃
-┃ ┌─────────┐         ┌────────────────┐ ┃
-┃ │ spotify ├──────┐  │ hw:IQaudioDC,0 │ ┃
-┃ └─────────┘      │  └───────┬────────┘ ┃     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-┃ ┌────────┐       │  ┌───────┴────────┐ ┃     ┃ Raspberry Pi ("Gromit")               ┃
-┃ │ mopidy ├───────┴──┤ plug:aardmixer │ ┃     ┃ ┌─────────────────┐                   ┃
+┃ ┌────────────────┐                     ┃
+┃ │ bluealsa-aplay │                     ┃
+┃ └─────────────┬──┘                     ┃
+┃ ┌─────────┐   │     ┌────────────────┐ ┃
+┃ │ spotify ├───┤     │ hw:IQaudioDC,0 │ ┃
+┃ └─────────┘   │     └───────┬────────┘ ┃     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ┌────────┐    │     ┌───────┴────────┐ ┃     ┃ Raspberry Pi ("Gromit")               ┃
+┃ │ mopidy ├────┴─────┤ plug:aardmixer │ ┃     ┃ ┌─────────────────┐                   ┃
 ┃ └────────┘          └─────────┬──────┘ ┃     ┃ │ bluetooth-aplay │                   ┃
 ┃              ┌────────────────┤        ┃     ┃ └─────────────┬───┘                   ┃
 ┃       ┌──────┴─────┐    ┌─────┴──────┐ ┃     ┃ ┌─────────┐   │    ┌────────────────┐ ┃
 ┃       │ snapclient ├─┐  │ snapclient │ ┃     ┃ │ spotify ├───┴─┬──┤ plug:aardmixer │ ┃
 ┃       └────────────┘ │  └─────┬──────┘ ┃     ┃ └─────────┘     │  └────────┬───────┘ ┃
 ┃ ┌────────┐ ┌──────┐  │  ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │           │         ┃
-┃ │ mopidy ├─┤ FIFO ├─────┤ snapserver ├─╂─────╂─│ snapclient ├──┤           │         ┃
+┃ │ mopidy ├─┤ FIFO ├─────┤ snapserver ├─╂─────╂─┤ snapclient ├──┤           │         ┃
 ┃ └────────┘ └──────┘  │  └────────────┘ ┃     ┃ └────────────┘  │           │         ┃
 ┃                      └────────┐        ┃     ┃                 │           │         ┃
 ┃ ┌─────────┐    ┌──────┐ ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │  ┌────────┴───────┐ ┃
-┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─│ snapclient ├──┤  │ hw:IQaudioDC,0 │ ┃
+┃ │ spotify │    │ FIFO ├─┤ snapserver ├─╂─────╂─┤ snapclient ├──┤  │ hw:IQaudioDC,0 │ ┃
 ┃ └────┬────┘    └──┬───┘ └────────────┘ ┃     ┃ └────────────┘  │  └────────────────┘ ┃
 ┃ ┌────┴─────┐ ┌────┴───┐                ┃     ┃ ┌────────┐      │                     ┃
 ┃ │ Loopback ├─┤ FFMPEG │                ┃     ┃ │ mopidy ├──────┘                     ┃
@@ -786,22 +792,161 @@ Theerfore, we can show a bluetooth-enabled version of *Figure 15*:
 ```
 *Figure 18*
 
+The inventory for this is that for Figure 15 with one additional variable to activate **Bluetooth**.
+```YAML
+aardsound:
+  hosts:
+    wallace:
+      vars:
+        aardsound_location: Kitchen
+        aardsound_mopidy_multiroom: true
+        aardsound_spotify_multiroom: true
+    gromit:
+      vars:
+        aardsound_location: Lounge
+  vars:
+    aardsound_mopidy: true
+    aardsound_spotify: true
+    aardsound_bluetooth: true
+    aardsound_snapclient: true
+    snapclient_of:
+    - name: Wallace Mopidy
+      host: wallace
+      port: 11704
+    - name: Wallace Spotify
+      host: wallace
+```
+
+## Multi-room Bluetooth
+Multi-room **Bluetooth** is implemented in a simpler way than the other multiroom services because
+it does not require the creation of a FIFO (or an FFMPEG service).
+
+Recall that
+- Multi-room **Spotify** uses a loopback ALSA device to route audio to FFMPEG (which is used to
+  provide feedback on the position of the playback device in the audio track) and the output of
+  FFMPEG is routed to via a FIFO to the **Snapcast** server
+- Multi-room **Mopidy** routes the output via a FIFO to a second **Snapcast** server
+
+Multi-room **Bluetooth** takes advantage of the fact that the **Snapcast** server can use an ALSA
+device as its input device.
+We need an ALSA Loopback device (actually a different subdevice of the Loopback device used for
+**Spotify**) to serve as the output device for `bluealsa-aplay` and the input for
+the **Snapcast** server.
+
+Therefore, the **Bluetooth** version of *Figure 6* is:
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Raspberry Pi ("Wallace")          ┃     ┃ Raspberry Pi ("Gromit")           ┃
+┃ ┌────────────────┐ ┌────────────┐ ┃     ┃ ┌────────────┐ ┌────────────────┐ ┃
+┃ │ bluealsa-aplay │ │ snapserver ├─╂──┬──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+┃ └────────┬───────┘ └──────┬─────┘ ┃  │  ┃ └────────────┘ └────────────────┘ ┃
+┃          │  ┌──────────┐  │       ┃  │  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+┃          └──┤ Loopback ├──┘       ┃  │  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃             └──────────┘          ┃  │  ┃ Raspberry Pi ("Feathers")         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛  │  ┃ ┌────────────┐ ┌────────────────┐ ┃
+                                       └──╂─┤ snapclient ├─┤ hw:IQaudioDC,0 │ ┃
+                                          ┃ └────────────┘ └────────────────┘ ┃
+                                          ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+*Figure 19*
+
+and adding this to *Figure 19* gives our final configuration with the *nine* audio services running
+on "Wallace":
+- **Spotify** via `dmix`
+- Multi-room **Spotify** source via the first **Snapcast** server
+- Multi-room **Spotify** output using the first **Snapcast** client
+- **Mopidy** via `dmix`
+- Multi-room **Mopidy** source via the second **Snapcast** server
+- Multi-room **Mopidy** output using the second **Snapcast** client
+- **Bluetooth** via `dmix`
+- Multi-room **Bluetooth** source via the third **Snapcast** server
+- Multi-room **Bluetooth** output using the third **Snapcast** client
+
+"Gromit" has six of the above: it does not have the the **Snapcast** servers.
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Raspberry Pi ("Wallace")                 ┃
+┃ ┌────────────────┐                       ┃
+┃ │ bluealsa-aplay │                       ┃
+┃ └─────────────┬──┘                       ┃
+┃ ┌─────────┐   │       ┌────────────────┐ ┃
+┃ │ spotify ├───┤       │ hw:IQaudioDC,0 │ ┃
+┃ └─────────┘   │       └───────┬────────┘ ┃     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ ┌────────┐    │       ┌───────┴────────┐ ┃     ┃ Raspberry Pi ("Gromit")               ┃
+┃ │ mopidy ├────┴───────┤ plug:aardmixer │ ┃     ┃ ┌────────────────┐                    ┃
+┃ └────────┘            └─────────┬──────┘ ┃     ┃ │ bluealsa-aplay │                    ┃
+┃ ┌─────────────┬─────────────────┤        ┃     ┃ └─────────────┬──┘                    ┃
+┃ │      ┌──────┴─────┐     ┌─────┴──────┐ ┃     ┃ ┌─────────┐   │    ┌────────────────┐ ┃
+┃ │      │ snapclient ├──┐  │ snapclient │ ┃     ┃ │ spotify ├───┴─┬──┤ plug:aardmixer │ ┃
+┃ │      └────────────┘  │  └─────┬──────┘ ┃     ┃ └─────────┘     │  └────────┬───────┘ ┃
+┃ │ ┌────────┐ ┌──────┐  │  ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │           │         ┃
+┃ │ │ mopidy ├─┤ FIFO ├─────┤ snapserver ├─╂─────╂─┤ snapclient ├──┤           │         ┃
+┃ │ └────────┘ └──────┘  │  └────────────┘ ┃     ┃ └────────────┘  │           │         ┃
+┃ └────────────┐         └────────┐        ┃     ┃                 │           │         ┃
+┃ ┌─────────┐  │  ┌──────┐  ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │  ┌────────┴───────┐ ┃
+┃ │ spotify │  │  │ FIFO ├──┤ snapserver ├─╂─────╂─┤ snapclient ├──┤  │ hw:IQaudioDC,0 │ ┃
+┃ └────┬────┘  │  └──┬───┘  └────────────┘ ┃     ┃ └────────────┘  │  └────────────────┘ ┃
+┃      │       └──────────────────┐        ┃     ┃                 │                     ┃
+┃ ┌────┴─────┐  ┌────┴───┐  ┌─────┴──────┐ ┃     ┃ ┌────────┐      │                     ┃
+┃ │ Loopback ├──┤ FFMPEG │  │ snapclient │ ┃     ┃ │ mopidy ├──────┤                     ┃
+┃ └──────────┘  └────────┘  └─────┬──────┘ ┃     ┃ └────────┘      │                     ┃
+┃ ┌────────────────┐        ┌─────┴──────┐ ┃     ┃ ┌────────────┐  │                     ┃
+┃ │ bluealsa-aplay │        │ snapserver ├─╂─────╂─┤ snapclient ├──┘                     ┃
+┃ └───────┬────────┘        └──────┬─────┘ ┃     ┃ └────────────┘                        ┃
+┃         │       ┌──────────┐     │       ┃     ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+┃         └───────┤ Loopback ├─────┘       ┃
+┃                 └──────────┘             ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+*Figure 20*
+
+Note the tortuous routing of the connection fron the third **Snapcast** client to the `dmix` plugin.
+
+The inventory for this is:
+```YAML
+aardsound:
+  hosts:
+    wallace:
+      vars:
+        aardsound_location: Kitchen
+        aardsound_mopidy_multiroom: true
+        aardsound_spotify_multiroom: true
+        aardsound_bluetooth_multiroom: true
+    gromit:
+      vars:
+        aardsound_location: Lounge
+  vars:
+    aardsound_mopidy: true
+    aardsound_spotify: true
+    aardsound_bluetooth: true
+    aardsound_snapclient: true
+    snapclient_of:
+    - name: Wallace Mopidy
+      host: wallace
+      port: 11704
+    - name: Wallace Spotify
+      host: wallace
+    - name: Wallace Bluetooth
+      host: wallace
+      port: 21704
+```
 
 ## My Setup
 The audio equipment I use is by no-means "audiophile", but the IQaudIO DACs and their Raspberry
 Pi-branded replacements provide excellent sound quality.  The DAC+ is capable of 24-bit 192kHz
-digital audio, compared with CD-quality (also used by **Spotify Connect**) 16-bit 44.1kHz.
+digital audio, compared with CD-quality 16-bit 44.1kHz.
 In the lounge, I have a 30 year-old budget-but-good-quality amplifier and matching speakers.
 For the other two rooms, I have budget active speakers that sound fine for background music and, in
-the garden, some more expensive exterior passive speakers.
+the garden (or "yard" if you are American), some more expensive exterior passive speakers.
 
-My setup corresponds to Figure 14, so that I don't have to take a room offline to reconfigure
-multi-room audio but I use a Debian virual machine as the **Snapcast** server instead of a
-Raspberry Pi.
+My setup corresponds to a combination of *Figure 14* and *Figure 18*: but I use a Debian virual
+machine to host the **Snapcast** servers instead of a Raspberry Pi.
 There are are four Raspberry Pi's connected to the **Snapcast** servers, all supporting single-
-and multi-room **Spotify** and **Mopidy**, and, for three of them, **Bluetooth** as well.
+and multi-room **Spotify** and **Mopidy**, and, for three of them, **Bluetooth** as well:
+there is no garden **Bluetooth** because of the distance from the Raspberry Pi indoors to
+the speakers and no multi-room **Bluetooth** (because I don't have a use for it).
 
-I also have a test setup that can be configured to match any of the diagrams above.
+I also have a test setup that can be configured to match almost any of the diagrams above.
 
 My **Ansible** inventory is more complex than the examples shown above.
 - There are child groups under the `aardsound` parent group: `aardserver`, `aardclient`,
