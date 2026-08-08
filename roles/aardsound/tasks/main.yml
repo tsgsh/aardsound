@@ -566,7 +566,6 @@
                  'Deactivate') + ' Bluetooth Multiroom' }}"
       vars:
         bluetooth_multiroom_active: "{{ aardsound_bluetooth_multiroom | bool }}"
-        bluetooth_multiroom_service0: "{{ aardsound_bluetooth_multiroom_service0 }}"
         bluetooth_multiroom_service1: "{{ aardsound_bluetooth_multiroom_service1 }}"
         bluetooth_multiroom_service2: "{{ aardsound_bluetooth_multiroom_service2 }}"
         bluetooth_multiroom_service3: "{{ aardsound_bluetooth_multiroom_service3 }}"
