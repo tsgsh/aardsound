@@ -132,7 +132,5 @@ aardsound_mopidy_mount_after: "{{ [] if aardsound_nfs_media == none else
                                   [aardsound_mopidy_nfs_mount_unit] }}"
 
 # Bluetooth ALSA plugins and PCMs
-aardsound_bluetooth_bluealsa_plugin: aardbluetooth
-aardsound_bluetooth_multiroom_bluealsa_plugin: aardbluetooth-multi
 aardsound_bluetooth_bluealsa_pcm: aardbluealsa
 aardsound_bluetooth_multiroom_bluealsa_pcm: aardbluealsa-multi
