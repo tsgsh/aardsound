@@ -83,6 +83,10 @@ argument_specs:
         description: >-
           The device on the sound card to use for he hardware mixer
           Ignored if bluetooth_mixer = false.
+      bluetooth_bluealsa_pcm:
+        type: str
+        default: bluealsa
+        description: The name of the ALSA plugin associated with the BlueALSA PCM.
       bluetooth_codec:
         type: str
         choices:
@@ -107,7 +111,6 @@ argument_specs:
         - mixer
         - none
         - software
-        default: 50
         description: >-
           Bluetooth remote volume control
 

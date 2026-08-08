@@ -111,7 +111,3 @@ bluetooth_bluealsa_aplay_args: >-
   --verbose
   {% endif %}
   00:00:00:00:00:00
-
-# /etc/asound.conf
-bluetooth_alsa_plugin: aardbluetooth
-bluetooth_bluealsa_device: aardbluealsa

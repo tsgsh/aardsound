@@ -18,6 +18,7 @@ bluetooth_mixer_device: 0
 bluetooth_verbose: false
 bluetooth_volume: "{{ 'auto' if bluetooth_mixer else 'software' }}"
 # Set /etc/asound.conf
+bluetooth_bluealsa_pcm: bluealsa
 # bluetooth_rate: 44100
 bluetooth_codec: SBC
 bluetooth_initial_volume: 50

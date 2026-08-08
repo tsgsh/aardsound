@@ -132,7 +132,7 @@
   blockinfile:
     path: /etc/asound.conf
     block: "{{ lookup('template', 'asound.conf.j2') }}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK (aardsound_bluealsa)"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK ({{ bluetooth_bluealsa_pcm }})"
     state: present
     create: true
     owner: root

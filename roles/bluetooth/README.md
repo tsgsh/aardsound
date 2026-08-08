@@ -128,6 +128,12 @@ The device on the sound card to use for he hardware mixer
 
 Default: 0; ignored if `bluetooth_mixer` = `false`
 
+#### bluetooth_bluealsa_pcm = *string*
+The name of the ALSA PCM of type bluealsa that defines the ALSA parameters associated with the
+Bluetooth adapater
+
+Default: bluealsa
+
 #### bluetooth_codec = SBC | MP3 | aptX | aptX-HD | FastStream | LDAC | Opus
 
 The case-sensitive name of the A2DP codec to use
