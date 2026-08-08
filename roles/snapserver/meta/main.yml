@@ -75,6 +75,15 @@ argument_specs:
         description: >-
           Explicitly set the port used for the Snapcast streaming service.
           Default is 1704 plus the value of snapserver_port_offset
+      snapserver_source:
+        type: str
+        choices:
+        - fifo
+        - FIFO
+        - alsa
+        - ALSA
+        default: FIFO
+        description: The type of source used for the input to the Snapcast server.
       snapserver_fifo:
         type: str
         default: /tmp/snapfifo
@@ -82,11 +91,26 @@ argument_specs:
       snapserver_fifo_service:
         type: str
         description: >-
-           The name of a systemd "oneshot" service that will create the FIFO at boot time.
+          The name of a systemd "oneshot" service that will create the FIFO at boot time.
+
+          Ignored if `snapcast_source` is not 'FIFO'.
+
+          Note: This service is not created by this role but the Snapcast server role that it does
+          create will have a "Wants" dependency on the FIFO service.
+      snapserver_alsa_pcm:
+        type: str
+        description: >-
+          The name of the the ALSA PCM used to feed input to the Snapcast server.
 
 
-           Note: This service is not created by this role but the Snapcast server role that it does
-           create will have a "Wants" dependency on the FIFO service.
+          Required if `snapserver_source` is 'ALSA', ignored otherwise.
+      snapserver_alsa_stream:
+        type: str
+        description: >-
+          A name for the ALSA stream URI that feeds input to the Snapcast server.
+
+
+          Required if `snapserver_source` is 'ALSA', ignored otherwise.
       snapserver_debug:
         type: bool
         default: false
