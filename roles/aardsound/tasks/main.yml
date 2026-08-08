@@ -348,6 +348,7 @@
   when: aardsound_output
   tags:
   - asound
+  - dmixer
   block:
 
   - name: Create or remove dmix plugin device in /etc/asound.conf for multiple stream support
@@ -361,19 +362,22 @@
       dmixer_format: "{{ aardsound_format + '_LE' }}"
       dmixer_channels: "{{ aardsound_channels }}"
     tags:
-    - dmixer
     - detect  # if detect is skipped, dmixer will generate an invalid configuration
     import_role:
       name: dmixer
 
-  - name: Set up the snd-asound loopback device
-    tags:
-    - aloop
-    community.general.modprobe:
-      name: snd-aloop
-      params: pcm_substreams=2
-      state: present
-      persistent: present
+- name: Set up the snd-asound loopback device
+  when: aardsound_spotify_multiroom or aardsound_bluetooth_multiroom
+  tags:
+  - asound
+  - aloop
+  - spotify-multiroom
+  - bluetooth-multiroom
+  community.general.modprobe:
+    name: snd-aloop
+    params: id={{ aardsound_aloop_card }} pcm_substreams={{ aardsound_aloop_subdevices }}
+    state: present
+    persistent: present
 
 - name: Finally, configure the selected services
   # Because we, in general, run the spotify, mopidy and bluetooth roles up to twice and the
@@ -535,6 +539,8 @@
         bluetooth_aplay_service: "{{ aardsound_bluetooth_service2 }}"
         bluetooth_location: "{{ aardsound_location }}"
         bluetooth_output_device: "{{ aardsound_sink_device }}"
+        bluetooth_bluealsa_plugin: "{{ aardsound_bluetooth_bluealsa_plugin }}"
+        bluetooth_bluealsa_pcm: "{{ aardsound_bluetooth_bluealsa_pcm }}"
         bluetooth_initial_volume: "{{ aardsound_initial_volume }}"
         bluetooth_mixer: "{{ aardsound_mixer }}"
         bluetooth_mixer_plugin: "{{ aardsound_mixer_plugin }}"
@@ -565,6 +571,8 @@
         bluetooth_multiroom_service2: "{{ aardsound_bluetooth_multiroom_service2 }}"
         bluetooth_multiroom_service3: "{{ aardsound_bluetooth_multiroom_service3 }}"
         bluetooth_multiroom_name: "{{ aardsound_multiroom_name }}"
+        bluetooth_multiroom_bluealsa_plugin: "{{ aardsound_bluetooth_multiroom_bluealsa_plugin }}"
+        bluetooth_multiroom_bluealsa_pcm: "{{ aardsound_bluetooth_multiroom_bluealsa_pcm }}"
         bluetooth_multiroom_format: "{{ aardsound_format }}"
         bluetooth_multiroom_rate: "{{ aardsound_rate }}"
         bluetooth_multiroom_depth: "{{ aardsound_depth }}"

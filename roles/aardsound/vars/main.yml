@@ -62,6 +62,7 @@ aardsound_reboot_needed: false  # can be overridden by handlers with set_fact
 
 # Loopback subdevices
 aardsound_aloop_card: Loopback
+aardsound_aloop_subdevices: 2
 aardsound_spotify_multiroom_aloop_subdevice: 0
 aardsound_bluetooth_multiroom_aloop_subdevice: 1
 
@@ -129,3 +130,9 @@ aardsound_mopidy_site_packages: "{{ (aardsound_mopidy_venv if aardsound_mopidy_u
 aardsound_mopidy_nfs_mount_unit: "{{ aardsound_local_media[1:] | replace('/', '-') }}"
 aardsound_mopidy_mount_after: "{{ [] if aardsound_nfs_media == none else
                                   [aardsound_mopidy_nfs_mount_unit] }}"
+
+# Bluetooth ALSA plugins and PCMs
+aardsound_bluetooth_bluealsa_plugin: aardbluetooth
+aardsound_bluetooth_multiroom_bluealsa_plugin: aardbluetooth-multi
+aardsound_bluetooth_bluealsa_pcm: aardbluealsa
+aardsound_bluetooth_multiroom_bluealsa_pcm: aardbluealsa-multi
