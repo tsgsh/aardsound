@@ -21,8 +21,8 @@ spotify_multiroom_spotify_description: "{{ 'librespot ' + spotify_multiroom_desc
 spotify_multiroom_bridge_description: "{{ 'FFMPEG bridge ' + spotify_multiroom_description }}"
 spotify_multiroom_snapserver_description: "{{ 'Snapserver ' + spotify_multiroom_description }}"
 # Variables to determine whether to add an ALSA loopback device
-spotify_multiroom_aloop_loaded: "{{ 'snd-aloop' in spotify_multiroom_r_lsmod |
-                                    jc('lsmod') |
+spotify_multiroom_aloop_loaded: "{{ 'snd_aloop' in spotify_multiroom_r_lsmod.stdout |
+                                    community.general.jc('lsmod') |
                                     map(attribute='module') }}"
 spotify_multiroom_aloop_new_card: "{{ not spotify_multiroom_aloop_loaded or
                                       spotify_multiroom_r_aplay.stdout_lines == [] }}"
@@ -35,12 +35,11 @@ spotify_multiroom_aloop_enough_subds: "{{ spotify_multiroom_r_aplay.stdout_lines
                                           last == '#' + spotify_multiroom_aloop_subdevice |
                                                         string }}"
 spotify_multiroom_aloop_sink:
-  "hw:{{ spotify_multiroom_aloop_card + ',0,' + spotify_multiroom_aloop_subdevice }}"
+  "hw:{{ spotify_multiroom_aloop_card + ',0,' + spotify_multiroom_aloop_subdevice | string }}"
 spotify_multiroom_aloop_source:
-  "hw:{{ spotify_multiroom_aloop_card + ',1,' + spotify_multiroom_aloop_subdevice }}"
+  "hw:{{ spotify_multiroom_aloop_card + ',1,' + spotify_multiroom_aloop_subdevice | string }}"
 # for creating a card
 spotify_multiroom_aloop_parameters: |
-  index={{ spotify_multiroom_aloop_new_card }}
   id={{ spotify_multiroom_aloop_card }}
   pcm_substreams={{ spotify_multiroom_aloop_subdevice + 1 }}
 # bridge variables

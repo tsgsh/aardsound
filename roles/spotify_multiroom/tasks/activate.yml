@@ -37,7 +37,7 @@
       quiet: true
 
 - name: Create a new loopback device
-  when: spotify_multiroom_new_card
+  when: spotify_multiroom_aloop_new_card
   block:
 
   - name: Determine the next card number for the ALSA loopback device
