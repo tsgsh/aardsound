@@ -306,6 +306,7 @@ your own **Ansible** playbooks.
 Aardsound is designed so that the entire configuration is held in Ansible (this is a concept
 called Infrastructure as Code).
 This means you can always redeploy your Raspberry Pis.
+
 There are two approaches you can use.
 
 ### Re‑running the Ansible Playbook
@@ -329,6 +330,9 @@ You may want the `‑‑limit` (or `‑l`) option to restrict the command to wor
 at a time.
 
 This approach is strongly recommended when upgrading to a new major version of RasPiOS.
+
+Note that replacing the Micro SD will remove the saved **Bluetooth** state information.
+Any devices that are paired with this server will have to forget it and repair.
 
 ## Ansible Inventory
 There are many ways to build an [Ansible inventory](
