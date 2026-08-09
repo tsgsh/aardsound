@@ -86,7 +86,9 @@ argument_specs:
       bluetooth_bluealsa_pcm:
         type: str
         default: bluealsa
-        description: The name of the ALSA plugin associated with the BlueALSA PCM.
+        description: >-
+          The name of the ALSA PCM of type bluealsa that defines the ALSA parameters associated with
+          the Bluetooth adapater
       bluetooth_codec:
         type: str
         choices:

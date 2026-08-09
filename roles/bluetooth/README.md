@@ -33,7 +33,7 @@ The Bluetooth service uses the following components:
   configuration file `/etc/bluetooth/main.conf`
 - The Bluez-ALSA Buletooth audio backend service (either `bluealsa` or `bluealsad`): no changes are
   made to the configuration
-- `bluealsa` ALSA plugins &ndash; these are added to `/etc/asound.conf`
+- `bluealsa` ALSA PCMs &ndash; these are added to `/etc/asound.conf`
 - A custom `systemd` service which:
   - Uses the `bt-adapter` utility to
     - set the Bluetooth adapter Alias to something recognisable
