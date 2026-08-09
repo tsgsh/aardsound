@@ -36,11 +36,11 @@ There are three main parts:
   systems
 - [Mopidy](https://mopidy.com/) &ndash; as a more general and extensible music server (Mopidy is 
   not used for Spotify support, but in theory you could do that if you wanted to)
-- Bluetooth speaker function &ndash; using the "Just Works" Bluetooth Low Energy (BLE) pairing
-  mode (no PIN required or possible) 
+- **Bluetooth** speaker function &ndash; using the "Just Works" **Bluetooth** Low Energy (BLE)
+  pairing mode (no PIN required or possible) 
 - [Snapcast](https://github.com/snapcast/snapcast) for optional synchronous multiroom audio
 
-Multi-room Bluetooth and Bluetooth as an audio sink will be added in future releases.
+Bluetooth as an audio sink will be added in future releases.
 
 All of these drive the Advanced Linux Sound Architecture (ALSA) subssytem (Aardsound does not
 use PulseAudio, Pipewire or JACK).
@@ -102,7 +102,7 @@ installed:
 - **community.general**
 
 The Python environment used by Ansible also requires [**jc**](https://pypi.org/project/jc/) to be
-installed (this is needed for Bluetooth only).
+installed (this is needed for **Bluetooth** only).
 
 These are available as packages in the **EPEL** repoitory as **ansible-collection-ansible-posix**,
 etc.
@@ -160,8 +160,10 @@ The servers *should* have new installations of RasPiOS.
 
 You can also use a Debian Trixie node as a source for multiroom audio.
 
-For Bluetooth audio, you need a Bluetooth adapter, which can be the onboard Bluetooth controller or
-a USB-attached one.
+For **Bluetooth** audio, you need a **Bluetooth** adapter, which can be the onboard Bluetooth
+controller or a USB-attached one.
+If you are using single-room and multi-room **Bluetooth** on the same server, you need *two*
+Bluetooth adatpers.
 If using the onboard controller and WiFi connectivity, there may be contention between the two with
 lower-spec Raspbery Pi models.
 
@@ -199,8 +201,7 @@ For a quick guide to setting up your Raspberry Pi(s) like this, see the
 See also the [**Limitations**](#limitations) section for the types of Raspberry Pi you can use.
 
 ## Major To‑Do Items
-- Bluetooth multi-room
-- Bluetooth as output
+- **Bluetooth** as output
 
 ## Minor To‑Do Items
 - HTTPS support for Mopidy (nginx reverse proxy)
@@ -241,7 +242,26 @@ See also the [**Limitations**](#limitations) section for the types of Raspberry 
   For this reason, it is recommended *not* to use a 512GiB RAM Raspberry Pi (3A+ or Zero 2W) as
   a production **Snapcast** server.
 
-## Deprecation Warnings
+## Reboots
+**Aardsound** will reboot the device by default if changes are made in any of the following areas:
+- Patching
+- Changing the HDMI hotplugging settings
+- Disabling onboard **Bluetooth** adapters
+
+Reboots can be supressed by setting `aardsound_rebbot` to `false` but the resulting configuration
+may be incorrect.
+
+## Ansible Warnings
+
+### Warnings
+Ansible may issue warnings of the form
+```
+[WARNING]: Module remote_tmp /var/lib/mopidy/.ansible/tmp did not exist and was created with a mode of 0700, this may cause issues when running as another user. To avoid this, create the remote_tmp dir with the correct permissions manually
+```
+These are expected and are not a cause for concern.
+Warnings that are not from the `remote_tmp` module are not expected.
+
+### Deprecation Warnings
 **Ansible** may issue deprecation warnings, depending on the versions of `ansible-core` and the 
 collections installed with or alongside it.
 These should be harmless:
@@ -251,7 +271,7 @@ For example:
 [WARNING]: Deprecation warnings can be disabled by setting `deprecation_warnings=False` in ansible.cfg.
 [DEPRECATION WARNING]: Direct access to the `environment` attribute is deprecated. This feature will be removed from ansible-core version 2.23. Consider using `copy_with_new_env` or passing `overrides` to `template`.
 ```
-may be issued by the Bluetooth role:
+may be issued by the `bluetooth` role:
 this is a deprecation warning about the `ansible.utils.imdex_of` lookup that is used to map a
 Bluetooth MAC addresses to the corresponding `hciN` device number.
 
@@ -335,26 +355,25 @@ aardsound:
 ```
 This corresponds to the setup shown in Figure 4 of the [Example Setup README](./Examples.md).
 
-A more complex example might be this, which corresponds to the setup shown in Figure 15 of
-the [Example Setup README](./Examples.md) plus Bluetooth.
-This defines one multroom server (`wallace`) supporting Spotify and Mopidy, with no output
-audio device, and a group of two clients (`gromit` and `feathers`) that can run Spotify and
-Mopidy locally and also play either of the two multi‑room streams supplied by `wallace`.
+A more complex example might be this, which corresponds to the setup shown in *Figure 20* of
+the [Example Setup README](./Examples.md).
+This defines one multroom server (`wallace`) supporting **Spotify**, **Mopidy** and
+**Bluetooth** with no output audio device, and a group of two clients (`gromit` and `feathers`)
+that can run **Spotify**, **Mopidy** and **Bluetooth** locally and also play any of the three
+multi‑room streams supplied by `wallace`.
 ```YAML
 aardsound:
   hosts:
     wallace:
       vars:
+        aardsound_location: Kitchen
         aardsound_mopidy_multiroom: true
         aardsound_spotify_multiroom: true
-  children:
-    aardclient:
-aardclient:
-  hosts:
+        aardsound_bluetooth_multiroom: true
     gromit:
       vars:
         aardsound_location: Lounge
-    feathers:
+    feather:
       vars:
         aardsound_location: Kitchen
   vars:
@@ -368,6 +387,9 @@ aardclient:
       port: 11704
     - name: Wallace Spotify
       host: wallace
+    - name: Wallace Bluetooth
+      host: wallace
+      port: 21704
 ```
 
 ## Patching your servers
@@ -445,6 +467,7 @@ including the main `aardsound` role.
     ├── aardsound
     ├── alsa_scontrols
     ├── bluetooth
+    ├── bluetooth_multiroom
     ├── dmixer
     ├── mopidy
     ├── mopidy_installer
@@ -460,41 +483,45 @@ including the main `aardsound` role.
   for a specific device (the available controls will be specific to the sound card in use)
 - `dmixer` &ndash; creates an ALSA `dmixer` PCM in `/etc/asound.conf`; `dmixer` allows multiple input
   streams to connect the same soundcard simultaneously
-- `bluetooth` &ndash; configures (or removes) systemd services and an ALSA PCM for Bluetooth audio
-- `mopidy` &ndash; configures (or removes) systemd services for Mopidy
-- `mopidy_installer` &ndash; installs Mopidy and extensions
-- `mopidy_multiroom` &ndash; configures Mopidy as a source for Snapserver; calls `mopidy`
+- `bluetooth` &ndash; configures (or removes) systemd services and an ALSA PCM for **Bluetooth** audio
+- `bluetooth_multiroom` &ndash; configures **Bluetooth** as a source for Snapserver; calls `bluetooth`
   and `snapserver`
-- `snapclient` &ndash; configures one or more instances of the Snapcast client to connect to
+- `mopidy` &ndash; configures (or removes) systemd services for **Mopidy**
+- `mopidy_installer` &ndash; installs **Mopidy** and extensions
+- `mopidy_multiroom` &ndash; configures **Mopidy** as a source for **Snapcast**; calls `mopidy`
+  and `snapserver`
+- `snapclient` &ndash; configures one or more instances of the **Snapcast** client to connect to
    Snapcast servers
-- `snapserver` &ndash; configures an instance of Snapserver
-- `raspotify_installer` &ndash; installs Raspotify (and thus librespot)
-- `spotify` &ndash; configures (or removes) Raspotify‑style systemd services for Spotify
-- `spotify_multiroom` &ndash; configures librespot as a source for Snapserver; calls `spotify` and
+- `snapserver` &ndash; configures an instance of the **Snapcast** server
+- `raspotify_installer` &ndash; installs Raspotify (and thus librespot) for **Spotify**
+- `spotify` &ndash; configures (or removes) Raspotify‑style systemd services for **Spotify**
+- `spotify_multiroom` &ndash; configures librespot as a source for **Snapcast**; calls `spotify` and
   `snapserver`
 
 The hierarchy of these roles is:
 ```
-                                         ┌───────────┐
-                                         │ aardsound │
-                                         └─────┬─────┘
-┌─────────────────────────────────┬────────────┼────────────────────┬────────────┬──────┐
-│                                 │            │                    │            │      │
-│  ┌─────────────────────┐        │  ┌─────────┴─────────┐ ┌────────┴─────────┐  │  ┌───┴────┐
-├──┤ raspotify_installer │        │  │ spotify_multiroom │ │ mopidy_multiroom │  │  │ dmixer │
-│  └─────────────────────┘        │  └─────┬───────┬─────┘ └──────┬─────┬─────┘  │  └────────┘
-│                                 │        │       │              │     │        │
-│  ┌──────────────────┐           │        │       │              │     │        │
-├──┤ mopidy_installer │      ┌────┴────────┤       └──────┬───────┘     ├────────┴───┐
-│  └──────────────────┘      │             │              │             │            │
-│                            │             │              │             │            │
-│  ┌────────────────┐  ┌─────┴─────┐  ┌────┴────┐  ┌──────┴─────┐  ┌────┴───┐  ┌─────┴──────┐
-└──┤ alsa_scontrols │  │ bluetooth │  │ spotify │  │ snapserver │  │ mopidy │  │ snapclient │
-   └────────────────┘  └───────────┘  └─────────┘  └────────────┘  └────────┘  └────────────┘
+                                          ┌───────────┐
+                                          │ aardsound │
+                                          └─────┬─────┘
+┌───────────────────────────┬─┬────────────┬────┴──────┬──────────┬────────────┬──────┐
+│                           │ │            │           │          │            │      │
+│  ┌─────────────────────┐  │ │  ┌─────────┴─────────┐ │ ┌────────┴─────────┐  │  ┌───┴────┐
+├──┤ raspotify_installer │  │ │  │ spotify_multiroom │ │ │ mopidy_multiroom │  │  │ dmixer │
+│  └─────────────────────┘  │ │  └─┬───┬─────────────┘ │ └──────────┬──┬────┘  │  └────────┘
+│                           │ │    │   │    ┌──────────┴─────────┐  │  │       │
+│  ┌──────────────────┐     │ │    │   │    │ bluetooth_muliroom │  │  │       │
+├──┤ mopidy_installer │     │ │    │   │    └─────┬───────┬──────┘  │  │       │
+│  └──────────────────┘     │ │    │   │    ┌─────┘       │         │  │       │
+│                           │ │    │   └────────────────┐ │ ┌───────┘  │  ┌────┴──────┐
+│  ┌────────────────┐       │ └───────────┐ │           │ │ │          │  │           │
+└──┤ alsa_scontrols │       │ ┌────┘      │ │           │ │ │          │  │           │
+   └────────────────┘   ┌───┴─┴───┐  ┌────┴─┴────┐  ┌───┴─┴─┴────┐  ┌──┴──┴──┐  ┌─────┴──────┐
+                        │ spotify │  │ bluetooth │  │ snapserver │  │ mopidy │  │ snapclient │
+                        └─────────┘  └───────────┘  └────────────┘  └────────┘  └────────────┘
 ```
-In other words, `aardsound` calls all of the other roles directly, except `snapserver`, which is 
-called by `spotify_multiroom` and `mopidy_multiroom`, which also call `spotify` and `mopidy`
-respectively.
+In other words, `aardsound` calls all of the other roles directly, except `snapserver`, which is
+called by `spotify_multiroom`, `mopidy_multiroom` and `bluetooth_multiroom`, which also call
+`spotify`, `mopidy` and `bluetooth` respectively.
 
 ### Role Variables
 
@@ -560,6 +587,7 @@ See the following:
   - [`mopidy_multiroom`](./roles/mopidy_multiroom/README.md) role README
 - **Bluetooth** audio source configuration variables
   - [`bluetooth`](./roles/bluetooth/README.md) role README
+  - [`bluetooth_multiroom`](./roles/bluetooth_multiroom/README.md) role README
 - **Snapcast** configuration variables
   - [`snapclient`](./roles/snapclient/README.md) role README
   - [`snapserver`](./roles/snapserver/README.md) role README
