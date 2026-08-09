@@ -4,8 +4,8 @@ Documentation=https://github.com/dtcooper/raspotify
 Documentation=https://github.com/librespot-org/librespot
 Documentation=https://github.com/dtcooper/raspotify/wiki
 Documentation=https://github.com/librespot-org/librespot/wiki/Options
-Wants=network.target sound.target
-After=network.target sound.target
+Wants=network-online.target sound.target
+After=network-online.target sound.target
 {% for service in [spotify_start_after_services] | flatten %}
 After={{ service }}.service
 {% endfor %}
