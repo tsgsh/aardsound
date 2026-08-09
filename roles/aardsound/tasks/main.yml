@@ -24,12 +24,14 @@
         that: aardsound_hdmi_force_hotplug is truthy or
               aardsound_hdmi_force_hotplug in [0, 1]
         fail_msg: A local media library must be specified if aardsound_multiroom_mopidy is true
+        quiet: true
 
     - name: Confirm that aardsound_disable_onboard_bt is defined then it is is 0, 1 or truthy
       assert:
         that: aardsound_disable_onboard_bt is truthy or
               aardsound_disable_onboard_bt in [0, 1]
         fail_msg: A local media library must be specified if aardsound_multiroom_mopidy is true
+        quiet: true
 
   - name: Confirm that if aardsound_mopidy is true, that we have a defined media library
     when: aardsound_mopidy | bool
@@ -37,6 +39,7 @@
       that: aardsound_local_media != none or
             mopidy_media_library is defined and mopidy_media_library != none
       fail_msg: A local media library must be specified if aardsound_mopidy is true
+      quiet: true
 
   - name: Confirm that if aardsound_mopidy_multiroom is true, that we have a defined media library
     when: aardsound_mopidy_multiroom | bool
@@ -44,6 +47,28 @@
       that: aardsound_local_media != none or
             mopidy_multiroom_media_library is defined and mopidy_multiroom_media_library != none
       fail_msg: A local media library must be specified if aardsound_multiroom_mopidy is true
+      quiet: true
+
+  - name: >-
+      If bluetooth and bluetooth-multiroom are active, Confirm that, both adapters are defined and
+      are different
+    # require them both to be specified in the same format as hciX or as a MAC address
+    when: aardsound_bluetooth and aardsound_bluetooth_multiroom
+    assert:
+      that:
+      - bluetooth_adapter is defined
+      - bluetooth_multiroom_adapter is defined
+      - bluetooth_adapter != bluetooth_multiroom_adapter
+      - bluetooth_adapter is regex('hci\\d+') and
+        bluetooth_multiroom_adapter is regex('hci\\d+') or
+        bluetooth_adapter is ansible.utils.mac and
+        bluetooth_multiroom_adapter is ansible.utils.mac
+      fail_msg: >-
+        If aardsound_bluetooth and aardsound_bluetooth multiroom are both true then both
+        bluetooth_adapter and bluetooth_multiroom_adapter must be defined and different and
+        both must be defined in the same format: 'hciX' (where X = 0, 1, ...) or as a
+        Blueooth Device Address of 12 hexadecimal digits in the format '01:23:45:67:89:ab'
+      quiet: true
 
   - name: Confirm that if snapclient is true, we have a snapserver to use
     when: aardsound_snapclient | bool
