@@ -1,5 +1,5 @@
 ---
-- name: Setup multi-room Spotify and/or Mopidy on a RasPiOS server wih a sound card
+- name: Setup multi-room Spotify and/or Mopidy on a RasPiOS server with a sound card
   # limit this with -l; or set aardsound_allow_all_inventory=true
   hosts: aardsound
   become: true
