@@ -34,7 +34,7 @@
     comment: "{{ snapclient_description |
                  to_json |
                  regex_replace('^\"?(.*)\"', '\\1') |
-                 replace(':', '\u003a') }}"
+                 replace(':', '\\\\u003a') }}"
 
 
 - name: Configure, enable and start snapclient systemd services

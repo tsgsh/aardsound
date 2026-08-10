@@ -26,7 +26,7 @@
     comment: "{{ spotify_description |
                  to_json |
                  regex_replace('^\"?(.*)\"$', '\\1') |
-                 replace(':', '\u003a') }}"
+                 replace(':', '\\\\u003a') }}"
 
 - name: "{{ spotify_service_file }}"
   notify: Enable and (re)start librespot service

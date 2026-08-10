@@ -28,7 +28,7 @@
     comment: "{{ snapserver_description |
                  to_json |
                  regex_replace('^\"?(.*)\"$', '\\1') |
-                 replace(':', '\u003a') }}"
+                 replace(':', '\\\\u003a') }}"
 
 - name: "Directory {{ snapserver_datadir }}"
   file:

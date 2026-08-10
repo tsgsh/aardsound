@@ -37,7 +37,7 @@
     comment: "{{ mopidy_description |
                  to_json |
                  regex_replace('^\"?(.*)\"$', '\\1') |
-                 replace(':', '\u003a') }}"
+                 replace(':', '\\\\u003a') }}"
 
 - name: Add the /etc/mopidy directory
   file:
