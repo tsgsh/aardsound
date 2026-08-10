@@ -298,7 +298,8 @@ your own **Ansible** playbooks.
   are stabilised, i.e. `0`, `1` or `2` depending on the number of HDMIs connected, or present if
   HDMI hotplugging is enabled.
 - All recent testing has been done with 64‑bit versions of RasPiOS/Debian Trixie, but the previous
-  Bookworm version should work, as should 32‑bit versions.
+  Bookworm version should work (except for Bluetooth, which is unlikely to work), as should 32‑bit
+  versions.
 - Ubuntu or other Debian derivatives are not supported but *may* work if they have repositories that
   provide the required Mopidy and Snapcast packages (a non‑multiroom Spotify‑only installation does
   not need them).
