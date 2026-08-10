@@ -29,7 +29,11 @@
     path: "{{ bluetooth_aplay_service_file }}"
     state: absent
 
-# don't remove /etc/systemd/system/bluealsa.service: shared between bluetooth and bluetooth_multiroom
+- name: "Remove {{ bluetooth_alsa_service_file }}"
+  notify: Reload systemd for bluetooth_active=false
+  file:
+    path: "{{ bluetooth_alsa_service_file }}"
+    state: absent
 
 - name: Stat /etc/asound.conf
   register: bluetooth_r_stat
