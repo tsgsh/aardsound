@@ -162,10 +162,12 @@ You can also use a Debian Trixie node as a source for multiroom audio.
 
 For **Bluetooth** audio, you need a **Bluetooth** adapter, which can be the onboard Bluetooth
 controller or a USB-attached one.
-If you are using single-room and multi-room **Bluetooth** on the same server, you need *two*
-Bluetooth adatpers.
 If using the onboard controller and WiFi connectivity, there may be contention between the two with
 lower-spec Raspbery Pi models.
+
+**Note:** single- and multi-room **Bluetooth** cannot exist on a single server: there is (currently)
+no mechanism to route two instances of `bt-agent` client connections to two different instances of
+`bluetooth-aplay` via a common `bluealsa` daemon.
 
 At a minimum you need *fixed* (or, at least, *known*) IP addresses for all devices for the
 installation of **Aardsound** and *fixed* addresses for any nodes that will be sources for

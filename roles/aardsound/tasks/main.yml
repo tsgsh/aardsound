@@ -49,25 +49,11 @@
       fail_msg: A local media library must be specified if aardsound_multiroom_mopidy is true
       quiet: true
 
-  - name: >-
-      If bluetooth and bluetooth-multiroom are active, Confirm that, both adapters are defined and
-      are different
-    # require them both to be specified in the same format as hciX or as a MAC address
-    when: aardsound_bluetooth and aardsound_bluetooth_multiroom
+  - name: Confirm that at most one of bluetooth and bluetooth-multiroom are active
     assert:
-      that:
-      - bluetooth_adapter is defined
-      - bluetooth_multiroom_adapter is defined
-      - bluetooth_adapter != bluetooth_multiroom_adapter
-      - bluetooth_adapter is regex('hci\\d+') and
-        bluetooth_multiroom_adapter is regex('hci\\d+') or
-        bluetooth_adapter is ansible.utils.mac and
-        bluetooth_multiroom_adapter is ansible.utils.mac
+      that: not aardsound_bluetooth or not aardsound_bluetooth_multiroom
       fail_msg: >-
-        If aardsound_bluetooth and aardsound_bluetooth multiroom are both true then both
-        bluetooth_adapter and bluetooth_multiroom_adapter must be defined and different and
-        both must be defined in the same format: 'hciX' (where X = 0, 1, ...) or as a
-        Blueooth Device Address of 12 hexadecimal digits in the format '01:23:45:67:89:ab'
+        Only one of aardsound_bluetooth and aardsound_bluetooth_multiroom can be true
       quiet: true
 
   - name: Confirm that if snapclient is true, we have a snapserver to use
@@ -564,7 +550,6 @@
         bluetooth_aplay_service: "{{ aardsound_bluetooth_service2 }}"
         bluetooth_location: "{{ aardsound_location }}"
         bluetooth_output_device: "{{ aardsound_sink_device }}"
-        bluetooth_bluealsa_pcm: "{{ aardsound_bluetooth_bluealsa_pcm }}"
         bluetooth_initial_volume: "{{ aardsound_initial_volume }}"
         bluetooth_mixer: "{{ aardsound_mixer }}"
         bluetooth_mixer_plugin: "{{ aardsound_mixer_plugin }}"
@@ -594,7 +579,6 @@
         bluetooth_multiroom_service2: "{{ aardsound_bluetooth_multiroom_service2 }}"
         bluetooth_multiroom_service3: "{{ aardsound_bluetooth_multiroom_service3 }}"
         bluetooth_multiroom_name: "{{ aardsound_multiroom_name }}"
-        bluetooth_multiroom_bluealsa_pcm: "{{ aardsound_bluetooth_multiroom_bluealsa_pcm }}"
         bluetooth_multiroom_format: "{{ aardsound_format }}"
         bluetooth_multiroom_rate: "{{ aardsound_rate }}"
         bluetooth_multiroom_depth: "{{ aardsound_depth }}"

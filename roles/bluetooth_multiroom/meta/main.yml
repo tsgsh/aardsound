@@ -15,17 +15,12 @@ argument_specs:
       bluetooth_multiroom_active:
         type: bool
         default: true
-        description: Should the Bluetooth multi-room services be installed and configured or removed.
+        description: >-
+          Should the Bluetooth multi-room services be installed and configured or removed.
       bluetooth_multiroom_name:
         type: str
         default: Multiroom Bluetooth speakers
         description: The name of the BlueALSA service to be advertised via ZeroConf.
-      bluetooth_bluealsa_pcm:
-        type: str
-        default: bluealsa-multi
-        description: >-
-          The name of the ALSA PCM of type bluealsa that defines the ALSA parameters associated with
-          the multi-room Bluetooth adapater.
       bluetooth_multiroom_volume:
         type: str
         choices:

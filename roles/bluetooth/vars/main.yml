@@ -98,6 +98,7 @@ bluetooth_agent_description: "{{ ((bluetooth_location + ' ') if bluetooth_locati
 bluetooth_aplay_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
                                   '') + 'BlueALSA A2DP sink playback service' }}"
 
+bluetooth_bluealsa_pcm: bluealsa  # Currently, changing this doesn't work
 bluetooth_bluealsa_aplay_args: >-
   --pcm {{ bluetooth_output_device }}
   --profile-a2dp

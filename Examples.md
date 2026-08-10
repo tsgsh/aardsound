@@ -855,27 +855,34 @@ Therefore, the **Bluetooth** version of *Figure 6* is:
 ```
 *Figure 19*
 
-and adding this to *Figure 19* gives our final configuration with the *nine* audio services running
-on "Wallace":
+**Note:** single- and multi-room **Bluetooth** cannot exist on a single server: there is (currently)
+no mechanism to route two instances of `bt-agent` client connections to two different instances of
+`bluetooth-aplay` via a common `bluealsa` daemon.
+
+Adding this to *Figure 19*, but removing **Bluetooth** from Wallace gives our final configuration,
+with the *eight* audio services running on "Wallace":
 - **Spotify** via `dmix`
 - Multi-room **Spotify** source via the first **Snapcast** server
 - Multi-room **Spotify** output using the first **Snapcast** client
 - **Mopidy** via `dmix`
 - Multi-room **Mopidy** source via the second **Snapcast** server
 - Multi-room **Mopidy** output using the second **Snapcast** client
-- **Bluetooth** via `dmix`
 - Multi-room **Bluetooth** source via the third **Snapcast** server
 - Multi-room **Bluetooth** output using the third **Snapcast** client
 
-"Gromit" has six of the above: it does not have the the **Snapcast** servers.
+and *five* services on "Gromit":
+- **Spotify** via `dmix`
+- Multi-room **Spotify** output using the first **Snapcast** client
+- **Mopidy** via `dmix`
+- Multi-room **Mopidy** output using the second **Snapcast** client
+- **Bluetooth** via `dmix`
+- Multi-room **Bluetooth** output using the third **Snapcast** client
+
 ```
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Raspberry Pi ("Wallace")                 ┃
-┃ ┌────────────────┐                       ┃
-┃ │ bluealsa-aplay │                       ┃
-┃ └─────────────┬──┘                       ┃
-┃ ┌─────────┐   │       ┌────────────────┐ ┃
-┃ │ spotify ├───┤       │ hw:IQaudioDC,0 │ ┃
+┃ ┌─────────┐           ┌────────────────┐ ┃
+┃ │ spotify ├───┐       │ hw:IQaudioDC,0 │ ┃
 ┃ └─────────┘   │       └───────┬────────┘ ┃     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ ┌────────┐    │       ┌───────┴────────┐ ┃     ┃ Raspberry Pi ("Gromit")               ┃
 ┃ │ mopidy ├────┴───────┤ plug:aardmixer │ ┃     ┃ ┌────────────────┐                    ┃
@@ -916,6 +923,7 @@ aardsound:
         aardsound_location: Kitchen
         aardsound_mopidy_multiroom: true
         aardsound_spotify_multiroom: true
+        aardsound_bluetooth: false
         aardsound_bluetooth_multiroom: true
         bluetooth_adapter: hci1
         bluetooth_multiroom_adapter: hci0

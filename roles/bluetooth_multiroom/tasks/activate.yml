@@ -75,7 +75,6 @@
       bluetooth_agent_service: "{{ bluetooth_multiroom_service1 }}"
       bluetooth_aplay_service: "{{ bluetooth_multiroom_service2 }}"
       bluetooth_location: "{{ bluetooth_multiroom_name }}"
-      bluetooth_bluealsa_pcm: "{{ bluetooth_multiroom_bluealsa_pcm }}"
       bluetooth_output_device: "{{ bluetooth_multiroom_aloop_sink }}"
       bluetooth_mixer: false
       bluetooth_initial_volume: "{{ bluetooth_multiroom_initial_volume }}"
