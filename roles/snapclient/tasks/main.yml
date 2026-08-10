@@ -7,7 +7,7 @@
   include_tasks:
     file: activate.yml
 
-- name: Remove the systemd snapclient service(s)
+- name: Remove systemd services
   when: not snapclient_active
   tags:
   - deactivate

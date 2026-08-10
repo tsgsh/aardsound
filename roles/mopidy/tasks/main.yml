@@ -8,7 +8,7 @@
   include_tasks:
     file: activate.yml
 
-- name: Remove the systemd services
+- name: Remove systemd services
   when: not mopidy_active
   tags:
   - deactivate

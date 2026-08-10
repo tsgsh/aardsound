@@ -7,7 +7,7 @@
   include_tasks:
     file: activate.yml
 
-- name: Remove the systemd services
+- name: Remove systemd services
   when: not spotify_multiroom_active
   tags:
   - deactivate
