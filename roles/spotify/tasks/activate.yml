@@ -25,7 +25,7 @@
     # to_json == to_ascii plus quotes
     comment: "{{ spotify_description |
                  to_json |
-                 regex_replace('^\"?(.*)\"?$', '\\1') |
+                 regex_replace('^\"?(.*)\"$', '\\1') |
                  replace(':', '\u003a') }}"
 
 - name: "{{ spotify_service_file }}"

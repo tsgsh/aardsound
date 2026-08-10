@@ -31,7 +31,10 @@
     shell: '/usr/sbin/nologin'
     expires: -1
     system: true
-    comment: "{{ snapclient_description | replace(':', '-') }}"
+    comment: "{{ snapclient_description |
+                 to_json |
+                 regex_replace('^\"?(.*)\"', '\\1') |
+                 replace(':', '\u003a') }}"
 
 
 - name: Configure, enable and start snapclient systemd services
