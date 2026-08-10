@@ -10,7 +10,7 @@
   when: spotify_multiroom_aloop_loaded
   block:
 
-  - name: Determine whether the loopback card exists and has the required subdevice
+  - name: Determine whether the loopback card exists
     register: spotify_multiroom_r_loopback
     changed_when: false
     check_mode: false
@@ -36,34 +36,13 @@
         {{ spotify_multiroom_aloop_subdevice + 1 }} subdevices
       quiet: true
 
-- name: Create a new loopback device
+- name: Set up the snd-asound loopback device
   when: spotify_multiroom_aloop_new_card
-  block:
-
-  - name: Determine the next card number for the ALSA loopback device
-    register: spotify_multiroom_r_aplay
-    changed_when: false
-    check_mode: false
-    failed_when: false  # in case there is no soundcard
-    vars:
-      pipe:
-      - aplay -l
-      - grep ^card
-      - cut -d ':' -f1
-      - cut -b6-
-      - tail -n1
-    shell:
-      cmd: |
-        set -o pipefail
-        {{ pipe | join('|') }}
-      executable: /bin/bash
-
-  - name: Set up the snd-asound loopback device
-    community.general.modprobe:
-      name: snd-aloop
-      params: "{{ spotify_multiroom_aloop_parameters }}"
-      state: present
-      persistent: present
+  community.general.modprobe:
+    name: snd-aloop
+    params: "{{ spotify_multiroom_aloop_parameters }}"
+    state: present
+    persistent: present
 
 - name: Snapserver user and groups
   # Create these early because they are needed to define the FIFO before running snapserver

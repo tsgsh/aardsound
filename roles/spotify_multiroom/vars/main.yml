@@ -25,8 +25,8 @@ spotify_multiroom_aloop_loaded: "{{ 'snd_aloop' in spotify_multiroom_r_lsmod.std
                                     community.general.jc('lsmod') |
                                     map(attribute='module') }}"
 spotify_multiroom_aloop_new_card: "{{ not spotify_multiroom_aloop_loaded or
-                                      spotify_multiroom_r_aplay.stdout_lines == [] }}"
-spotify_multiroom_aloop_enough_subds: "{{ spotify_multiroom_r_aplay.stdout_lines |
+                                      spotify_multiroom_r_loopback.stdout_lines == [] }}"
+spotify_multiroom_aloop_enough_subds: "{{ spotify_multiroom_r_loopback.stdout_lines |
                                           last |
                                           trim |
                                           split(':') |
