@@ -44,5 +44,5 @@
   when: bluetooth_r_stat.stat.exists
   blockinfile:
     path: /etc/asound.conf
-    marker: "# {mark} ANSIBLE MANAGED BLOCK ({{ bluetooth_bluealsa_pcm }})"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK ({{ bluetooth_alsa_pcm }})"
     state: absent

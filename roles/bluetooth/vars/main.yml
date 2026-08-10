@@ -78,7 +78,7 @@ bluetooth_rfkill_unblock_id: "{{ bluetooth_rfkill_devices |
 
 # bluealsa systemd service
 bluetooth_profile_list: "{{ ['a2dp-sink'] + [bluetooth_extra_profiles] | flatten }}"
-bluetooth_bluealsa_args: >-
+bluetooth_alsa_args: >-
   --loglevel={{ bluetooth_loglevel }}
   {% for profile in bluetooth_profile_list %}
   --profile={{ profile }}
@@ -86,7 +86,7 @@ bluetooth_bluealsa_args: >-
   --initial-volume={{ bluetooth_initial_volume }}
   --mp3-algorithm=best
   --mp3-vbr-quality=high
-  {% for option in bluetooth_bluealsa_options %}
+  {% for option in bluetooth_alsa_options %}
   {{ option }}
   {% endfor %}
 bluetooth_alsa_mixer_device: "{{ [bluetooth_mixer_plugin, bluetooth_mixer_card] |
@@ -95,9 +95,13 @@ bluetooth_alsa_mixer_device: "{{ [bluetooth_mixer_plugin, bluetooth_mixer_card] 
                                  join(':') }}"
 bluetooth_agent_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
                                   '') + 'bt-agent service' }}"
+bluetooth_alsa_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
+                                 '') + 'BlueALSA service' }}"
+bluetooth_aplay_description: "{{ ((bluetooth_location + ' ') if bluetooth_location != none else
+                                  '') + 'BlueALSA player service' }}"
 
-bluetooth_bluealsa_pcm: bluealsa  # Currently, changing this doesn't work
-bluetooth_bluealsa_aplay_args: >-
+bluetooth_alsa_pcm: bluealsa  # Currently, changing this doesn't work
+bluetooth_aplay_args: >-
   --pcm {{ bluetooth_output_device }}
   --profile-a2dp
   --single-audio

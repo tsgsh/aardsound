@@ -1,5 +1,5 @@
 [Unit]
-Description=BlueALSA service
+Description={{ bluetooth_alsa_description }}
 Documentation=man:bluealsa(8)
 Requisite=dbus.service
 After=bluetooth.service
@@ -30,7 +30,7 @@ After=bluetooth.service
 Type=dbus
 BusName=org.bluealsa
 User=root
-ExecStart=/usr/bin/bluealsa {{ bluetooth_bluealsa_args }}
+ExecStart=/usr/bin/bluealsa {{ bluetooth_alsa_args }}
 Restart=on-failure
 
 # Sandboxing

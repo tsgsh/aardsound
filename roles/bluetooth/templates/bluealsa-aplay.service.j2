@@ -17,7 +17,7 @@ Requisite=dbus.service
 Type=simple
 User=root
 Group=audio
-ExecStart=/usr/bin/bluealsa-aplay {{ bluetooth_bluealsa_aplay_args }}
+ExecStart=/usr/bin/bluealsa-aplay {{ bluetooth_aplay_args }}
 Restart=on-failure
 
 # Sandboxing

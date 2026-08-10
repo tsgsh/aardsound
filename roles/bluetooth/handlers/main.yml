@@ -3,6 +3,7 @@
   systemd:
     name: dbus
     state: restarted
+
 - name: Restart bluetooth service
   systemd:
     name: bluetooth
@@ -10,14 +11,14 @@
 
 - name: (Re)start bluealsa service
   systemd:
-    name: bluealsa.service
+    name: "{{ bluetooth_alsa_service }}.service"
     enabled: true
     state: restarted
     daemon_reload: true
 
 - name: Enable and (re)start bluealsa-aplay service
   systemd:
-    name: bluealsa-aplay.service
+    name: "{{ bluetooth_aplay_service }}.service"
     enabled: true
     state: restarted
     daemon_reload: true

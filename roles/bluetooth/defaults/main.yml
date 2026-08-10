@@ -3,6 +3,7 @@ bluetooth_active: true
 bluetooth_location:
 bluetooth_output_device: default
 bluetooth_agent_service: bt-agent
+bluetooth_alsa_service: bluealsa
 bluetooth_aplay_service: bluealsa-aplay
 bluetooth_adapter: "{{ bluetooth_macs[bluetooth_unblocked_indices |
                                       first] if bluetooth_unblocked_indices | length > 0 else
@@ -29,4 +30,4 @@ bluetooth_extra_groups: []
 bluetooth_start_after_services: []  # do not include .service suffix
 
 bluetooth_extra_profiles: []
-bluetooth_bluealsa_options: []
+bluetooth_alsa_options: []
