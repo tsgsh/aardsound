@@ -113,21 +113,6 @@
                  regex_replace('^\"?(.*)\"?$', '\\1') |
                  replace(':', '\\u003a') }}"
 
-- name: "User {{ bluetooth_aplay_service }}"
-  user:
-    name: "{{ bluetooth_aplay_service }}"
-    group: "{{ bluetooth_gname }}"
-    groups: "{{ bluetooth_groups }}"
-    create_home: false
-    shell: '/usr/sbin/nologin'
-    expires: -1
-    system: true
-    # to_json == to_ascii plus quotes
-    comment: "{{ (bluetooth_name + ' blueasla-aplay') |
-                 to_json |
-                 regex_replace('^\"?(.*)\"?$', '\\1') |
-                 replace(':', '\\u003a') }}"
-
 - name: BlueALSA /etc/asound.conf entries
   blockinfile:
     path: /etc/asound.conf
