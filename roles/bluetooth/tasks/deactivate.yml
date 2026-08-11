@@ -34,8 +34,3 @@
   file:
     path: "{{ bluetooth_alsa_service_file }}"
     state: absent
-
-- name: Stat /etc/asound.conf
-  register: bluetooth_r_stat
-  stat:
-    path: /etc/asound.conf
