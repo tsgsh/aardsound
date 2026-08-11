@@ -1,5 +1,4 @@
 #jinja2: lstrip_blocks: True
-{# note: no [Install]\nWantedBy= statement, see the BindsTo= in the .service file #}
 [Unit]
 Description=Bind mount of {{ mopidy_media_library }} at {{ mopidy_mount_point }} for {{ mopidy_description }}
 After=network-online.target
@@ -12,3 +11,6 @@ What={{ mopidy_media_library }}
 Where={{ mopidy_mount_point }}
 Type=none
 Options=bind
+
+[Install]
+WantedBy=multi-user.target
