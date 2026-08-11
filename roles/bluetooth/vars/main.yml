@@ -9,7 +9,7 @@ bluetooth_agent_service_file: "/etc/systemd/system/{{ bluetooth_agent_service }}
 bluetooth_conf_template: bluetooth.conf.j2
 bluetooth_conf_file: /etc/bluetooth/main.conf
 bluetooth_alsa_service_template: bluealsa.service.j2
-bluetooth_alsa_service_file: /etc/systemd/system/bluealsa.service
+bluetooth_alsa_service_file: "/etc/systemd/system/{{ bluetooth_agent_service }}.service"
 bluetooth_aplay_service_template: bluealsa-aplay.service.j2
 bluetooth_aplay_service_file: "/etc/systemd/system/{{ bluetooth_aplay_service }}.service"
 bluetooth_class: '0x20414'  # N.B.  string!
