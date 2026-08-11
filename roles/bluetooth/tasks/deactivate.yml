@@ -39,10 +39,3 @@
   register: bluetooth_r_stat
   stat:
     path: /etc/asound.conf
-
-- name: Remove BlueALSA /etc/asound.conf entries
-  when: bluetooth_r_stat.stat.exists
-  blockinfile:
-    path: /etc/asound.conf
-    marker: "# {mark} ANSIBLE MANAGED BLOCK ({{ bluetooth_alsa_pcm }})"
-    state: absent
