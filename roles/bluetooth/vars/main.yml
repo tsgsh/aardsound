@@ -3,7 +3,8 @@ bluetooth_name: "{{ (bluetooth_location if bluetooth_location != none else
                      inventory_hostname_short | capitalize) +
                     ' Bluetooth speakers' }}"
 bluetooth_gname: bluetooth
-bluetooth_groups: "{{ (['audio'] + [bluetooth_extra_groups]) | flatten | unique }}"
+bluetooth_groups:
+- audio
 bluetooth_agent_service: bt-agent
 bluetooth_agent_service_template: bt-agent.service.j2
 bluetooth_agent_service_file: "/etc/systemd/system/{{ bluetooth_agent_service }}.service"

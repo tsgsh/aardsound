@@ -27,9 +27,6 @@ bluetooth_volume: "{{ 'auto' if bluetooth_mixer else 'software' }}"
 bluetooth_codec: SBC
 bluetooth_initial_volume: 50
 
-# Additional grouos we want the bluetooth user to belong to (audio is always present)
-bluetooth_extra_groups: []
-
 # Additional services that we want to wait for
 bluetooth_start_after_services: []  # do not include .service suffix
 
