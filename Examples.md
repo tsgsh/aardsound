@@ -925,8 +925,6 @@ aardsound:
         aardsound_spotify_multiroom: true
         aardsound_bluetooth: false
         aardsound_bluetooth_multiroom: true
-        bluetooth_adapter: hci1
-        bluetooth_multiroom_adapter: hci0
     gromit:
       vars:
         aardsound_location: Lounge
@@ -945,10 +943,6 @@ aardsound:
       host: wallace
       port: 21704
 ```
-Note the specification of two different **Bluetooth** adapters for the two different instances.
-**Aardsound** requires that both `bluetooth_adapter` and `bluetooth_multiroom_adapter` are
-specified when both `aardsound_bluetooth` and `aardsound_bluetoot_hmultiroom` are `true`.
-
 
 ## My Setup
 The audio equipment I use is by no-means "audiophile", but the IQaudIO DACs and their Raspberry
