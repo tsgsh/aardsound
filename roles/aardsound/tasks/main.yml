@@ -510,14 +510,17 @@
       meta: flush_handlers
 
   - name: Bluetooth (source)
+    # Bluetooth needs a slightly different approach than Spotify and Mopidy
+    # Because only one instance can be active and the service names do not change for the multiroom
+    # version, we don't include roles unconditionally: we only call a role to deactivate services
+    # if neither instance is needed.
+    # We have to use the multi-room instance to clean up because it creates more stuff.
     tags:
     - bluetooth
     block:
 
-    - name: Flush handlers for this invocation of the mopidy and snapserver roles
-      meta: flush_handlers
-
-    - name: "{{ ('Activate' if aardsound_bluetooth | bool else 'Deactivate') + ' Bluetooth' }}"
+    - name: Activate Bluetooth
+      when: aardsound_bluetooth  # therefore aardsound_bluetooth_multiroom=false
       vars:
         bluetooth_active: "{{ aardsound_bluetooth | bool }}"
         bluetooth_location: "{{ aardsound_location }}"
@@ -544,6 +547,7 @@
 
     - name: "{{ ('Activate' if aardsound_bluetooth_multiroom | bool else
                  'Deactivate') + ' Bluetooth Multiroom' }}"
+      when: not aardsound_bluetooth  # and aardsound_bluetooth_multiroom=true or false
       vars:
         bluetooth_multiroom_active: "{{ aardsound_bluetooth_multiroom | bool }}"
         bluetooth_multiroom_name: "{{ aardsound_multiroom_name }}"
