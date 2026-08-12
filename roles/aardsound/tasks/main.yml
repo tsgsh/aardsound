@@ -237,24 +237,6 @@
   - name: "Flush the handlers listening for {{ aardsound_reboot_handlers | join(', ') }}"
     meta: flush_handlers
 
-  - name: "Group {{ aardsound_group }}"  # to own /var/lib/aardsound
-    tags:
-    - group
-    group:
-      name: "{{ aardsound_group }}"
-      system: true
-      state: present
-
-  # - name: "{{ aardsound_var_lib }}"
-  #   tags:
-  #   - var-lib
-  #   file:
-  #     path: "{{ aardsound_var_lib }}"
-  #     owner: root
-  #     group: "{{ aardsound_group }}"
-  #     mode: '0750'
-  #     state: directory
-
 - name: ALSA device detection
   when: aardsound_output
   tags:
@@ -549,7 +531,6 @@
         bluetooth_mixer_card: "{{ aardsound_mixer_card }}"
         bluetooth_mixer_device: "{{ aardsound_mixer_device }}"
         bluetooth_mixer_control: "{{ aardsound_mixer_control }}"
-        bluetooth_extra_groups: "{{ [aardsound_group] }}"
       include_role:  # Ensure handlers are not pre-loaded
         name: bluetooth
         apply:
