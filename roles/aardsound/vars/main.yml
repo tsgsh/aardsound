@@ -37,7 +37,8 @@ bluetooth_multiroom_snap_port_offset: 20000   # noqa: var-naming[no-role-prefix]
 # See ../handlers/main.yml.  This doesn't apply to snapclient which is only imported once.
 aardsound_spotify_service: spotify
 aardsound_mopidy_service: mopidy
-aardsound_bluetooth_service1: bt-agent
+aardsound_bluetooth_service0: bt-agent
+aardsound_bluetooth_service1: bluealsa
 aardsound_bluetooth_service2: bluealsa-aplay
 aardsound_sample_format: "{{ aardsound_rate | string + ':' +
                              aardsound_depth | string + ':' +
