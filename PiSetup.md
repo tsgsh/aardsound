@@ -19,6 +19,9 @@ The following choices are recommended when running the imager (these refer to v2
 1.  Select the correct Raspberry Pi device type
 2.  Select either the first option ("Rasberry Pi OS (64-bit)") or, if you know you do not want to use
     the desktop environment, select "Raspberry Pi OS (Other)" then "Rasberry Pi OS Lite (64-bit)" 
+    (The **Ardsound** playbook may significantly quicker on the "Lite" version because it takes less
+    time to patch and the desktop version can cause occasional conflicts with **Bluetooth** if you
+    wish to use that).
 3.  Select the SD card to write to
 4.  Set the hostname to the name you have chosen for your Raspberry Pi; by default it will be visible
     in applications like Spotify Connect
