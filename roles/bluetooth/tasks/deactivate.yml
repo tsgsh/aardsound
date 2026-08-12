@@ -34,9 +34,3 @@
   file:
     path: "{{ bluetooth_alsa_service_file }}"
     state: absent
-
-- name: "Remove /etc/pipewire/pipewire.conf.d/{{ bluetooth_alsa_service }}"
-  notify: Restart pipewire and pipewire-pulse services
-  file:
-    path: "/etc/pipewire/pipewire.conf.d/{{ bluetooth_alsa_service }}"
-    state: absent

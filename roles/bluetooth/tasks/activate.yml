@@ -113,22 +113,6 @@
                  regex_replace('^\"?(.*)\"?$', '\\1') |
                  replace(':', '\\u003a') }}"
 
-- name: Don't allow pipewire to access the bluetooth adapter
-  block:
-
-  - name: /etc/pipewire/pipewire.conf.d/
-    file:
-      path: /etc/pipewire/pipewire.conf.d/
-      state: directory
-      mode: '0755'
-
-  - name: "/etc/pipewire/pipewire.conf.d/{{ bluetooth_alsa_service }}"
-    notify: Restart pipewire and pipewire-pulse services
-    template:
-      src: pipewire.conf.d.j2
-      dest: "/etc/pipewire/pipewire.conf.d/{{ bluetooth_alsa_service }}"
-      mode: '0644'
-
 - name: BlueALSA /etc/asound.conf entries
   blockinfile:
     path: /etc/asound.conf

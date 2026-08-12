@@ -37,31 +37,3 @@
   listen: Reload systemd for bluetooth_active=false
   systemd:
     daemon_reload: true
-
-- name: Determine which users are running
-  listen: Restart pipewire and pipewire-pulse services
-  register: bluetooth_r_users
-  changed_when: false
-  check_mode: false
-  command:
-    cmd: users
-
-
-- name: Determine which users are logged in
-  listen: Restart pipewire and pipewire-pulse services
-  register: bluetooth_r_users
-  changed_when: false
-  check_mode: false
-  command:
-    cmd: users
-
-- name: Attempt to restart pipewire and pipewire-pulse services for each logged in user
-  listen: Restart pipewire and pipewire-pulse services
-  loop: "{{ bluetooth_pipewire }}"
-  failed_when: false
-  become: true
-  become_user: "{{ item.user }}"
-  systemd:
-    name: "{{ item.service }}.service"
-    scope: user
-    state: restarted
