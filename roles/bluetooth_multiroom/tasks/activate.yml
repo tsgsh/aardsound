@@ -80,7 +80,6 @@
       bluetooth_verbose: "{{ bluetooth_multiroom_source_verbose }}"
       bluetooth_port: "{{ bluetooth_multiroom_port }}"
       bluetooth_interface: "{{ bluetooth_multiroom_interface }}"
-      bluetooth_start_after_services: "{{ [bluetooth_multiroom_service2] }}"
     import_role:
       name: bluetooth
 
