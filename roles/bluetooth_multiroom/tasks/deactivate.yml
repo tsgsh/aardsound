@@ -1,14 +1,24 @@
 ---
-- name: "Services 1 & 2: bt-agent and BlueAlsa source"
+- name: "Services 0, 1 & 2: bt-agent, bluealsa and BlueAlsa source"
   block:
 
   - name: Deactivate Bluetooth Multiroom source
     vars:
       bluetooth_active: false
-      bluetooth_agent_service: "{{ bluetooth_multiroom_service1 }}"
+      bluetooth_agent_service: "{{ bluetooth_multiroom_service0 }}"
+      bluetooth_alsa_service: "{{ bluetooth_multiroom_service1 }}"
       bluetooth_aplay_service: "{{ bluetooth_multiroom_service2 }}"
     import_role:
       name: bluetooth
+
+  - name: Unmask the original bluealsa and bluealsa-aplay services
+    failed_when: false  # We will be called regardless of whether bluez-alsa-utils is installed
+    loop:
+    - bluealsa
+    - bluealsa-aplay
+    systemd:
+      name: "{{ item }}"
+      masked: false
 
 - name: "Service 3: snapserver sink"
   block:

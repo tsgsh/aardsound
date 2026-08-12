@@ -538,7 +538,8 @@
     - name: "{{ ('Activate' if aardsound_bluetooth | bool else 'Deactivate') + ' Bluetooth' }}"
       vars:
         bluetooth_active: "{{ aardsound_bluetooth | bool }}"
-        bluetooth_agent_service: "{{ aardsound_bluetooth_service1 }}"
+        bluetooth_agent_service: "{{ aardsound_bluetooth_service0 }}"
+        bluetooth_alsa_service: "{{ aardsound_bluetooth_service1 }}"
         bluetooth_aplay_service: "{{ aardsound_bluetooth_service2 }}"
         bluetooth_location: "{{ aardsound_location }}"
         bluetooth_output_device: "{{ aardsound_sink_device }}"
