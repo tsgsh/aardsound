@@ -1,27 +1,17 @@
 ---
+# Note that trying to do this without hciconfig would require running bt-adapter --list and then
+# looping over the results with bt-adapter info then parsing the output.
+# bluetoothctl list isn't safe because, if there are no "active" bluetooth adapters bluetoothctl
+# hangs indefinitely (what "acive" means # in this context is not entirely clear) and you still need
+# the loop over bt-adapter --info because bluetoothctl list doesn't provide any mapping of MAC to
+# the HCI device index.
+# It is SO much simpler with the deprecated hciconfig!  Here's hoping it works with forky!
 - name: Determine all of the bluetooth adapters
-  register: bluetooth_r_list
+  register: bluetooth_r_hciconfig
   changed_when: false
   check_mode: false
-  # bluetoothctl list can be parsed using jc
   command:
-    cmd: bluetoothctl list
-
-- name: Get a list of MAC addresses ordered by HCI device index
-  # harder than you'd expect!
-  # bluetoothctl doesn't provide any mapping of MAC to HCI device index
-  # hciconfig does but is deprecated
-  # bt-adapter --info does but it doesn't have a jc parser, and needs a loop: see ../vars/main.yml
-  register: bluetooth_r_info
-  changed_when: false
-  check_mode: false
-  loop: "{{ bluetooth_r_list.stdout |
-            community.general.jc('bluetoothctl') }}"  # we use the index not the value
-  loop_control:
-    index_var: i
-    label: "hci{{ i }}"
-  command:
-    cmd: "bt-adapter --info --adapter hci{{ i }}"
+    cmd: hciconfig
 
 - name: A adjust the D-BUS policy for org.bluealsa.sink and org.bluealsa.source
   # per man (8) bluealsa, this is only needed with multipe bluetooth adapters, but why not
@@ -67,22 +57,27 @@
     cmd: rfkill --json
 
 - name: Confirm that there is a valid bluetooth adapter
+  when: bluetooth_adapter == none
+  assert:
+    that: bluetooth_hciconfig != {}
+    fail_msg: No valid bluetooth adapter found
+    quiet: true
+
+- name: Confirm that selected bluetooth adapter is valid
+  when: bluetooth_adapter == none
   assert:
     that:
-    - bluetooth_macs | length > 0
-    - bluetooth_adapter_mac in bluetooth_macs or
-      bluetooth_adapter_index is integer and bluetooth_adapter_index < bluetooth_macs | length
-    fail_msg: >-
-      {{ 'No valid bluetooth adapter found' if bluetooth_adapter == none else
-         bluetooth_adapter + ' is not a valid bluetooth adapter' }}
+    - bluetooth_adapter in bluetooth_devices or bluetooth_adapter in bluetooth_addresses
+    - bluetooth_address != none
+    - bluetooth_device != none
+    fail_msg: "{{ bluetooth_adapter + ' is not a valid bluetooth adapter' }}"
     quiet: true
 
 - name: Confirm that the adapter is not hard blocked
   assert:
     that: bluetooth_adapter_index not in bluetooth_hardblocked_indices
     fail_msg: >-
-      Bluetooth adapter {{ bluetooth_adapter_mac }} (hci{{ bluetooth_adapter_index }} is
-      hard-blocked
+      Bluetooth adapter {{ bluetooth_device }} ({{ bluetooth_address }}) is hard-blocked
     quiet: true
 
 - name: Unblock the Bluetooth adapter if it is soft-blocked

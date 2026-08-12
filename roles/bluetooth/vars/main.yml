@@ -4,12 +4,15 @@ bluetooth_name: "{{ (bluetooth_location if bluetooth_location != none else
                     ' Bluetooth speakers' }}"
 bluetooth_gname: bluetooth
 bluetooth_groups: "{{ (['audio'] + [bluetooth_extra_groups]) | flatten | unique }}"
+bluetooth_agent_service: bt-agent
 bluetooth_agent_service_template: bt-agent.service.j2
 bluetooth_agent_service_file: "/etc/systemd/system/{{ bluetooth_agent_service }}.service"
 bluetooth_conf_template: bluetooth.conf.j2
 bluetooth_conf_file: /etc/bluetooth/main.conf
+bluetooth_alsa_service: bluealsa
 bluetooth_alsa_service_template: bluealsa.service.j2
 bluetooth_alsa_service_file: "/etc/systemd/system/{{ bluetooth_alsa_service }}.service"
+bluetooth_aplay_service: bluealsa-aplay
 bluetooth_aplay_service_template: bluealsa-aplay.service.j2
 bluetooth_aplay_service_file: "/etc/systemd/system/{{ bluetooth_aplay_service }}.service"
 bluetooth_class: '0x20414'  # N.B.  string!
@@ -26,27 +29,22 @@ bluetooth_loglevels:
 - warning
 - info
 - debug
-bluetooth_mac_index: "{{ lookup('ansible.utils.index_of',
-                                bluetooth_macs,
-                                'eq',
-                                bluetooth_adapter) }}"
-bluetooth_adapter_index: "{{ 0 if bluetooth_adapter == 'hci0' else
-                             bluetooth_adapter[3:] | int if bluetooth_adapter[:3] == 'hci' and
-                                                            bluetooth_adapter[3:] | int > 0 else
-                             bluetooth_mac_index if bluetooth_adapter is ansible.utils.mac and
-                                                    bluetooth_mac_index is integer else
-                             none }}"
-bluetooth_adapter_mac: "{{ bluetooth_adapter if bluetooth_adapter is ansible.utils.mac else
-                           bluetooth_macs[bluetooth_adapter] if bluetooth_adapter is integer else
-                           none }}"
-bluetooth_macs: "{{ bluetooth_r_info.results |
-                    map(attribute='stdout_lines') |
-                    map('reject', 'match', '^\\[hci\\d\\]$') |
-                    map('map', 'regex_replace', '^  (.*)', '\\1') |
-                    map('join', '\n') |
-                    flatten |
-                    map('from_yaml') |
-                    map(attribute='Address') }}"
+bluetooth_hciconfig: "{{ bluetooth_r_hciconfig.stdout | community.general.jc('hciconfig') }}"
+bluetooth_addresses: "{{ bluetooth_hciconfig | map(attribute='bd_address') }}"
+bluetooth_devices: "{{ bluetooth_hciconfig | map(attribute='device') }}"
+bluetooth_address: "{{ none if bluetooth_adapter == none else
+                       bluetooth_adapter if bluetooth_adapter is ansible.utils.mac else
+                       bluetooth_hciconfig |
+                       selectattr('device', 'eq', bluetooth_adapter) |
+                       map(attribute='bd_address') |
+                       first }}"
+bluetooth_device: "{{ none if bluetooth_adapter == none else
+                      bluetooth_adapter if bluetooth_adapter is not ansible.utils.mac else
+                      bluetooth_hciconfig |
+                      selectattr('bd_address', 'eq', bluetooth_adapter) |
+                      map(attribute='device') |
+                      first }}"
+bluetooth_adapter_index: "{{ bluetooth_device[3:] | int }}"
 # The following needs an empty default for role validation to work
 bluetooth_rfkill_devices: "{{ (bluetooth_r_rfkill.stdout | from_json).rfkilldevices |
                               selectattr('type', 'eq', 'bluetooth') |
@@ -71,8 +69,7 @@ bluetooth_hardblocked_indices: "{{ bluetooth_rfkill_devices |
                                    map('replace', 'hci', '') |
                                    map('int') }}"
 bluetooth_rfkill_unblock_id: "{{ bluetooth_rfkill_devices |
-                                 selectattr('device', 'eq', 'hci' +
-                                                            bluetooth_adapter_index | string) |
+                                 selectattr('device', 'eq', bluetooth_device | string) |
                                  map(attribute='id') |
                                  first }}"
 

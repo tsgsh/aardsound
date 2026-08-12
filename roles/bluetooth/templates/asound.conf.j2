@@ -1,8 +1,8 @@
 pcm.{{ bluetooth_alsa_pcm }} {
     type bluealsa
     service "org.bluealsa"
-    device "{{ bluetooth_adapter_mac }}"
-    interface "hci{{ bluetooth_adapter_index }}"
+    device "{{ bluetooth_address }}"
+    interface "{{ bluetooth_device }}"
     profile "a2dp"
     volume "{{ bluetooth_initial_volume }}"
     codec "{{ bluetooth_codec }}"
