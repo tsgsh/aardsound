@@ -53,10 +53,10 @@ Internal variables defined in `./vars/main.yml` have a higher variable precedenc
 inventory variables and should not be modified (e.g. by setting extra variables or role parameters).
 
 #### bluetooth_active = *boolean*
-Should the `bt-agent` and `bluealsa-aplay` services be installed and configured or removed
+Should the Bluetooth services be installed and configured or removed
 
 Note that running the role with `bluetooth_active=false` does not remove modifications to
-`/etc/bluetooth/main.conf` nor changes to the state or any Bluetooth adapters.
+`/etc/bluetooth/main.conf` nor changes to the state of any Bluetooth adapters.
 
 Default: `true`
 
@@ -69,27 +69,9 @@ The location is suffixed with "Bluetooth speakers" to advertise it to other devi
 
 Default: `none`
 
-#### bluetooth_agent_service = *string*
-The name of the `systemd` service running `bt-agent`.
-Also sets the name of the user that owns the service.
-
-Default: bt-agent
-
-#### bluetooth_alsa_service = *string*
-The name of the `systemd` service running `bluealsa`.
-Also sets the name of the user that owns the service.
-
-Default: bluealsa
-
-#### bluetooth_aplay_service = *string*
-The name of the `systemd` service running `bluealsa-aplay`.
-Also sets the name of the user that owns the service.
-
-Default: bluealsa-aplay
-
 #### bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
 
-Select the the bluetooth adapter to use
+Select the the Bluetooth adapter to use
 
 The adapter will be unblocked using `rfkill` if it is soft-blocked
 
@@ -100,7 +82,7 @@ adapters; in order of importance:
 - Higher indexed devices are preferred, e.g, USB adapters over the onboard Bluetooth adapter
 
 The rationale for this is as follows: firstly, if you have soft-blocked adapters, that should be
-resepected; secondly if you have installed an external bluetooth adapter, then you probably want
+resepected; secondly if you have installed an external Bluetooth adapter, then you probably want
 to use it; and thirdly, depending upon the Pi model and your usage of Aardsound, WiFi and Bluetooth
 traffic may cause dropouts with each other due to sharing the same hardware
 
@@ -143,7 +125,7 @@ These are the supported A2DP source codecs for BlueAlsa v4.3.1 in RasPiOS Trixie
 
 Which codec is best for you is an impossible question to answer in a README file!
 
-Default: SBC (supported by all bluetooth devices, it is also a fallback if the specified codec is
+Default: SBC (supported by all Bluetooth devices, it is also a fallback if the specified codec is
 not supported by the client)
 
 ##### Notes:
@@ -169,13 +151,6 @@ Default: auto if `bluetooth_mixer` is `true`, otherwise software
 **Bluealsa** daemon initial volume as a percentage from 0 to 100
 
 Default: 50
-
-#### bluetooth_extra_groups = *list*
-A list of groups that the user running `bt-agent` (as defined by 
-[`bluetooth_agent_service`](#bluetooth_agent_service--string) and
-should belong to, in addition to `bluetooth` (the primary group) and `audio`
-
-Default: []
 
 #### bluetooth_start_after_services = *list*
 A list of systemd services that you want to start before the `bt-agent` service.
@@ -220,7 +195,7 @@ play, when handlers are normally flushed.
 
 ### Handlers in this role:
 - Restart dbus service
-- Restart bluetooth service
+- Restart Bluetooth service
 - Enable and (re)start bt-agent service
 - Reload systemd
 

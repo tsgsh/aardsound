@@ -2,9 +2,6 @@
 bluetooth_active: true
 bluetooth_location:
 bluetooth_output_device: default
-bluetooth_agent_service: bt-agent
-bluetooth_alsa_service: bluealsa
-bluetooth_aplay_service: bluealsa-aplay
 bluetooth_adapter: "{{ 'hci' +
                        bluetooth_unblocked_indices |
                        first |

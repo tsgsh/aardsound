@@ -3,8 +3,8 @@ argument_specs:
   main:
     short_description: Main entrypoint for the Aardsound bluetooth role
     description: >
-      The bluetooth role creates a bluetooth listener that connects a device to an ALSA audio
-      output (also controlled by bluetooth)
+      The bluetooth role creates a Bluetooth listener that connects a device to an ALSA audio
+      output (also controlled by Bluetooth)
     version_added: '0.2.0'
     author:
     - Steve Hayes
@@ -12,7 +12,7 @@ argument_specs:
       bluetooth_active:
         type: bool
         description: >-
-          Should the `bt-agent` and `bluealsa-aplay` services be installed and configured or removed
+          Should the Bluetooth services be installed and configured or removed
       bluetooth_location:
         type: str
         description: >
@@ -23,26 +23,10 @@ argument_specs:
 
 
           The location is suffixed with "Bluetooth speakers" to advertise it to other devices.
-      bluetooth_agent_service:
-        type: str
-        description: >
-          The name of the systemd service running `bt-agent`.
-          Also sets the name of the user that owns the service.
-        default: bt-agent
-      bluetooth_alsa_service:
-        type: str
-        description: >
-          The name of the systemd service running `bluealsa`.
-        default: bluealsa
-      bluetooth_aplay_service:
-        type: str
-        description: >
-          The name of the systemd service running `bluealsa-aplay`.
-        default: bluealsa-aplay
       bluetooth_adapter:
         type: str
         description: >
-          Select the the bluetooth adapter to use
+          Select the the Bluetooth adapter to use
 
           Format is: mac_address | hci0 | hci1 | ...
 
@@ -121,14 +105,6 @@ argument_specs:
         type: int
         default: 50
         description: BlueALSA daemon initial volume as a percentage from 0 to 100
-      bluetooth_extra_groups:
-        type: list
-        elements: str
-        default: []
-        description: >
-          A list of groups that the user running bt-agent and bluealsa-aplay (as defined by
-          bluetooth_agent_service and bluetooth_aplay_service) should belong to, in addition to
-          bluetooth (the primary group) and audio.
       bluetooth_start_after_services:
         type: list
         elements: str
