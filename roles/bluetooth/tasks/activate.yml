@@ -131,6 +131,13 @@
     dest: "{{ bluetooth_conf_file }}"
     mode: '0644'
 
+- name: "{{ bluetooth_agent_service_file }}"
+  notify: Enable and (re)start bt-agent service
+  template:
+    src: "{{ bluetooth_agent_service_template }}"
+    dest: "{{ bluetooth_agent_service_file }}"
+    mode: '0644'
+
 - name: "{{ bluetooth_alsa_service_file }}"
   notify: (Re)start bluealsa service
   template:
@@ -143,11 +150,4 @@
   template:
     src: "{{ bluetooth_aplay_service_template }}"
     dest: "{{ bluetooth_aplay_service_file }}"
-    mode: '0644'
-
-- name: "{{ bluetooth_agent_service_file }}"
-  notify: Enable and (re)start bt-agent service
-  template:
-    src: "{{ bluetooth_agent_service_template }}"
-    dest: "{{ bluetooth_agent_service_file }}"
     mode: '0644'
