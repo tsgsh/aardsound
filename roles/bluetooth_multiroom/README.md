@@ -46,12 +46,6 @@ Sets: `bluetooth_location`
 
 Default: Multiroom
 
-#### bluetooth_multiroom_bluealsa_pcm = *string*
-The name of the ALSA PCM of type bluealsa that defines the ALSA parameters associated with the
-multi-room Bluetooth adapater
-
-Default: bluealsa-multi
-
 #### bluetooth_multiroom_volume = auto | mixer | none | software
 Bluetooth remote volume control
 

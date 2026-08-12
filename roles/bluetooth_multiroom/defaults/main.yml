@@ -1,14 +1,6 @@
 ---
 bluetooth_multiroom_active: true
 bluetooth_multiroom_name: Multiroom Bluetooth speakers
-bluetooth_multiroom_agent_service: bt-multiroom-agent
-bluetooth_multiroom_aplay_service: bluealsa-multiroom-aplay
-bluetooth_multiroom_adapter: "{{ bluetooth_macs[bluetooth_unblocked_indices |
-                                      first] if bluetooth_unblocked_indices | length > 0 else
-                       bluetooth_macs[bluetooth_softblocked_indices |
-                                      first] if bluetooth_softblocked_indices | length > 0 else
-                       none }}"
-bluetooth_multiroom_bluealsa_pcm: bluealsa-multi
 bluetooth_multiroom_volume: auto
 bluetooth_multiroom_initial_volume: 50
 bluetooth_multiroom_source_verbose: false

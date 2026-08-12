@@ -5,9 +5,6 @@
   - name: Deactivate Bluetooth Multiroom source
     vars:
       bluetooth_active: false
-      bluetooth_agent_service: "{{ bluetooth_multiroom_service0 }}"
-      bluetooth_alsa_service: "{{ bluetooth_multiroom_service1 }}"
-      bluetooth_aplay_service: "{{ bluetooth_multiroom_service2 }}"
     import_role:
       name: bluetooth
 

@@ -1,9 +1,4 @@
 ---
-# definition of service names
-bluetooth_multiroom_service0: bluetooth-multiroom-agent
-bluetooth_multiroom_service1: bluetooth-multiroom-alsa
-bluetooth_multiroom_service2: bluetooth-multiroom-aplay
-bluetooth_multiroom_service3: bluetooth-multiroom-sink
 # uname and gname, service_template and service_file are specific to service2
 bluetooth_multiroom_gname: bluetooth
 # service files those for service1 and service3 are created by ../../bluetooth and ../../snapserver

@@ -68,22 +68,10 @@
 - name: "Service 0, 1 & 2: bt-agent, bluealsa and blueasla-aplay"
   block:
 
-  - name: Mask the bluealsa and bluealsa-aplay services
-    loop:
-    - bluealsa
-    - bluealsa-aplay
-    systemd:
-      name: "{{ item }}"
-      state: stopped
-      masked: true
-
   - name: Activate Bluetooth Multiroom source
     # most Bluetooth defaults are the same as for the standard bluetooth instance
     vars:
       bluetooth_active: true
-      bluetooth_agent_service: "{{ bluetooth_multiroom_service0 }}"
-      bluetooth_alsa_service: "{{ bluetooth_multiroom_service1 }}"
-      bluetooth_aplay_service: "{{ bluetooth_multiroom_service2 }}"
       bluetooth_location: "{{ bluetooth_multiroom_name }}"
       bluetooth_output_device: "{{ bluetooth_multiroom_aloop_sink }}"
       bluetooth_mixer: false
