@@ -23,6 +23,6 @@
   - name: Deactivate Bluetooth Multiroom sink
     vars:
       snapserver_active: false
-      snapserver_service: "{{ bluetooth_multiroom_service3 }}"
+      snapserver_service: "{{ bluetooth_multiroom_snapserver }}"
     import_role:
       name: snapserver

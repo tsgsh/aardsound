@@ -89,12 +89,12 @@
   - name: Activate Bluetooth Multiroom sink
     vars:
       snapserver_active: true
-      snapserver_service: "{{ bluetooth_multiroom_service3 }}"
+      snapserver_service: "{{ bluetooth_multiroom_snapserver }}"
       snapserver_description: "{{ bluetooth_multiroom_snapserver_description }}"
       snapserver_port_offset: "{{ bluetooth_multiroom_snap_port_offset }}"
       snapserver_source: ALSA
       snapserver_alsa_pcm: "{{ bluetooth_multiroom_aloop_sink }}"
-      snapserver_alsa_stream: "{{ bluetooth_multiroom_service3 }}"
+      snapserver_alsa_stream: "{{ bluetooth_multiroom_snapserver }}"
       snapserver_rate: "{{ bluetooth_multiroom_rate }}"
       snapserver_depth: "{{ bluetooth_multiroom_depth }}"
       snapserver_channels: "{{ bluetooth_multiroom_channels }}"

@@ -1,4 +1,6 @@
 ---
+# definition of service names
+bluetooth_multiroom_snapserver: bluetooth-multiroom-sink
 # uname and gname, service_template and service_file are specific to service2
 bluetooth_multiroom_gname: bluetooth
 # service files those for service1 and service3 are created by ../../bluetooth and ../../snapserver
