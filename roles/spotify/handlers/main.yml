@@ -3,6 +3,7 @@
   systemd:
     name: "{{ spotify_service }}.service"
     enabled: true
+    masked: false
     state: restarted
     daemon_reload: true
 
@@ -10,6 +11,7 @@
   systemd:
     name: "{{ spotify_crash_service }}.service"
     enabled: true
+    masked: false
     state: restarted
     daemon_reload: true
 

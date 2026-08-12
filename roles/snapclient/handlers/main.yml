@@ -15,4 +15,5 @@
   systemd:
     name: "{{ snapclient_service }}.service"
     enabled: true
+    masked: false
     state: restarted

@@ -7,12 +7,14 @@
   systemd:
     name: "{{ spotify_multiroom_service0 }}"
     enabled: true
+    masked: false
     daemon_reload: true
 
 - name: Enable and (re)start Spotify Multiroom bridge service
   systemd:
     name: "{{ spotify_multiroom_service2 }}"
     enabled: true
+    masked: false
     state: restarted
     daemon_reload: true
 

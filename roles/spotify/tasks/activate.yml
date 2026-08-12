@@ -59,6 +59,7 @@
   systemd:
     name: "{{ spotify_crash_service }}.service"
     enabled: true
+    masked: false
     state: started
 
 - name: Setup the crash service

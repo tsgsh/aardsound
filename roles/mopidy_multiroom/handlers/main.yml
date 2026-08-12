@@ -4,6 +4,7 @@
   systemd:
     name: "{{ mopidy_multiroom_service0 }}"
     enabled: true
+    masked: false
     daemon_reload: true
 
 - name: Reload systemd
