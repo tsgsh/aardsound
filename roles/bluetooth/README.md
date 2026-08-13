@@ -196,6 +196,7 @@ play, when handlers are normally flushed.
 ### Handlers in this role:
 - Restart dbus service
 - Restart Bluetooth service
+- Enable and (re)start bluealsa-aplay service
 - Enable and (re)start bt-agent service
 - Reload systemd
 
