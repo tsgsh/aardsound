@@ -21,6 +21,18 @@ argument_specs:
         type: str
         default: Multiroom Bluetooth speakers
         description: The name of the BlueALSA service to be advertised via ZeroConf.
+      bluetooth_multiroom_adapter:
+        type: str
+        description: >
+          Select the the Bluetooth adapter to use for incoming connections.
+
+          Format is: mac_address | hci0 | hci1 | ...
+
+
+          The adapter will be unblocked using rfkill if it is soft-blocked.
+
+
+          Default: use the default defined by the `bluetooth` role
       bluetooth_multiroom_volume:
         type: str
         choices:

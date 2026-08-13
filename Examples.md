@@ -805,7 +805,7 @@ aardsound:
         aardsound_location: Kitchen
         aardsound_mopidy_multiroom: true
         aardsound_spotify_multiroom: true
-        bluetooth_adapter: hci1
+        aardsound_bluetooth_adapter: hci1
     gromit:
       vars:
         aardsound_location: Lounge

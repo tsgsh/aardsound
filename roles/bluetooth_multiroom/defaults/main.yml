@@ -1,6 +1,7 @@
 ---
 bluetooth_multiroom_active: true
 bluetooth_multiroom_name: Multiroom Bluetooth speakers
+bluetooth_multiroom_adapter:
 bluetooth_multiroom_volume: auto
 bluetooth_multiroom_initial_volume: 50
 bluetooth_multiroom_source_verbose: false

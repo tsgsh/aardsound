@@ -177,7 +177,8 @@
 
   - name: Install Bluetooth
     when: aardsound_bluetooth | bool or
-          aardsound_bluetooth_multiroom | bool
+          aardsound_bluetooth_multiroom | bool or
+          aardsound_bluetooth_output | bool
     tags:
     - install-bluetooth
     - bluetooth
@@ -519,11 +520,12 @@
     - bluetooth
     block:
 
-    - name: Activate Bluetooth
+    - name: Activate Bluetooth for incoming connections
       when: aardsound_bluetooth  # therefore aardsound_bluetooth_multiroom=false
       vars:
         bluetooth_active: "{{ aardsound_bluetooth | bool }}"
         bluetooth_location: "{{ aardsound_location }}"
+        bluetooth_adapter: "{{ aardsound_bluetooth_adapter }}"
         bluetooth_output_device: "{{ aardsound_sink_device }}"
         bluetooth_initial_volume: "{{ aardsound_initial_volume }}"
         bluetooth_mixer: "{{ aardsound_mixer }}"
@@ -551,6 +553,7 @@
       vars:
         bluetooth_multiroom_active: "{{ aardsound_bluetooth_multiroom | bool }}"
         bluetooth_multiroom_name: "{{ aardsound_multiroom_name }}"
+        bluetooth_multiroom_adapter: "{{ aardsound_bluetooth_adapter }}"
         bluetooth_multiroom_format: "{{ aardsound_format }}"
         bluetooth_multiroom_rate: "{{ aardsound_rate }}"
         bluetooth_multiroom_depth: "{{ aardsound_depth }}"

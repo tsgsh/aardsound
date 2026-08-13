@@ -46,6 +46,14 @@ Sets: `bluetooth_location`
 
 Default: Multiroom
 
+#### bluetooth_multiroom_adapter = *mac_address* | hci0 | hci1 | ...
+
+Select the the Bluetooth adapter to use
+
+The adapter will be unblocked using `rfkill` if it is soft-blocked
+
+Default: `none` (use the default defined by the `bluetooth` role)
+
 #### bluetooth_multiroom_volume = auto | mixer | none | software
 Bluetooth remote volume control
 

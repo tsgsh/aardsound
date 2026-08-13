@@ -73,6 +73,7 @@
     vars:
       bluetooth_active: true
       bluetooth_location: "{{ bluetooth_multiroom_name }}"
+      bluetooth_adapter: "{{ bluetooth_multiroom_adapter }}"
       bluetooth_output_device: "{{ bluetooth_multiroom_aloop_sink }}"
       bluetooth_mixer: false
       bluetooth_initial_volume: "{{ bluetooth_multiroom_initial_volume }}"

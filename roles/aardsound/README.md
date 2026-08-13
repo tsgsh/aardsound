@@ -196,8 +196,10 @@ Sets:
 - `spotify_multiroom_name`
 - `mopidy_multiroom_name`
 
-#### aardsound_output_device = *string*
-An ALSA PCM device to use for the ultimate sound output.
+#### aardsound_output_device = *string* | *bluetooth_device_address*
+An ALSA PCM device to use for the ultimate sound output or the Bluetooth Device address of a
+Bluetooth device that supports the "a2dp-sink" profile
+
 If not specified, the device is based on the `aardsound_plugin`, `aardsound_card` and
 `aardsound_device` values, i.e: *`plugin`*:*`card`*,*`device`*
 
@@ -209,6 +211,8 @@ Sets:
   - `mopidy_output_device`
   - `bluetooth_output_device`
   - `snapclient_output_device`
+- If the value is a Bluetooth Device address:
+  - `bluetooth_output_device_address`
 
 #### aardsound_plugin = plughw | hw | dmix | dsnoop
 The ALSA PCM plugin to use for the device.
@@ -564,6 +568,22 @@ local = en_GB
 snapcast_enabled = false
 
 ```
+
+#### aardsound_bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
+Select the the Bluetooth adapter to use for incoming connections
+
+The adapter will be unblocked using `rfkill` if it is soft-blocked
+
+Default: `none` (use the default defined by the `bluetooth` role)
+
+#### aardsound_bluetooth_output_adapter = *mac_address* | hci0 | hci1 | ...
+Select the the Bluetooth adapter to use for outgoing connections
+
+The adapter will be unblocked using `rfkill` if it is soft-blocked
+
+Default: the value of `aardsound_bluetooth_adapter`.
+
+
 **Note**:
 at the time of writing, the PyPi version of [Mopidy-Iris](https://pypi.org/project/Mopidy-Iris/) (version
 3.70.0) doesn't support Mopidy version&nbsp;4.
