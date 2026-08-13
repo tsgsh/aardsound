@@ -93,7 +93,7 @@
       snapserver_description: "{{ bluetooth_multiroom_snapserver_description }}"
       snapserver_port_offset: "{{ bluetooth_multiroom_snap_port_offset }}"
       snapserver_source: ALSA
-      snapserver_alsa_pcm: "{{ bluetooth_multiroom_aloop_sink }}"
+      snapserver_alsa_pcm: "{{ bluetooth_multiroom_aloop_source }}"
       snapserver_alsa_stream: "{{ bluetooth_multiroom_snapserver }}"
       snapserver_rate: "{{ bluetooth_multiroom_rate }}"
       snapserver_depth: "{{ bluetooth_multiroom_depth }}"
