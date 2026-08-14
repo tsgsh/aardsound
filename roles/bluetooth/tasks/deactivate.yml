@@ -34,3 +34,10 @@
   file:
     path: "{{ bluetooth_alsa_service_file }}"
     state: absent
+
+- name: Remove BlueALSA /etc/asound.conf entries
+  blockinfile:
+    path: /etc/asound.conf
+    marker: "# {mark} ANSIBLE MANAGED BLOCK ({{ bluetooth_alsa_pcm }})"
+    state: absent
+
