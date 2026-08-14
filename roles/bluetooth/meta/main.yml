@@ -153,4 +153,4 @@ argument_specs:
           bluetooth_output role.
 
 
-          Ignored if bluetooth_active is false
+          Ignored if bluetooth_active is true

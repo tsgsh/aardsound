@@ -148,7 +148,7 @@ in /etc/systemd/system/bluealsa.service when bluetooth_multiroom_active is false
 
 This is used for the case when the BlueALSA definitions are provided by the bluetooth_output role
 
-Ignored if bluetooth_active is false
+Ignored if bluetooth_multiroom_active is true
 
 Defaut: false
 

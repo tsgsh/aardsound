@@ -126,4 +126,4 @@ argument_specs:
           bluetooth_output role.
 
 
-          Ignored if bluetooth_multiroom_active is false
+          Ignored if bluetooth_multiroom_active is true
