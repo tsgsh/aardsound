@@ -475,16 +475,3 @@ argument_specs:
 
 
           Default: use the default defined by the `bluetooth` role
-
-      aardsound_bluetooth_output_adapter:
-        type: str
-        description: >
-          Select the the Bluetooth adapter to use for outgoing connections.
-
-          Format is: mac_address | hci0 | hci1 | ...
-
-
-          The adapter will be unblocked using rfkill if it is soft-blocked
-
-
-          The default value of `aardsound_bluetooth_adapter`.

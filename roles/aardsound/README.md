@@ -568,22 +568,6 @@ local = en_GB
 snapcast_enabled = false
 
 ```
-
-#### aardsound_bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
-Select the the Bluetooth adapter to use for incoming connections
-
-The adapter will be unblocked using `rfkill` if it is soft-blocked
-
-Default: `none` (use the default defined by the `bluetooth` role)
-
-#### aardsound_bluetooth_output_adapter = *mac_address* | hci0 | hci1 | ...
-Select the the Bluetooth adapter to use for outgoing connections
-
-The adapter will be unblocked using `rfkill` if it is soft-blocked
-
-Default: the value of `aardsound_bluetooth_adapter`.
-
-
 **Note**:
 at the time of writing, the PyPi version of [Mopidy-Iris](https://pypi.org/project/Mopidy-Iris/) (version
 3.70.0) doesn't support Mopidy version&nbsp;4.
@@ -596,6 +580,13 @@ However, this only installs the python code, it does not do the required compila
 
 So, until the current development branch is released to PyPi, **Mopidy-Iris** doesn't work, without
 a manual installation.
+
+#### aardsound_bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
+Select the the Bluetooth adapter to use
+
+The adapter will be unblocked using `rfkill` if it is soft-blocked
+
+Default: `none` (use the default defined by the `bluetooth` role)
 
 
 ## License

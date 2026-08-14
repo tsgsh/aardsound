@@ -96,4 +96,3 @@ aardsound_mopidy_multiroom_extensions: "{{ aardsound_mopidy_extensions }}"
 
 # Bluetooth devices
 aardsound_bluetooth_adapter:
-aardsound_bluetooth_output_adapter: "{{ aardsound_bluetooth_adapter }}"
