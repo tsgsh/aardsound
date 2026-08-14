@@ -68,7 +68,7 @@ Sets: `bluetooth_verbose`
 Default: 0
 
 #### bluetooth_multiroom_aloop_card = *string*
-The name of the ALSA card that is to be used for the loopback device between BlueALSAA and the
+The name of the ALSA card that is to be used for the loopback device between BlueALSA and the
 Snapcast server
 
 If the card does not exist it will be created with enough substreams to support the value specified
