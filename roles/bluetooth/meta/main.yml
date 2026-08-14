@@ -141,3 +141,16 @@ argument_specs:
         type: bool
         default: 0
         description: Should verbose logging be set for the BlueALSA daemon?
+      bluetooth_keep_bluealsa:
+        type: bool
+        default: false
+        description: >-
+          Whether to remove (i) the BlueALSA entry from /etc/asound.conf and (ii) the BlueALSA
+          service defined in /etc/systemd/system/bluealsa.service when bluetooth_active is false.
+
+
+          This is used for the case when the BlueALSA definitions are provided by the
+          bluetooth_output role.
+
+
+          Ignored if bluetooth_active is false

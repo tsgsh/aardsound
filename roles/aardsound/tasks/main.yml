@@ -567,6 +567,7 @@
         bluetooth_multiroom_channels: "{{ aardsound_channels }}"
         bluetooth_multiroom_aloop_card: "{{ aardsound_aloop_card }}"
         bluetooth_multiroom_aloop_subdevice: "{{ aardsound_bluetooth_multiroom_aloop_subdevice }}"
+        bluetooth_multiroom_keep_bluealsa: "{{ aardsound_bluetooth_output }}"
         # bluetooth_multiroom_snap_port_offset is set in ../vars/main.yml
       include_role:  # Ensure handlers are not pre-loaded
         name: bluetooth_multiroom
