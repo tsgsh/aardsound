@@ -28,7 +28,7 @@ argument_specs:
         description: >
           Select the the Bluetooth adapter to use
 
-          Format is: mac_address | hci0 | hci1 | ...
+          Format is: bd_address | hci0 | hci1 | ...
 
 
           The adapter will be unblocked using rfkill if it is soft-blocked

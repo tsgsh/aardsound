@@ -69,7 +69,7 @@ The location is suffixed with "Bluetooth speakers" to advertise it to other devi
 
 Default: `none`
 
-#### bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
+#### bluetooth_adapter = *bd_address* | hci0 | hci1 | ...
 
 Select the the Bluetooth adapter to use
 
