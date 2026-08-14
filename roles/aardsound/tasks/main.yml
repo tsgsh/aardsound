@@ -49,11 +49,18 @@
       fail_msg: A local media library must be specified if aardsound_multiroom_mopidy is true
       quiet: true
 
-  - name: Confirm that at most one of bluetooth and bluetooth-multiroom are active
+  - name: >-
+      Confirm that at most one of bluetooth, bluetooth_multiroom and bluetooth_output are active
     assert:
-      that: not aardsound_bluetooth or not aardsound_bluetooth_multiroom
-      fail_msg: >-
-        Only one of aardsound_bluetooth and aardsound_bluetooth_multiroom can be true
+      that: aardsound_bluetooth | int +
+            aardsound_bluetooth_multiroom | int +
+            aardsound_bluetooth_output | int < 2
+      fail_msg: >
+        Only one of aardsound_bluetooth, aardsound_bluetooth_multiroom and
+        aardsound_bluetooth_output can be true
+
+        (aardsound_bluetooth_output is true if the value of aardsound_output_device is a Bluetooth
+        device address)
       quiet: true
 
   - name: Confirm that if snapclient is true, we have a snapserver to use
