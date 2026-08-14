@@ -8,7 +8,7 @@ argument_specs:
     - An instance of blueasla-aplay to route audio output to the ALSA loopback device
     - An ALSA loopback device to connect bluealsa-aplay to the Snapcast server
     - An instance of the Snapcast server to feed the Bluetooth Output to remote Snapcast clients
-    version_added: '0.2.0'
+    version_added: '0.3.0'
     author:
     - Steve Hayes
     options:
