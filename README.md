@@ -1,10 +1,10 @@
 # Aardsound
 
-Ansible Infrastructure as Code setup of (possibly multi-room) Spotify Connect, Mopidy, on a
-Raspberry Pi (any model with ARMv7 or ARMv8 hardware) running RasPiOS and with a suitable sound
-card driven by ALSA.
+A modular **Ansible** Infrastructure as Code setup of (possibly multi-room) **Spotify Connect**,
+**Mopidy**, and/or **Bluetooth** audio on a Raspberry Pi (any model with ARMv7 or ARMv8 hardware)
+running RasPiOS and with a suitable sound card driven by ALSA.
 
-**aardsound** is intended to be used on newly‑built Raspberry Pi OS image, however it is written to be
+**Aardsound** is intended to be used on newly‑built Raspberry Pi OS image, however it is written to be
 idempotent, assuming the same inventory variables (and/or any extra variables) are passed to it, so
 re‑running it should work as expected.
 
@@ -15,7 +15,6 @@ re‑running it should work as expected.
 Only joking, that is not why it's called **Aardsound**, it's because my Raspberry Pi's are all named
 after characters from Aardman Animation's Wallace and Gromit films
 (and [Morph](https://en.wikipedia.org/wiki/Morph_(TV_series))).
-
 
 This is a project I started to learn how to use **Ansible**.
 It was refactored in 2026 after the multi‑room element stopped working: this improved the strudture,
@@ -40,8 +39,6 @@ There are three main parts:
   pairing mode (no PIN required or possible) 
 - [Snapcast](https://github.com/snapcast/snapcast) for optional synchronous multiroom audio
 
-Bluetooth as an audio sink will be added in future releases.
-
 All of these drive the Advanced Linux Sound Architecture (ALSA) subssytem (Aardsound does not
 use PulseAudio, Pipewire or JACK).
 
@@ -53,6 +50,9 @@ For multi‑room audio, **Snapcast** clients can connect each Raspberry Pi to on
 servers.
 **Snapcast** servers can run alongside **Snapcast** clients or on a dedicated Raspberry Pi or a
 Debian Linux server.
+
+**Bluetooth** devices that support the "a2dp-sink" profile can be used instead of a sound card:
+in this case **Bluetooth** cannot also be used as an input source.
 
 ## Invocation
 Once the [**Ansible** Inventory](#ansible-inventory) has been set up, Raspberry Pis are connected
@@ -102,7 +102,7 @@ installed:
 - **community.general**
 
 The Python environment used by Ansible also requires [**jc**](https://pypi.org/project/jc/) to be
-installed (this is needed for **Bluetooth** only).
+installed (this is needed for **Bluetooth** input or output only).
 
 These are available as packages in the **EPEL** repoitory as **ansible-collection-ansible-posix**,
 etc.
@@ -123,7 +123,7 @@ This is because the roles are not intended for general use in playbooks other th
 
 ### Configuring the Control node
 
-### Ansible Inventory
+#### Ansible Inventory
 
 In addtion, you will need an Ansible inventory file to define the managed nodes and the
 inventory variables that will define what is to be deployed to to each target.
@@ -131,7 +131,7 @@ See the [**Inventory**](#ansible-inventory) section below.
 
 MacOS may work as a control host operating system, but this has not been tested.
 
-### Ansible forks
+#### Ansible forks
 
 If you have more than 5 hosts in your inventory that you might run **Aardsound** against
 simultaneously, then consider increasing the number of `forks` available to **Ansible** by setting
@@ -155,7 +155,7 @@ You need one or more Raspberry Pi's (not the original Model A/A+ or Model B/B+ o
 a USB- or [HAT](https://github.com/raspberrypi/hats/tree/master)-attached Digital-to-Analog
 Converter (DAC) or a or Digital Amplifier driving powered or unpowered speakers respectively.
 The Raspberry Pi's should be running the RasPiOS "Trixie" (or later) Operating System (the "Lite"
-version is acceptable).
+version is recommended unless you need a desktop installation).
 The servers *should* have new installations of RasPiOS.
 
 You can also use a Debian Trixie node as a source for multiroom audio.
@@ -165,9 +165,10 @@ controller or a USB-attached one.
 If using the onboard controller and WiFi connectivity, there may be contention between the two with
 lower-spec Raspbery Pi models.
 
-**Note:** single- and multi-room **Bluetooth** cannot exist on a single server: there is (currently)
-no mechanism to route two instances of `bt-agent` client connections to two different instances of
-`bluetooth-aplay` via a common `bluealsa` daemon.
+**Note:** single- and multi-room **Bluetooth** input cannot exist on a single server: there is
+(currently) no mechanism to route two instances of `bt-agent` client connections to two different
+instances of `bluetooth-aplay` via a common `bluealsa` daemon.
+Similarly, **Bluetooth** output is not supported with either of the **Bluetooth** input variants.
 
 At a minimum you need *fixed* (or, at least, *known*) IP addresses for all devices for the
 installation of **Aardsound** and *fixed* addresses for any nodes that will be sources for
@@ -203,10 +204,11 @@ For a quick guide to setting up your Raspberry Pi(s) like this, see the
 See also the [**Limitations**](#limitations) section for the types of Raspberry Pi you can use.
 
 ## Major To‑Do Items
-- **Bluetooth** as output
+- Output to a soundcard and **Bluetooth** simultanoeusly using ALSA `dsnoop`
 
 ## Minor To‑Do Items
 - HTTPS support for Mopidy (nginx reverse proxy)
+- Bluetooth input and output co-existence
 
 ## Limitations
 - Spotify/librespot will not work on [ARM](
@@ -275,7 +277,7 @@ For example:
 ```
 may be issued by the `bluetooth` role:
 this is a deprecation warning about the `ansible.utils.imdex_of` lookup that is used to map a
-Bluetooth MAC addresses to the corresponding `hciN` device number.
+**Bluetooth** device addresses to the corresponding `hciN` device number.
 
 It is better *not* to set `deprecation_warnings=False` in `ansible.cfg` if you intend to develop
 your own **Ansible** playbooks.
@@ -298,8 +300,8 @@ your own **Ansible** playbooks.
   are stabilised, i.e. `0`, `1` or `2` depending on the number of HDMIs connected, or present if
   HDMI hotplugging is enabled.
 - All recent testing has been done with 64‑bit versions of RasPiOS/Debian Trixie, but the previous
-  Bookworm version should work (except for Bluetooth, which is unlikely to work), as should 32‑bit
-  versions.
+  Bookworm version should work (except for **Bluetooth**, which is unlikely to work), as should
+  32‑bit versions.
 - Ubuntu or other Debian derivatives are not supported but *may* work if they have repositories that
   provide the required Mopidy and Snapcast packages (a non‑multiroom Spotify‑only installation does
   not need them).
@@ -475,6 +477,7 @@ including the main `aardsound` role.
     ├── alsa_scontrols
     ├── bluetooth
     ├── bluetooth_multiroom
+    ├── bluetooth_output
     ├── dmixer
     ├── mopidy
     ├── mopidy_installer
@@ -493,6 +496,7 @@ including the main `aardsound` role.
 - `bluetooth` &ndash; configures (or removes) systemd services and an ALSA PCM for **Bluetooth** audio
 - `bluetooth_multiroom` &ndash; configures **Bluetooth** as a source for Snapserver; calls `bluetooth`
   and `snapserver`
+- `bluetooth_output` &ndash; configures a **Bluetooth** device as an ALSA output device
 - `mopidy` &ndash; configures (or removes) systemd services for **Mopidy**
 - `mopidy_installer` &ndash; installs **Mopidy** and extensions
 - `mopidy_multiroom` &ndash; configures **Mopidy** as a source for **Snapcast**; calls `mopidy`
@@ -520,11 +524,13 @@ The hierarchy of these roles is:
 ├──┤ mopidy_installer │     │ │    │   │    └─────┬───────┬──────┘  │  │       │
 │  └──────────────────┘     │ │    │   │    ┌─────┘       │         │  │       │
 │                           │ │    │   └────────────────┐ │ ┌───────┘  │  ┌────┴──────┐
-│  ┌────────────────┐       │ └───────────┐ │           │ │ │          │  │           │
-└──┤ alsa_scontrols │       │ ┌────┘      │ │           │ │ │          │  │           │
-   └────────────────┘   ┌───┴─┴───┐  ┌────┴─┴────┐  ┌───┴─┴─┴────┐  ┌──┴──┴──┐  ┌─────┴──────┐
-                        │ spotify │  │ bluetooth │  │ snapserver │  │ mopidy │  │ snapclient │
-                        └─────────┘  └───────────┘  └────────────┘  └────────┘  └────────────┘
+│  ┌──────────────────┐     │ │    │        │           │ │ │          │  │           │
+├──┤ bluetooth_output │     │ └───────────┐ │           │ │ │          │  │           │
+│  └──────────────────┘     │ ┌────┘      │ │           │ │ │          │  │           │
+│                           │ │           │ │           │ │ │          │  │           │
+│  ┌────────────────┐   ┌───┴─┴───┐  ┌────┴─┴────┐  ┌───┴─┴─┴────┐  ┌──┴──┴──┐  ┌─────┴──────┐
+└──┤ alsa_scontrols │   │ spotify │  │ bluetooth │  │ snapserver │  │ mopidy │  │ snapclient │
+   └────────────────┘   └─────────┘  └───────────┘  └────────────┘  └────────┘  └────────────┘
 ```
 In other words, `aardsound` calls all of the other roles directly, except `snapserver`, which is
 called by `spotify_multiroom`, `mopidy_multiroom` and `bluetooth_multiroom`, which also call

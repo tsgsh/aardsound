@@ -30,7 +30,7 @@ By default, Aardsound will select something like `hw:IQaudIODAC,0` where:
   Other plugins are available but for now we will just use `hw`.
 - `IQaudIODAC` is the name that the sound card declares to **ALSA**, possibly with a suffix like
   `_2`   assigned by **ALSA** if there is more than one of the same type.
-  "IQaudIODAC" is the name  declared by the [IQaudio DAC+ HAT](
+  "IQaudIODAC" is the name declared by the [IQaudio DAC+ HAT](
   https://shop.pimoroni.com/products/pi-dac).
 - `0` is the index number of the output device on the sound card; most sound cards have the
   playback device as 0.
@@ -944,6 +944,40 @@ aardsound:
       port: 21704
 ```
 
+## Bluetooth Audio Output
+**Bluetooth** audio output is handled differently from **Bluetooth** audio input.
+This is because there is no BluezALSA output analogue of `bluealsa-aplay` that would take
+input from an ALSA device and play it to a **Bluetooth** Device.
+
+Instead a similar approach is used as in multiroom **Spotify**: an ALSA Loopback device to
+serve as the ALSA sink and an FFMPEG device that receives the Loopback output and sends it
+to the **Bluetooth** device.
+The FFMPEG device plays an important role in buffering audio to handle varibale latency
+(jitter) that can be expected over a **Bluetooth** connecition.
+In some of the cases above, it would be possible to omit the Loopback device and pass output
+directly to FFMPEG, but the Loopback device ensures that the the design of **Aardsound**
+remains modular.
+
+A **Bluetooth** speaker version of *Figure 2* above would be:
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Raspberry Pi ("Wallace")                                     ┃
+┃ ┌─────────┐                                                  ┃
+┃ │ spotify │  ┌──────────┐  ┌────────┐  ┌───────────────────┐ ┃      ┏━━━━━━━━━━━━━━━━━━━┓
+┃ │   or    ├──┤ Loopback ├──┤ FFMPEG ├──┤ Bluetooth adapter ├─╂──────┨ Bluetooth speaker ┃
+┃ │ mopidy  │  └──────────┘  └────────┘  └───────────────────┘ ┃      ┗━━━━━━━━━━━━━━━━━━━┛
+┃ └─────────┘                                                  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+*Figure 21*
+
+where the **Bluetooth** adpater plays the role of the sound card and the **Bluetooth** speaker plays
+the role of the active speaker (obviously).
+This means that in any of the diagrams that do not include a **Bluetooth** input source above, it is
+possible to replace the ALSA device corresponding to the sound card (`hw:IQAudIODAC,0`) with an ALSA
+Loopback device and an FFMPEG service configured to use the **Bluetooth** Adapter as an output.
+
+
 ## My Setup
 The audio equipment I use is by no-means "audiophile", but the IQaudIO DACs and their Raspberry
 Pi-branded replacements provide excellent sound quality.  The DAC+ is capable of 24-bit 192kHz
@@ -1007,4 +1041,4 @@ device in `/etc/kea/kea-dhcp4.conf` and a "A" record for each device in my DNZ z
 statements in the DHCP config set the `domain-name-service` option to the IP address of the DNS
 server and the `domain-search` option to `my.domain`.  
 This gives every device a fixed IP address that can be reached by hostname without the need
-to specifyc the fully-qualified domain name.
+to specify the fully-qualified domain name.
