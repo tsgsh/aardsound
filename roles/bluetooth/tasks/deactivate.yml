@@ -29,14 +29,18 @@
     path: "{{ bluetooth_aplay_service_file }}"
     state: absent
 
-- name: "Remove {{ bluetooth_alsa_service_file }}"
-  notify: Reload systemd for bluetooth_active=false
-  file:
-    path: "{{ bluetooth_alsa_service_file }}"
-    state: absent
+- name: BlueALSA
+  when: not bluetooth_keep_bluealsa
+  block:
 
-- name: Remove BlueALSA /etc/asound.conf entries
-  blockinfile:
-    path: /etc/asound.conf
-    marker: "# {mark} ANSIBLE MANAGED BLOCK ({{ bluetooth_alsa_pcm }})"
-    state: absent
+  - name: "Remove {{ bluetooth_alsa_service_file }}"
+    notify: Reload systemd for bluetooth_active=false
+    file:
+      path: "{{ bluetooth_alsa_service_file }}"
+      state: absent
+
+  - name: Remove BlueALSA /etc/asound.conf entries
+    blockinfile:
+      path: /etc/asound.conf
+      marker: "# {mark} ANSIBLE MANAGED BLOCK ({{ bluetooth_alsa_pcm }})"
+      state: absent

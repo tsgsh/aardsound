@@ -181,6 +181,15 @@ From:
 
 Default: []
 
+#### bluetooth_keep_bluealsa = true | false
+Whether to remove (i) the BlueALSA entry from /etc/asound.conf and (ii) the BlueALSA service defined
+in /etc/systemd/system/bluealsa.service when bluetooth_active is false
+
+This is used for the case when the BlueALSA definitions are provided by the bluetooth_output role
+
+Ignored if bluetooth_active is true
+
+Defaut: false
 
 ## Handlers
 

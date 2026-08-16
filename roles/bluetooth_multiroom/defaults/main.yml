@@ -18,3 +18,4 @@ bluetooth_multiroom_snap_port_offset: 0
 bluetooth_multiroom_sink_debug: false
 bluetooth_multiroom_sink_logging: "{{ '*:debug' if bluetooth_multiroom_sink_debug | bool else
                                       none }}"
+bluetooth_multiroom_keep_bluealsa: false

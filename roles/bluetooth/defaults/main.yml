@@ -29,3 +29,4 @@ bluetooth_start_after_services: []  # do not include .service suffix
 
 bluetooth_extra_profiles: []
 bluetooth_alsa_options: []
+bluetooth_keep_bluealsa: false
