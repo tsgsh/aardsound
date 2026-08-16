@@ -1,7 +1,8 @@
 .DS_store
 ._.DS_store
 __pycache__
-*.old
 .yamllint
+*.old
+*.new
 .ansible-lint
 .vscode
