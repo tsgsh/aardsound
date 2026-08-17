@@ -57,20 +57,20 @@
     cmd: rfkill --json
 
 - name: Confirm that there is a valid bluetooth adapter
-  when: bluetooth_adapter == none
+  when: bluetooth_adapter_ == none
   assert:
     that: bluetooth_hciconfig != {}
     fail_msg: No valid bluetooth adapter found
     quiet: true
 
 - name: Confirm that selected bluetooth adapter is valid
-  when: bluetooth_adapter == none
+  when: bluetooth_adapter_ == none
   assert:
     that:
-    - bluetooth_adapter in bluetooth_devices or bluetooth_adapter in bluetooth_addresses
+    - bluetooth_adapter_ in bluetooth_devices or bluetooth_adapter_ in bluetooth_addresses
     - bluetooth_address != none
     - bluetooth_device != none
-    fail_msg: "{{ bluetooth_adapter + ' is not a valid bluetooth adapter' }}"
+    fail_msg: "{{ bluetooth_adapter_ + ' is not a valid bluetooth adapter' }}"
     quiet: true
 
 - name: Confirm that the adapter is not hard blocked
