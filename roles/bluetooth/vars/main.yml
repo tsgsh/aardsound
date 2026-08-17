@@ -16,7 +16,7 @@ bluetooth_alsa_service_file: "/etc/systemd/system/{{ bluetooth_alsa_service }}.s
 bluetooth_aplay_service: bluealsa-aplay
 bluetooth_aplay_service_template: bluealsa-aplay.service.j2
 bluetooth_aplay_service_file: "/etc/systemd/system/{{ bluetooth_aplay_service }}.service"
-bluetooth_class: '0x20414'  # N.B.  string!
+bluetooth_class: '0x240414'  # N.B.  string!
 bluetooth_codecs:  # the following are listed as available a2dp-source codecs by blueaslsa --help
 - SBC
 - MP3
