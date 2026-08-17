@@ -2,15 +2,19 @@
 bluetooth_active: true
 bluetooth_location:
 bluetooth_output_device: default
-bluetooth_adapter: "{{ 'hci' +
-                       bluetooth_unblocked_indices |
-                       first |
-                       string if bluetooth_unblocked_indices | length > 0 else
-                       'hci' +
-                       bluetooth_softblocked_indices |
-                       first |
-                       string if bluetooth_softblocked_indices | length > 0 else
-                       none }}"
+# bluetooth_adapter_ is a version of bluetooth_adapter with a default value that
+# replaces none
+bluetooth_adapter:
+bluetooth_adapter_: "{{ bluetooth_adapter if bluetooth_adapter != none else
+                        'hci' +
+                        bluetooth_unblocked_indices |
+                        first |
+                        string if bluetooth_unblocked_indices | length > 0 else
+                        'hci' +
+                        bluetooth_softblocked_indices |
+                        first |
+                        string if bluetooth_softblocked_indices | length > 0 else
+                        none }}"
 bluetooth_loglevel: error
 bluetooth_mixer: false
 bluetooth_mixer_control: Master
