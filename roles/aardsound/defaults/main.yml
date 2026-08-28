@@ -74,22 +74,6 @@ aardsound_rate: 44100
 aardsound_depth: 16
 aardsound_channels: 2
 
-# Spotify ports (none to leave as a random port)
-aardsound_spotify_port:
-aardsound_spotify_address:
-aardsound_spotify_multiroom_port:
-aardsound_spotify_multiroom_address:
-
-# Mopidy bind addresses and ports
-aardsound_mopidy_http_address:
-aardsound_mopidy_http_port: 6680
-aardsound_mopidy_mpd_address:
-aardsound_mopidy_mpd_port: 6600
-aardsound_mopidy_multiroom_http_address:
-aardsound_mopidy_multiroom_http_port: 6681
-aardsound_mopidy_multiroom_mpd_address:
-aardsound_mopidy_multiroom_mpd_port: 6601
-
 # Mopidy Extensions
 aardsound_mopidy_extensions: {}
 aardsound_mopidy_multiroom_extensions: "{{ aardsound_mopidy_extensions }}"

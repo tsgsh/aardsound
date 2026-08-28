@@ -16,7 +16,7 @@ bluetooth_alsa_service_file: "/etc/systemd/system/{{ bluetooth_alsa_service }}.s
 bluetooth_aplay_service: bluealsa-aplay
 bluetooth_aplay_service_template: bluealsa-aplay.service.j2
 bluetooth_aplay_service_file: "/etc/systemd/system/{{ bluetooth_aplay_service }}.service"
-bluetooth_class: '0x20414'  # N.B.  string!
+bluetooth_class: '0x240414'  # N.B.  string!
 bluetooth_codecs:  # the following are listed as available a2dp-source codecs by blueaslsa --help
 - SBC
 - MP3
@@ -33,16 +33,16 @@ bluetooth_loglevels:
 bluetooth_hciconfig: "{{ bluetooth_r_hciconfig.stdout | community.general.jc('hciconfig') }}"
 bluetooth_addresses: "{{ bluetooth_hciconfig | map(attribute='bd_address') }}"
 bluetooth_devices: "{{ bluetooth_hciconfig | map(attribute='device') }}"
-bluetooth_address: "{{ none if bluetooth_adapter == none else
-                       bluetooth_adapter if bluetooth_adapter is ansible.utils.mac else
+bluetooth_address: "{{ none if bluetooth_adapter_ == none else
+                       bluetooth_adapter_ if bluetooth_adapter_ is ansible.utils.mac else
                        bluetooth_hciconfig |
-                       selectattr('device', 'eq', bluetooth_adapter) |
+                       selectattr('device', 'eq', bluetooth_adapter_) |
                        map(attribute='bd_address') |
                        first }}"
-bluetooth_device: "{{ none if bluetooth_adapter == none else
-                      bluetooth_adapter if bluetooth_adapter is not ansible.utils.mac else
+bluetooth_device: "{{ none if bluetooth_adapter_ == none else
+                      bluetooth_adapter_ if bluetooth_adapter_ is not ansible.utils.mac else
                       bluetooth_hciconfig |
-                      selectattr('bd_address', 'eq', bluetooth_adapter) |
+                      selectattr('bd_address', 'eq', bluetooth_adapter_) |
                       map(attribute='device') |
                       first }}"
 bluetooth_adapter_index: "{{ bluetooth_device[3:] | int }}"

@@ -440,7 +440,7 @@ subnet.
 
 If you want your devices on multiple subnets (or have your **Spotify Connect** and **Mopidy** clients
 on a different subnet from your Raspberry Pis), you will need to:
-- Set the `aardsound_spotify_port` and/or  `aardsound_spotify_multiroom_port` variables to define
+- Set the `spotify_port` and/or `spotify_multiroom_port` variables to define
   the static port(s) that `librespot` will listen on and advertise over ZeroConf.
 - Set up firewall rules between your subnets to allow **Spotify Connect**, **Mopidy MPD** and/or
   **Mopidy HTTP** traffic.

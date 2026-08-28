@@ -69,7 +69,7 @@ The location is suffixed with "Bluetooth speakers" to advertise it to other devi
 
 Default: `none`
 
-#### bluetooth_adapter = *mac_address* | hci0 | hci1 | ...
+#### bluetooth_adapter = *bd_address* | hci0 | hci1 | ...
 
 Select the the Bluetooth adapter to use
 
@@ -196,6 +196,7 @@ play, when handlers are normally flushed.
 ### Handlers in this role:
 - Restart dbus service
 - Restart Bluetooth service
+- Enable and (re)start bluealsa-aplay service
 - Enable and (re)start bt-agent service
 - Reload systemd
 

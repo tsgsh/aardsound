@@ -92,39 +92,12 @@ Sets: `mopidy_mount_after`
 
 Default: []
 
-#### mopidy_multiroom_http_bind_address =  *IP address*
-
-*IP address*
-
-Address to bind the `mopidy-http` extension to
-
-Sets: `mopidy_http_bind_address`
-
-Default: 
-- '::' if `mopidy_trusted_network` and `mopidy_ipv6` are true
-- '0.0.0.0' if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
-- '::1' if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
-- '127.0.0.1' if `mopidy_trusted_network` and `mopidy_ipv6` are false
-
-Default: 127.0.0.1
-
 #### mopidy_multiroom_http_port = 1025-65535
 Port to bind the `mopidy-http` extension to
 
 Sets: `mopidy_http_bind_port`
 
 Default: 6681
-
-#### mopidy_multiroom_mpd_bind_address = *IP address*
-Address to bind the `mopidy-mpd` extension to
-
-Sets: `mopidy_mpd_bind_address`
-
-Default:
-- '::' if `mopidy_trusted_network` and `mopidy_ipv6` are true
-- '0.0.0.0' if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
-- '::1' if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
-- '127.0.0.1' if `mopidy_trusted_network` and `mopidy_ipv6` are false
 
 #### mopidy_multiroom_mpd_port = 1025-65535
 Port to bind the `mopidy-mpd` extension to

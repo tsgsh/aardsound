@@ -84,15 +84,6 @@ Sets: `spotify_port`
 
 Default: `none` (`librespot` internal default is to bind to a random high port)
 
-#### spotify_multiroom_interface = *ipaddress* | &lsqb;*ipaddress*,&hellip;&rsqb; | *ipaddress*,*ipaddress*&hellip;
-Interface IP addresses or a list of IP addresses or a comma-separated string of IP addresses to
-which the `librespot` daemon will bind and advertise over ZeroConf.
-Example: "192.168.0.10,10.0.0.10".
-
-Sets: `spotify_interface`
-
-Default: `none`  (`librespot` internal default is to bind to all interfaces)
-
 #### spotify_multiroom_source_verbosity = 0 | 1 | 2
 Level of logging logging in `librespot`
 

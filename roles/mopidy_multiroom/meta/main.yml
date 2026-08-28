@@ -59,32 +59,10 @@ argument_specs:
         description: >-
           A list of `systemd` mount units that are needed before the `systemd` unit that performs
           the bind mount can run: each entry is used to create an `After=` entry in the latter.
-      mopidy_multiroom_http_bind_address:
-        type: str
-        description: |
-          Address to bind the `mopidy-http` extension to
-
-          This is the default for the `mopidy_http_bind_address` variable used by the `mopidy` role,
-          i.e.:
-          - :: if `mopidy_trusted_network` and `mopidy_ipv6` are true
-          - 0.0.0.0 if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
-          - ::1 if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
-          - 127.0.0.1 if `mopidy_trusted_network` and `mopidy_ipv6` are false
       mopidy_multiroom_http_port:
         type: int
         default: 6681
         description: Port to bind the `mopidy-http` extension to in the range 1025-65535.
-      mopidy_multiroom_mpd_bind_address:
-        type: str
-        description: |
-          Address to bind the `mopidy-mpd` extension to
-
-          This is the default for the `mopidy_mpd_bind_address` variable used by the `mopidy` role,
-          i.e.:
-          - :: if `mopidy_trusted_network` and `mopidy_ipv6` are true
-          - 0.0.0.0 if `mopidy_trusted_network` is true and `mopidy_ipv6` is false
-          - ::1 if `mopidy_trusted_network` is false and `mopidy_ipv6` is true
-          - 127.0.0.1 if `mopidy_trusted_network` and `mopidy_ipv6` are false
       mopidy_multiroom_mpd_port:
         type: int
         default: 6601

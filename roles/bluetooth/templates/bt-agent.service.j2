@@ -12,7 +12,7 @@ User={{ bluetooth_agent_service }}
 Group={{ bluetooth_gname }}
 SupplementaryGroups={{ bluetooth_groups | join(' ') }}
 {# This cannot be done using Bluez v5 only: need to use the deprecated hciconfig #}
-ExecStartPre=+/usr/bin/hciconfig {{ bluetooth_device }} class 0x20414
+ExecStartPre=+/usr/bin/hciconfig {{ bluetooth_device }} class {{ bluetooth_class }}
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_device }}' --set Alias {{ bluetooth_name | quote }}
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_device }}' --set Powered 1
 ExecStartPre=+/usr/bin/bt-adapter --adapter '{{ bluetooth_device }}' --set DiscoverableTimeout 0
