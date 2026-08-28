@@ -1,3 +1,11 @@
+### Version 0.3.1
+28 August 2026
+- Correct issues in bluetooth_adapter default
+- Correct bluetooth device class advertisement
+- Remove capability to set spotify and mopidy IP addresses and ports using aardsound role variables 
+  it was unnecessary, unlikely to be used and did not work correctly setting defaults for mopidy-mpd
+  or mopidy-http addresses causing both extensions to fail.
+
 ### Version 0.3.0
 13 August 2026
 - Enable multi-room Bluetooth audio sources
