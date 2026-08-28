@@ -5,7 +5,6 @@ spotify_multiroom_format: S16  # also used for FFPMEG
 spotify_multiroom_volume_control: cubic  # but even very quiet isn'!
 spotify_multiroom_initial_volume: 50  # leave it up to the client to handle volume
 spotify_multiroom_port:
-spotify_multiroom_interface:
 spotify_multiroom_source_verbosity: 0
 
 # Loopback definition

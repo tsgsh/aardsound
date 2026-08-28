@@ -402,8 +402,6 @@
         spotify_mixer_device: "{{ aardsound_mixer_device }}"
         spotify_mixer_control: "{{ aardsound_mixer_control }}"
         spotify_format: "{{ aardsound_format }}"
-        spotify_port: "{{ aardsound_spotify_port }}"
-        spotify_interface: "{{ aardsound_spotify_address }}"
       include_role:  # Ensure handlers are not pre-loaded
         name: spotify
         apply:
@@ -427,8 +425,6 @@
         spotify_multiroom_rate: "{{ aardsound_rate }}"
         spotify_multiroom_depth: "{{ aardsound_depth }}"
         spotify_multiroom_channels: "{{ aardsound_channels }}"
-        spotify_multiroom_port: "{{ aardsound_spotify_multiroom_port }}"
-        spotify_multiroom_interface: "{{ aardsound_spotify_multiroom_address }}"
         spotify_multiroom_aloop_card: "{{ aardsound_aloop_card }}"
         spotify_multiroom_aloop_subdevice: "{{ aardsound_spotify_multiroom_aloop_subdevice }}"
         # spotify_multiroom_snap_port_offset is set in ../vars/main.yml
@@ -462,10 +458,6 @@
         mopidy_mixer_control: "{{ aardsound_mixer_control }}"
         mopidy_use_venv: "{{ aardsound_mopidy_use_venv }}"
         mopidy_venv: "{{ aardsound_mopidy_venv }}"
-        mopidy_http_bind_address: "{{ aardsound_mopidy_http_address }}"
-        mopidy_http_port: "{{ aardsound_mopidy_http_port }}"
-        mopidy_mpd_bind_address: "{{ aardsound_mopidy_mpd_address }}"
-        mopidy_mpd_port: "{{ aardsound_mopidy_mpd_port }}"
         mopidy_extensions: "{{ aardsound_mopidy_extensions_bis }}"
       include_role:  # Ensure handlers are not pre-loaded
         name: mopidy
@@ -490,10 +482,6 @@
         mopidy_multiroom_mount_after: "{{ aardsound_mopidy_mount_after }}"
         mopidy_multiroom_use_venv: "{{ aardsound_mopidy_use_venv }}"
         mopidy_multiroom_venv: "{{ aardsound_mopidy_venv }}"
-        mopidy_multiroom_http_bind_address: "{{ aardsound_mopidy_multiroom_http_address }}"
-        mopidy_multiroom_http_port: "{{ aardsound_mopidy_multiroom_http_port }}"
-        mopidy_multiroom_mpd_bind_address: "{{ aardsound_mopidy_multiroom_mpd_address }}"
-        mopidy_multiroom_mpd_port: "{{ aardsound_mopidy_multiroom_mpd_port }}"
         mopidy_multiroom_extensions: "{{ aardsound_mopidy_multiroom_extensions_bis }}"
         mopidy_multiroom_format: "{{ aardsound_format }}"
         mopidy_multiroom_rate: "{{ aardsound_rate }}"

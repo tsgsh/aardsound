@@ -53,15 +53,6 @@ argument_specs:
         description: >-
           The port the librespot daemon binds to and advertises over ZeroConf
           (librespot binds to a random high port by default)
-      spotify_multiroom_interface:
-        type: list
-        elements: str
-        description: >-
-            Interface IP address or a list of IP addresses or a comma-separated string of IP
-            addresses to which the librespot daemon will bind and advertise over ZeroConf.
-
-
-            Example: "192.168.0.10,10.0.0.10".
       spotify_multiroom_source_verbosity:
         type: int
         choices: [0, 1, 2]

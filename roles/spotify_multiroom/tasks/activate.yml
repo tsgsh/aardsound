@@ -136,7 +136,6 @@
       spotify_format: "{{ spotify_multiroom_format }}"
       spotify_verbosity: "{{ spotify_multiroom_source_verbosity }}"
       spotify_port: "{{ spotify_multiroom_port }}"
-      spotify_interface: "{{ spotify_multiroom_interface }}"
       spotify_start_after_services: "{{ [spotify_multiroom_service2] }}"
     import_role:
       name: spotify
